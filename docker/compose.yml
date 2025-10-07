@@ -1,37 +1,107 @@
 version: '3.9'
 services:
+  build:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/workspace/app
+      - maven-repo:/root/.m2
+  
   api-gateway:
     build: ../api-gateway
     ports:
       - "8080:8080"
+    depends_on:
+      - auth-service
+    networks:
+      - clinic-network
+
   auth-service:
     build: ../auth-service
     ports:
       - "8081:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
+      - SPRING_DATASOURCE_USERNAME=clinic
+      - SPRING_DATASOURCE_PASSWORD=clinic
+    networks:
+      - clinic-network
+
   patient-service:
     build: ../patient-service
     ports:
       - "8082:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
+      - SPRING_DATASOURCE_USERNAME=clinic
+      - SPRING_DATASOURCE_PASSWORD=clinic
+    networks:
+      - clinic-network
+
   doctor-service:
     build: ../doctor-service
     ports:
       - "8083:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
+      - SPRING_DATASOURCE_USERNAME=clinic
+      - SPRING_DATASOURCE_PASSWORD=clinic
+    networks:
+      - clinic-network
+
   appointment-service:
     build: ../appointment-service
     ports:
       - "8084:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
+      - SPRING_DATASOURCE_USERNAME=clinic
+      - SPRING_DATASOURCE_PASSWORD=clinic
+    networks:
+      - clinic-network
+
   notification-service:
     build: ../notification-service
     ports:
       - "8085:8080"
+    depends_on:
+      - mongo
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/clinic
+    networks:
+      - clinic-network
+
   payment-service:
     build: ../payment-service
     ports:
       - "8086:8080"
+    depends_on:
+      - mysql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/clinic
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - clinic-network
+
   frontend-web:
     build: ../frontend-web
     ports:
       - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - clinic-network
+
   postgres:
     image: postgres:15
     environment:
@@ -40,6 +110,11 @@ services:
       POSTGRES_PASSWORD: clinic
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clinic-network
+
   mysql:
     image: mysql:8
     environment:
@@ -47,7 +122,26 @@ services:
       MYSQL_DATABASE: clinic
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - clinic-network
+
   mongo:
     image: mongo:6
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - clinic-network
+
+networks:
+  clinic-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mysql_data:
+  mongo_data:
+  maven-repo:
