@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Optional;
 
 /**
  * Customizes the default OAuth2 user service so that Google users are mapped to the local {@link User} entity.
@@ -55,7 +56,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 registrationId,
                 providerUserId,
                 userRequest.getAccessToken(),
-                null
+                null,
+                attributes
         );
 
         return new CustomOAuth2User(user, attributes, userNameAttributeName);

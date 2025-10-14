@@ -6,8 +6,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Entity
 @Table(name = "oauth_accounts")
@@ -40,6 +43,28 @@ public class OAuthAccount {
 
     @Column(name = "token_expires_at")
     private Instant tokenExpiresAt;
+
+    @Column(name = "full_name", length = 150)
+    private String fullName;
+
+    @Column(name = "given_name", length = 150)
+    private String givenName;
+
+    @Column(name = "family_name", length = 150)
+    private String familyName;
+
+    @Column(name = "email", length = 255)
+    private String email;
+
+    @Column(name = "picture_url", length = 512)
+    private String pictureUrl;
+
+    @Column(name = "locale", length = 32)
+    private String locale;
+
+    @Column(name = "profile", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> profile;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

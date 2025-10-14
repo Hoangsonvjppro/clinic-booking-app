@@ -162,6 +162,8 @@ public class AuthService {
      */
     @Transactional
     public AuthResponse loginWithOAuth(User user, String provider) {
+        user.setLastLoginAt(Instant.now());
+        userRepo.save(user);
         AuthResponse response = issueTokensForUser(user);
         auditService.logEvent(
                 "OAUTH_LOGIN",

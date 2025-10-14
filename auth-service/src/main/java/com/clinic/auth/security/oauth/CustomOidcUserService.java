@@ -50,7 +50,8 @@ public class CustomOidcUserService extends OidcUserService {
                 registrationId,
                 providerUserId,
                 userRequest.getAccessToken(),
-                null
+                null,
+                attributes
         );
 
         return oidcUser;

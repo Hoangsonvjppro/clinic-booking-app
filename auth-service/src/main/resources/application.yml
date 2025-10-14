@@ -31,7 +31,6 @@ spring:
       client:
         registration:
           google:
-#            mở khóa hai dòng này để kích hoạt oauth2
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid, profile, email
