@@ -127,12 +127,7 @@ public class AuthService {
         authManager.authenticate(authentication); // Ủy quyền cho AuthenticationManager xác thực
 
         User user = userRepo.findByEmail(req.getEmail()).orElseThrow(); // Lấy user đã tồn tại
-        List<String> roles = user.getRoles().stream().map(Role::getName).toList(); // Rút trích tên vai trò
-
-        // Generate tokens
-        long accessTtl = appProps.getAccessTokenTtlMinutes() * 60; // TTL access token (giây)
-        String accessToken = jwtService.generateToken(user.getEmail(), roles, accessTtl); // Phát hành access token
-        RefreshToken refreshToken = createRefreshToken(user); // Rotation refresh token
+        AuthResponse response = issueTokensForUser(user); // Phát hành cặp token JWT + refresh
 
         auditService.logEvent(
                 "USER_LOGIN",
@@ -141,11 +136,40 @@ public class AuthService {
                 "User logged in successfully"
         ); // Ghi audit đăng nhập
 
+        return response;
+    }
+
+    /**
+     * Phát hành cặp access/refresh token cho người dùng đã được xác thực.
+     * Được tái sử dụng cho cả luồng đăng nhập truyền thống và OAuth2 (Google).
+     */
+    @Transactional
+    public AuthResponse issueTokensForUser(User user) {
+        List<String> roles = user.getRoles().stream().map(Role::getName).toList(); // Rút trích tên vai trò
+        long accessTtl = appProps.getAccessTokenTtlMinutes() * 60; // TTL access token (giây)
+        String accessToken = jwtService.generateToken(user.getEmail(), roles, accessTtl); // Phát hành access token
+        RefreshToken refreshToken = createRefreshToken(user); // Rotation refresh token
+
         return AuthResponse.builder()
                 .accessToken(accessToken) // JWT truy cập
                 .tokenType("Bearer") // Kiểu token
                 .refreshToken(refreshToken.getToken()) // Refresh token mới
                 .build();
+    }
+
+    /**
+     * Sau khi Google OAuth2 xác thực thành công, phương thức này phát hành token và ghi audit.
+     */
+    @Transactional
+    public AuthResponse loginWithOAuth(User user, String provider) {
+        AuthResponse response = issueTokensForUser(user);
+        auditService.logEvent(
+                "OAUTH_LOGIN",
+                "USER",
+                user.getEmail(),
+                "User logged in via provider: " + provider
+        );
+        return response;
     }
 
     // Hàm kiểm tra độ phức tạp mật khẩu (chưa sử dụng trong luồng chính, để sẵn phục vụ chính sách bảo mật)

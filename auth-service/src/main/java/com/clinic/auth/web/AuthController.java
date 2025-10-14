@@ -24,11 +24,13 @@ import com.clinic.auth.web.dto.*;                        // Các DTO request/res
 import jakarta.validation.Valid;                         // Kiểm tra tính hợp lệ của dữ liệu đầu vào
 import lombok.RequiredArgsConstructor;                   // Tự động sinh constructor cho các trường final
 import org.springframework.http.ResponseEntity;           // Gói phản hồi HTTP
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal; // Lấy thông tin người dùng hiện tại
 import org.springframework.web.bind.annotation.*;         // Annotation REST
 import java.util.Map;                                     // Dùng để trả về phản hồi ngắn gọn
+import java.net.URI;
 
 @RestController // Đánh dấu lớp là REST Controller
 @RequestMapping("/api/v1/auth") // Tiền tố chung cho tất cả endpoint
@@ -61,6 +63,18 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request)); // Trả về token
+    }
+
+    /**
+     * API: GET /google
+     * Khởi tạo luồng đăng nhập OAuth2 với Google.
+     * Trả về phản hồi 302 để trình duyệt chuyển hướng tới endpoint OAuth2 mặc định của Spring Security.
+     */
+    @GetMapping("/google")
+    public ResponseEntity<Void> redirectToGoogleOAuth() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/oauth2/authorization/google"))
+                .build();
     }
 
     /**
