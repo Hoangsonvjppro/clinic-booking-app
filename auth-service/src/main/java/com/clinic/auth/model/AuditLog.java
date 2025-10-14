@@ -13,7 +13,11 @@ package com.clinic.auth.model;
 import jakarta.persistence.*; // Cung cấp annotation JPA như @Entity, @Id, @Column, @Table, ...
 import lombok.*; // Sinh tự động getter/setter, constructor, builder
 import org.hibernate.annotations.CreationTimestamp; // Ghi lại thời điểm tạo bản ghi
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.time.Instant; // Lưu trữ mốc thời gian chính xác (UTC)
+import java.util.Map;
 
 @Entity // Đánh dấu lớp này là một thực thể JPA
 @Table(name = "audit_logs") // Liên kết thực thể này với bảng "audit_logs" trong DB
@@ -40,9 +44,6 @@ public class AuditLog {
     @Column(name = "user_email") // Email của người dùng thực hiện hành động
     private String userEmail;
 
-    @Column(nullable = false) // Chi tiết cụ thể của hành động (vd: “Xóa người dùng ID=12”)
-    private String details;
-
     @Column(name = "ip_address") // Địa chỉ IP của người thực hiện
     private String ipAddress;
 
@@ -59,4 +60,8 @@ public class AuditLog {
 
     @Column(name = "error_message") // Thông báo lỗi nếu hành động thất bại
     private String errorMessage;
+
+    @Column(name = "details", columnDefinition = "jsonb", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> details; // hoặc JsonNode
 }
