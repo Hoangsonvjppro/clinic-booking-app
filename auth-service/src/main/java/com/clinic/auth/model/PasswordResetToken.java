@@ -34,6 +34,9 @@ public class PasswordResetToken {
     @Column(nullable = false) // Thời hạn hiệu lực của token (sau thời điểm này sẽ không hợp lệ)
     private Instant expiryDate;
 
+    @Column(name = "used_at")
+    private Instant usedAt;
+
     @Column(nullable = false) // Đánh dấu token đã được sử dụng hay chưa
     private boolean used = false;
 

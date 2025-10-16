@@ -14,6 +14,7 @@
  */
 package com.clinic.auth.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*; // Các annotation JPA như @Entity, @Id, @Column, @ManyToMany, ...
 import jakarta.validation.constraints.Email; // Xác thực định dạng email
 import jakarta.validation.constraints.NotBlank; // Không cho phép chuỗi trống/null
@@ -42,6 +43,7 @@ public class User implements UserDetails { // Triển khai UserDetails để tí
     @Size(max = 255, message = "Email cannot exceed 255 characters") // Giới hạn độ dài tối đa 255 ký tự
     private String email; // Email người dùng, đồng thời là username đăng nhập
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false) // Bắt buộc phải có mật khẩu
     @NotBlank(message = "Password is required") // Không được để trống
     @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters") // Độ dài tối thiểu 8 ký tự

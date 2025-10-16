@@ -79,8 +79,8 @@ public class SecurityConfig {
         http
                 // 1️⃣ Tắt CSRF vì REST API là stateless
                 .csrf(csrf -> csrf.disable())
-                // 2️⃣ Bảo đảm không tạo session
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                // 2️⃣ Bảo đảm không tạo session (hoặc có)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 3️⃣ Quy tắc phân quyền endpoint
                 .authorizeHttpRequests(auth -> auth
                         // Các endpoint public (không cần token)
@@ -89,6 +89,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/google",
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/reset-password",
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/**"
                         ).permitAll()

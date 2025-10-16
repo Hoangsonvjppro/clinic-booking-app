@@ -21,6 +21,7 @@ import com.clinic.auth.model.User;                       // Thực thể ngườ
 import com.clinic.auth.repo.UserRepository;              // Repository truy vấn người dùng
 import com.clinic.auth.service.AuthService;              // Dịch vụ xác thực chính
 import com.clinic.auth.web.dto.*;                        // Các DTO request/response
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;                         // Kiểm tra tính hợp lệ của dữ liệu đầu vào
 import lombok.RequiredArgsConstructor;                   // Tự động sinh constructor cho các trường final
 import org.springframework.http.ResponseEntity;           // Gói phản hồi HTTP
@@ -86,6 +87,7 @@ public class AuthController {
      */
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
+    @JsonIgnore
     public ResponseEntity<User> getCurrentUser(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(user);

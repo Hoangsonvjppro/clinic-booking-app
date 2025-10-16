@@ -13,7 +13,7 @@
  *  - Quên mật khẩu (requestPasswordReset → resetPassword): tạo token đặt lại mật khẩu, gửi email, xác nhận và đổi mật khẩu.
  *  - Dọn dẹp (cleanupExpiredTokens): xóa refresh/reset token đã hết hạn theo lịch.
  *
- * Lớp dùng @Transactional để đảm bảo tính nhất quán dữ liệu, @Audited để kích hoạt cơ chế ghi nhận sự kiện,
+ * Lớp dùng @Transactional để đảm bảo tính nhất quán dữ liệu, AuditService để kích hoạt cơ chế ghi nhận sự kiện,
  * và tận dụng AppProps để đọc TTL/token, issuer, và các cấu hình cần thiết khác.
  */
 package com.clinic.auth.service;
@@ -33,7 +33,6 @@ import com.clinic.auth.web.dto.ChangePasswordRequest; // DTO đổi mật khẩu
 import com.clinic.auth.web.dto.ForgotPasswordRequest; // DTO yêu cầu đặt lại mật khẩu
 import com.clinic.auth.web.dto.ResetPasswordRequest; // DTO thực hiện đặt lại mật khẩu
 import com.clinic.auth.repo.PasswordResetTokenRepository; // Repository token đặt lại mật khẩu
-import com.clinic.auth.audit.Audited; // Annotation kích hoạt audit
 import lombok.RequiredArgsConstructor; // Tự sinh constructor cho các field final
 import org.springframework.scheduling.annotation.Scheduled; // Lập lịch dọn dẹp
 import org.springframework.security.authentication.AuthenticationManager; // Xác thực đăng nhập
@@ -70,24 +69,23 @@ public class AuthService {
     private final com.clinic.auth.config.AppProps appProps; // Cấu hình ứng dụng (TTL, issuer, URL, ...)
 
     /**
-     * Đăng ký người dùng mới: chống trùng email, gán vai trò mặc định (PATIENT nếu không truyền),
+     * Đăng ký người dùng mới: chống trùng email, gán vai trò mặc định (USER nếu không truyền),
      * mã hóa mật khẩu và lưu vào DB. Ghi một bản audit mô tả sự kiện đăng ký thành công.
      *
      * Pseudocode ngắn:
      *  - if email đã tồn tại -> DUPLICATE_RESOURCE
-     *  - lấy role theo defaultRole (hoặc PATIENT)
+     *  - lấy role theo defaultRole (hoặc USER)
      *  - build User(email, encodedPassword, roles)
      *  - save user
      *  - audit “USER_REGISTRATION”
      */
     @Transactional // Một giao dịch cho toàn bộ quá trình đăng ký
-    @Audited(action = "USER_REGISTRATION", entityType = "USER") // Kích hoạt audit cho hành động này
     public void register(RegisterRequest req) {
         if (userRepo.existsByEmail(req.getEmail())) { // Kiểm tra trùng email
             throw new DuplicateResourceException("Email already in use"); // 409 CONFLICT
         }
 
-        String defaultRole = req.getDefaultRole() == null ? "PATIENT" : req.getDefaultRole(); // Chọn role mặc định
+        String defaultRole = req.getDefaultRole() == null ? "USER" : req.getDefaultRole(); // Chọn role mặc định
         Role role = roleRepo.findByName(defaultRole) // Tìm role theo tên
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + defaultRole)); // 404 nếu không có
 
@@ -120,13 +118,15 @@ public class AuthService {
      *  - return AuthResponse(access, refresh)
      */
     @Transactional
-    @Audited(action = "USER_LOGIN", entityType = "USER")
     public AuthResponse login(LoginRequest req) {
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()); // Tạo token xác thực form
         authManager.authenticate(authentication); // Ủy quyền cho AuthenticationManager xác thực
 
-        User user = userRepo.findByEmail(req.getEmail()).orElseThrow(); // Lấy user đã tồn tại
+        User user = userRepo.findByEmail(req.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found")); // Lấy user đã tồn tại
+        user.setLastLoginAt(Instant.now());
+        userRepo.save(user);
         AuthResponse response = issueTokensForUser(user); // Phát hành cặp token JWT + refresh
 
         auditService.logEvent(
@@ -221,11 +221,11 @@ public class AuthService {
     @Transactional
     public AuthResponse refreshToken(TokenRefreshRequest request) {
         RefreshToken refreshToken = refreshTokenRepo.findByToken(request.getRefreshToken())
-                .orElseThrow(() -> new IllegalArgumentException("Refresh token not found")); // Không tồn tại
+                .orElseThrow(() -> new InvalidTokenException("Refresh token not found")); // Không tồn tại
 
         if (!refreshToken.isValid()) { // Hết hạn hoặc bị thu hồi
             refreshTokenRepo.delete(refreshToken); // Xóa token cũ để dọn dẹp
-            throw new IllegalArgumentException("Refresh token was expired or revoked"); // Báo lỗi client
+            throw new InvalidTokenException("Refresh token was expired or revoked"); // Báo lỗi client
         }
 
         User user = refreshToken.getUser(); // Chủ sở hữu token
@@ -249,10 +249,9 @@ public class AuthService {
      * Đăng xuất người dùng: thu hồi toàn bộ refresh token của người dùng này, ghi bản ghi audit mô tả hành động.
      */
     @Transactional
-    @Audited(action = "USER_LOGOUT", entityType = "USER")
     public void logout(String userEmail) {
         User user = userRepo.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("User not found")); // Không tồn tại
+                .orElseThrow(() -> new ResourceNotFoundException("User not found")); // Không tồn tại
         refreshTokenRepo.revokeAllUserTokens(user); // Thu hồi toàn bộ refresh token
 
         auditService.logEvent(
@@ -268,7 +267,6 @@ public class AuthService {
      * và ghi audit thành công/thất bại. Nếu mật khẩu xác nhận không khớp, ném ApiException 400.
      */
     @Transactional
-    @Audited(action = "PASSWORD_CHANGE", entityType = "USER")
     public void changePassword(String userEmail, ChangePasswordRequest request) {
         if (!request.getNewPassword().equals(request.getConfirmPassword())) { // Kiểm tra trùng khớp
             throw new ApiException("New passwords do not match", "PASSWORD_MISMATCH", HttpStatus.BAD_REQUEST); // 400
@@ -309,27 +307,29 @@ public class AuthService {
      */
     @Transactional
     public void requestPasswordReset(ForgotPasswordRequest request) {
-        User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("User not found")); // Không tồn tại
+        userRepo.findByEmail(request.getEmail()).ifPresent(user -> {
+            resetTokenRepo.findByUserAndUsedFalseAndExpiryDateAfter(user, Instant.now())
+                    .ifPresent(token -> {
+                        throw new ApiException(
+                                "A password reset request is already active",
+                                "PASSWORD_RESET_PENDING",
+                                HttpStatus.TOO_MANY_REQUESTS
+                        ); // Ngan spam
+                    });
 
-        // Check if there's already a valid token
-        resetTokenRepo.findByUserAndUsedFalseAndExpiryDateAfter(user, Instant.now())
-                .ifPresent(token -> {
-                    throw new IllegalStateException("A password reset request is already active"); // Ngăn spam
-                });
+            // Create new reset token
+            String token = UUID.randomUUID().toString(); // Sinh ma token ng?u nhi?n
+            PasswordResetToken resetToken = PasswordResetToken.builder()
+                    .token(token)
+                    .user(user)
+                    .expiryDate(Instant.now().plusSeconds(1800)) // 30 minutes
+                    .build();
+            resetTokenRepo.save(resetToken); // Luu token
 
-        // Create new reset token
-        String token = UUID.randomUUID().toString(); // Sinh mã token ngẫu nhiên
-        PasswordResetToken resetToken = PasswordResetToken.builder()
-                .token(token)
-                .user(user)
-                .expiryDate(Instant.now().plusSeconds(1800)) // 30 minutes
-                .build();
-        resetTokenRepo.save(resetToken); // Lưu token
-
-        // Send email with reset link
-        String resetLink = appProps.getFrontendUrl() + "/reset-password?token=" + token; // Tạo link cho FE
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink); // Gửi email hướng dẫn
+            // Send email with reset link
+            String resetLink = appProps.getFrontendUrl() + "/reset-password?token=" + token; // T?o link cho FE
+            emailService.sendPasswordResetEmail(user.getEmail(), resetLink); // G?i email hu?ng d?n
+        });
     }
 
     /**
@@ -354,7 +354,8 @@ public class AuthService {
         userRepo.save(user); // Lưu thay đổi
 
         // Mark token as used
-        resetToken.setUsed(true); // Đánh dấu đã dùng
+        resetToken.setUsed(true);
+        resetToken.setUsedAt(Instant.now()); // Đánh dấu đã dùng
         resetTokenRepo.save(resetToken); // Lưu trạng thái
 
         // Revoke all refresh tokens when password changes
