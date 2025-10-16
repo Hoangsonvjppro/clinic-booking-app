@@ -1,5 +1,26 @@
 server:
-  port: 8082
+  port: 8080
+
 spring:
   application:
     name: patient-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/clinic}
+    username: ${SPRING_DATASOURCE_USERNAME:clinic}
+    password: ${SPRING_DATASOURCE_PASSWORD:clinic}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    # Use a service-specific Flyway history table to avoid collisions with other services
+    table: flyway_schema_history_patient
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
