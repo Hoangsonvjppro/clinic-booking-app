@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 public class PatientResponse {
     public Long id;
+    public String patientCode;
     public String firstName;
     public String lastName;
     public String email;
@@ -20,4 +21,3 @@ public class PatientResponse {
     public Instant createdAt;
     public Instant updatedAt;
 }
-

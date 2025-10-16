@@ -3,6 +3,7 @@ package com.clinic.patientservice.service;
 import com.clinic.patientservice.exception.ResourceNotFoundException;
 import com.clinic.patientservice.model.Patient;
 import com.clinic.patientservice.repo.PatientRepository;
+import com.clinic.patientservice.repo.PatientSpecifications;
 import com.clinic.patientservice.web.dto.CreatePatientRequest;
 import com.clinic.patientservice.web.dto.UpdatePatientRequest;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.domain.Specification;
 
 @Service
 public class PatientService {
@@ -27,6 +29,20 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
+    public Page<Patient> search(String name, String email, String phone, String code,
+                                java.time.LocalDate dobFrom, java.time.LocalDate dobTo,
+                                int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100));
+        var spec = Specification.where(PatientSpecifications.nameContains(name))
+                .and(PatientSpecifications.emailEquals(email))
+                .and(PatientSpecifications.phoneEquals(phone))
+                .and(PatientSpecifications.codeEquals(code))
+                .and(PatientSpecifications.dobFrom(dobFrom))
+                .and(PatientSpecifications.dobTo(dobTo));
+        return patientRepository.findAll(spec, pageable);
+    }
+
+    @Transactional(readOnly = true)
     public Patient get(Long id) {
         return patientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found: " + id));
@@ -39,6 +55,7 @@ public class PatientService {
         }
         Patient p = new Patient();
         apply(p, req);
+        p.setPatientCode(generateUniqueCode());
         return patientRepository.save(p);
     }
 
@@ -86,5 +103,15 @@ public class PatientService {
         p.setPostalCode(req.postalCode);
         p.setCountry(req.country);
     }
-}
 
+    private String generateUniqueCode() {
+        for (int i = 0; i < 5; i++) {
+            String code = "PT" + (System.currentTimeMillis() / 1000) + String.format("%03d", (int)(Math.random()*1000));
+            if (!patientRepository.existsByPatientCode(code)) {
+                return code;
+            }
+            try { Thread.sleep(5L); } catch (InterruptedException ignored) {}
+        }
+        return "PT" + System.nanoTime();
+    }
+}

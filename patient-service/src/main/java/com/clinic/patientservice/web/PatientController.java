@@ -26,6 +26,19 @@ public class PatientController {
         return patientService.list(page, size).map(PatientController::toDto);
     }
 
+    @GetMapping("/search")
+    public Page<PatientResponse> search(@RequestParam(required = false) String name,
+                                        @RequestParam(required = false) String email,
+                                        @RequestParam(required = false) String phone,
+                                        @RequestParam(required = false, name = "code") String code,
+                                        @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dobFrom,
+                                        @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dobTo,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size) {
+        return patientService.search(name, email, phone, code, dobFrom, dobTo, page, size)
+                .map(PatientController::toDto);
+    }
+
     @GetMapping("/{id}")
     public PatientResponse get(@PathVariable Long id) {
         return toDto(patientService.get(id));
@@ -51,6 +64,7 @@ public class PatientController {
     private static PatientResponse toDto(Patient p) {
         PatientResponse r = new PatientResponse();
         r.id = p.getId();
+        r.patientCode = p.getPatientCode();
         r.firstName = p.getFirstName();
         r.lastName = p.getLastName();
         r.email = p.getEmail();
@@ -67,4 +81,3 @@ public class PatientController {
         return r;
     }
 }
-

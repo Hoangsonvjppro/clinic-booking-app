@@ -24,6 +24,9 @@ public class Patient {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Column(name = "patient_code", nullable = false, unique = true, updatable = false)
+    private String patientCode;
+
     @Email
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -94,6 +97,14 @@ public class Patient {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getPatientCode() {
+        return patientCode;
+    }
+
+    public void setPatientCode(String patientCode) {
+        this.patientCode = patientCode;
     }
 
     public String getEmail() {
@@ -184,4 +195,3 @@ public class Patient {
         this.updatedAt = updatedAt;
     }
 }
-
