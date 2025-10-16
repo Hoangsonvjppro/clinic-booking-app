@@ -1,13 +1,28 @@
 server:
-  port: 8086
+  port: 8080
+
+momo:
+  partnerCode: ${MOMO_PARTNER_CODE}
+  accessKey: ${MOMO_ACCESS_KEY}
+  secretKey: ${MOMO_SECRET_KEY}
+  endpoint: ${MOMO_ENDPOINT:https://test-payment.momo.vn/v2/gateway/api/create}
+  query: ${MOMO_QUERY:https://test-payment.momo.vn/v2/gateway/api/query}
+  redirectUrl: ${MOMO_REDIRECT_URL:http://localhost:8080/api/payment/redirect}
+  ipnUrl: ${MOMO_IPN_URL:http://localhost:8080/api/payment/ipn}
+
 spring:
-  application:
-    name: payment-service
   datasource:
-    url: jdbc:mysql://localhost:3306/paymentdb?useSSL=false&serverTimezone=UTC
+    url: ${MYSQL_DATABASE}
     username: root
-    password: password123
+    password: MYSQL_ROOT_PASSWORD
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  sql:
+    init:
+      mode: never
+

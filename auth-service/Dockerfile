@@ -14,8 +14,9 @@ RUN mvn -q -DskipTests clean package spring-boot:repackage
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/auth-service-*.jar app.jar
-COPY start.sh .
-RUN chmod +x start.sh
+COPY start.sh /app/
+RUN chmod +x /app/start.sh
+RUN apt-get update && apt-get install -y dos2unix && dos2unix /app/start.sh
 
 EXPOSE 8081
 ENV JAVA_OPTS=""

@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
+import axios from "axios"
 import googleIcon from "../assets/google.png"
 import facebookIcon from "../assets/facebook.png"
 import promotionBanner from "../assets/banner.png"
@@ -7,6 +8,10 @@ import NavigationBar from "../components/NavigationBar"
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [isDark, setIsDark] = useState(false)
+  let email = useRef()
+  let username = useRef()
+  let password = useRef()
+  let confirm_password = useRef()
 
   const toggleTheme = () => {
     setIsDark(!isDark)
@@ -15,6 +20,20 @@ export default function AuthPage() {
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin)
+  }
+
+  function submitLogin() {
+    let user = {
+      "email": email.value,
+      "password": password.value
+    }
+    axios.post('http://localhost:8081/api/v1/auth/login', user)
+    .then(function(response) {
+      console.log(response)
+    })
+    .catch(function(error) {
+        console.log(error)
+    })
   }
 
   return (
@@ -44,7 +63,7 @@ export default function AuthPage() {
                   </p>
                 </div>
 
-                <form className="space-y-4">
+                <div className="space-y-4">
                   {!isLogin && (
                     <div className="space-y-2">
                       <label
@@ -54,6 +73,7 @@ export default function AuthPage() {
                         Full Name
                       </label>
                       <input
+                        ref={(e) => (username = e)}
                         id="name"
                         type="text"
                         placeholder="John Doe"
@@ -74,6 +94,7 @@ export default function AuthPage() {
                       E-mail
                     </label>
                     <input
+                      ref={(e) => (email = e)}
                       id="email"
                       type="email"
                       placeholder="example@gmail.com"
@@ -93,6 +114,7 @@ export default function AuthPage() {
                       Password
                     </label>
                     <input
+                      ref={(e) => (password = e)}
                       id="password"
                       type="password"
                       placeholder="••••••"
@@ -113,6 +135,7 @@ export default function AuthPage() {
                         Confirm Password
                       </label>
                       <input
+                        ref={(e) => (confirm_password = e)}
                         id="confirm-password"
                         type="password"
                         placeholder="••••••"
@@ -150,8 +173,8 @@ export default function AuthPage() {
                   )}
 
                   <button
-                    type="submit"
                     className="w-full h-12 bg-[#1a4d3a] hover:bg-[#153d2e] text-white rounded-lg font-medium transition-colors"
+                    onClick={submitLogin}
                   >
                     {isLogin ? "Sign in" : "Create account"}
                   </button>
@@ -191,12 +214,12 @@ export default function AuthPage() {
                       Continue with Facebook
                     </button>
                   </div>
-                </form>
+                </div>
               </div>
             </div>
 
             {/* Image Banner Section - Slides based on auth mode */}
-            <div className={`order-2 transition-all duration-500 ${isLogin ? "md:order-2" : "md:order-1"}`}>
+            <div className={`hidden md:block transition-all duration-500 ${isLogin ? "md:order-2" : "md:order-1"}`}>
               <div className="relative h-full min-h-[400px] bg-gradient-to-br from-[#1a4d3a] to-[#2d6b4f] p-8 md:p-12 flex flex-col justify-between overflow-hidden">
                 {/* Support Badge */}
                 <div className="flex justify-end">
@@ -214,16 +237,16 @@ export default function AuthPage() {
                 </div>
 
                 {/* Main Content Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-xl transform transition-all duration-500 hover:scale-105">
+                <div className={`rounded-2xl p-6 shadow-xl transform transition-all duration-500 hover:scale-105 ${isDark ? "bg-gray-800" : "bg-white"}`}>
                   <img
                     src={promotionBanner}
                     alt="Feature showcase"
                     className="w-full h-48 object-cover rounded-lg mb-4"
                   />
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h2 className={`text-2xl font-bold  mb-2 ${isDark ? "text-amber-50" : "text-gray-900"}`}>
                     {isLogin ? "Reach financial goals faster" : "Start your journey today"}
                   </h2>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className={`text-sm mb-4 ${isDark ? "text-white" : "text-gray-600"}`}>
                     {isLogin
                       ? "Use your Venus card around the world with no hidden fees. Hold, transfer and spend money."
                       : "Join thousands of users who trust our platform for their financial needs."}
