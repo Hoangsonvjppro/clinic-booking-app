@@ -4,6 +4,7 @@ import './index.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import MainPage from './pages/MainPage'
 import AuthPage from './pages/AuthPage'
+import PaymentPage from './pages/PaymentPage'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -11,6 +12,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
