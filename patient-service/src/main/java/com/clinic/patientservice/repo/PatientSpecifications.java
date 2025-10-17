@@ -1,6 +1,7 @@
 package com.clinic.patientservice.repo;
 
 import com.clinic.patientservice.model.Patient;
+import com.clinic.patientservice.model.PatientStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -43,5 +44,14 @@ public final class PatientSpecifications {
         if (to == null) return null;
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("dateOfBirth"), to);
     }
-}
 
+    public static Specification<Patient> activeEquals(Boolean active) {
+        if (active == null) return null;
+        return (root, query, cb) -> cb.equal(root.get("active"), active);
+    }
+
+    public static Specification<Patient> statusEquals(PatientStatus status) {
+        if (status == null) return null;
+        return (root, query, cb) -> cb.equal(root.get("status"), status);
+    }
+}

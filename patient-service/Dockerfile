@@ -1,9 +1,16 @@
 # ===== build stage =====
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /workspace
+
+# Copy pom first to leverage Docker layer caching
 COPY pom.xml .
+
+# Copy sources and build (with robust network retry flags)
 COPY src ./src
-RUN mvn -DskipTests package
+RUN mvn -B -DskipTests \
+    -Dmaven.wagon.http.retryHandler.count=8 \
+    -Dhttp.keepAlive=false \
+    package
 
 # ===== run stage =====
 FROM eclipse-temurin:21-jre
