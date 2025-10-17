@@ -31,6 +31,7 @@ public class PatientService {
     @Transactional(readOnly = true)
     public Page<Patient> search(String name, String email, String phone, String code,
                                 java.time.LocalDate dobFrom, java.time.LocalDate dobTo,
+                                Boolean active, com.clinic.patientservice.model.PatientStatus status,
                                 int page, int size) {
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100));
         var spec = Specification.where(PatientSpecifications.nameContains(name))
@@ -38,7 +39,9 @@ public class PatientService {
                 .and(PatientSpecifications.phoneEquals(phone))
                 .and(PatientSpecifications.codeEquals(code))
                 .and(PatientSpecifications.dobFrom(dobFrom))
-                .and(PatientSpecifications.dobTo(dobTo));
+                .and(PatientSpecifications.dobTo(dobTo))
+                .and(PatientSpecifications.activeEquals(active))
+                .and(PatientSpecifications.statusEquals(status));
         return patientRepository.findAll(spec, pageable);
     }
 
@@ -56,6 +59,8 @@ public class PatientService {
         Patient p = new Patient();
         apply(p, req);
         p.setPatientCode(generateUniqueCode());
+        if (req.active != null) p.setActive(req.active);
+        if (req.status != null) p.setStatus(req.status);
         return patientRepository.save(p);
     }
 
@@ -67,6 +72,8 @@ public class PatientService {
             throw new IllegalArgumentException("Email already exists: " + req.email);
         }
         apply(p, req);
+        if (req.active != null) p.setActive(req.active);
+        if (req.status != null) p.setStatus(req.status);
         return patientRepository.save(p);
     }
 

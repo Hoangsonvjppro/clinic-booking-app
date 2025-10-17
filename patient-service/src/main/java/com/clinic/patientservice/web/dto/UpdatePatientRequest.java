@@ -1,6 +1,7 @@
 package com.clinic.patientservice.web.dto;
 
 import com.clinic.patientservice.model.Gender;
+import com.clinic.patientservice.model.PatientStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
@@ -24,5 +25,6 @@ public class UpdatePatientRequest {
     public String state;
     public String postalCode;
     public String country;
+    public Boolean active; // optional
+    public PatientStatus status; // optional
 }
-
