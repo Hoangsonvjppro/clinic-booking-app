@@ -20,7 +20,7 @@ spring:
     enabled: true
 external-services:
   patient-service:
-    base-url: ${PATIENT_SERVICE_BASE_URL:http://localhost:8081}
+    base-url: ${PATIENT_SERVICE_BASE_URL:http://localhost:8080}
   doctor-service:
     base-url: ${DOCTOR_SERVICE_BASE_URL:http://localhost:8082}
   notification-service:

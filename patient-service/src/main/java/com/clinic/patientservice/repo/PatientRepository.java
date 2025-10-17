@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long>, JpaSpecificationExecutor<Patient> {
     Optional<Patient> findByEmail(String email);
+    Optional<Patient> findByEmailIgnoreCase(String email);
     boolean existsByEmail(String email);
     boolean existsByPatientCode(String patientCode);
 }

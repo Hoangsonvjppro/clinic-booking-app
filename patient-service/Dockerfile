@@ -7,10 +7,7 @@ COPY pom.xml .
 
 # Copy sources and build (with robust network retry flags)
 COPY src ./src
-RUN mvn -B -DskipTests \
-    -Dmaven.wagon.http.retryHandler.count=8 \
-    -Dhttp.keepAlive=false \
-    package
+RUN mvn -DskipTests package
 
 # ===== run stage =====
 FROM eclipse-temurin:21-jre

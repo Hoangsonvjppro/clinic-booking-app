@@ -58,11 +58,11 @@ public class Patient {
     private String country;
 
     @Column(name = "is_active", nullable = false)
-    private boolean active;
+    private boolean active = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private PatientStatus status;
+    private PatientStatus status = PatientStatus.ACTIVE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -75,9 +75,9 @@ public class Patient {
         Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
-        // defaults
-        if (this.status == null) this.status = PatientStatus.ACTIVE;
-        this.active = this.active || true;
+        if (this.status == null) {
+            this.status = PatientStatus.ACTIVE;
+        }
     }
 
     @PreUpdate

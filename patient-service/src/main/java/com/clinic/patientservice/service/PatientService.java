@@ -83,6 +83,15 @@ public class PatientService {
         patientRepository.delete(p);
     }
 
+    @Transactional
+    public void updateStatusByEmail(String email, boolean active, com.clinic.patientservice.model.PatientStatus status) {
+        Patient patient = patientRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with email: " + email));
+        patient.setActive(active);
+        patient.setStatus(status);
+        patientRepository.save(patient);
+    }
+
     private static void apply(Patient p, CreatePatientRequest req) {
         p.setFirstName(req.firstName);
         p.setLastName(req.lastName);
