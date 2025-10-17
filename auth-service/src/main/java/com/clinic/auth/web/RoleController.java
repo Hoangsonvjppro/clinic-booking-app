@@ -30,7 +30,7 @@ public class RoleController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Role> createRole(@RequestParam @NotBlank String name) {
+    public ResponseEntity<Role> createRole(@RequestParam(name = "name") @NotBlank String name) {
         if (roleRepository.existsByName(name)) {
             throw new DuplicateResourceException("Role already exists: " + name);
         }
@@ -44,7 +44,8 @@ public class RoleController {
 
     @PutMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestParam String role) {
+    public ResponseEntity<?> assignRoles(@PathVariable("userId") Long userId,
+                                         @RequestParam(name = "role") String role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         Role r = roleRepository.findByName(role)

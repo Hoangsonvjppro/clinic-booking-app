@@ -21,28 +21,28 @@ public class PatientController {
     }
 
     @GetMapping
-    public Page<PatientResponse> list(@RequestParam(defaultValue = "0") int page,
-                                      @RequestParam(defaultValue = "10") int size) {
+    public Page<PatientResponse> list(@RequestParam(name = "page", defaultValue = "0") int page,
+                                      @RequestParam(name = "size", defaultValue = "10") int size) {
         return patientService.list(page, size).map(PatientController::toDto);
     }
 
     @GetMapping("/search")
-    public Page<PatientResponse> search(@RequestParam(required = false) String name,
-                                        @RequestParam(required = false) String email,
-                                        @RequestParam(required = false) String phone,
-                                        @RequestParam(required = false, name = "code") String code,
-                                        @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dobFrom,
-                                        @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dobTo,
-                                        @RequestParam(required = false) Boolean active,
-                                        @RequestParam(required = false) com.clinic.patientservice.model.PatientStatus status,
-                                        @RequestParam(defaultValue = "0") int page,
-                                        @RequestParam(defaultValue = "10") int size) {
+    public Page<PatientResponse> search(@RequestParam(name = "name", required = false) String name,
+                                        @RequestParam(name = "email", required = false) String email,
+                                        @RequestParam(name = "phone", required = false) String phone,
+                                        @RequestParam(name = "code", required = false) String code,
+                                        @RequestParam(name = "dobFrom", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dobFrom,
+                                        @RequestParam(name = "dobTo", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dobTo,
+                                        @RequestParam(name = "active", required = false) Boolean active,
+                                        @RequestParam(name = "status", required = false) com.clinic.patientservice.model.PatientStatus status,
+                                        @RequestParam(name = "page", defaultValue = "0") int page,
+                                        @RequestParam(name = "size", defaultValue = "10") int size) {
         return patientService.search(name, email, phone, code, dobFrom, dobTo, active, status, page, size)
                 .map(PatientController::toDto);
     }
 
     @GetMapping("/{id}")
-    public PatientResponse get(@PathVariable Long id) {
+    public PatientResponse get(@PathVariable("id") Long id) {
         return toDto(patientService.get(id));
     }
 
@@ -53,13 +53,13 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
-    public PatientResponse update(@PathVariable Long id, @Valid @RequestBody UpdatePatientRequest req) {
+    public PatientResponse update(@PathVariable("id") Long id, @Valid @RequestBody UpdatePatientRequest req) {
         return toDto(patientService.update(id, req));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable("id") Long id) {
         patientService.delete(id);
     }
 

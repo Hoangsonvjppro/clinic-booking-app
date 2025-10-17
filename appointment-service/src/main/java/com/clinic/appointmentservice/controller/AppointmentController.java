@@ -31,22 +31,23 @@ public class AppointmentController {
     }
 
     @PutMapping("/{appointmentId}/cancel")
-    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable Long appointmentId,
+    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable("appointmentId") Long appointmentId,
                                                                  @Valid @RequestBody CancelAppointmentRequest request) {
         AppointmentResponse response = appointmentService.cancelAppointment(appointmentId, request);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{appointmentId}/status")
-    public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable Long appointmentId,
+    public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable("appointmentId") Long appointmentId,
                                                             @Valid @RequestBody UpdateAppointmentStatusRequest request) {
         AppointmentResponse response = appointmentService.updateStatus(appointmentId, request);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<AppointmentResponse>> listAppointments(@RequestParam(required = false) Long patientId,
-                                                                       @RequestParam(required = false) Long doctorId) {
+    public ResponseEntity<List<AppointmentResponse>> listAppointments(
+            @RequestParam(name = "patientId", required = false) Long patientId,
+            @RequestParam(name = "doctorId", required = false) Long doctorId) {
         if (patientId != null) {
             return ResponseEntity.ok(appointmentService.getAppointmentsByPatient(patientId));
         }
@@ -57,7 +58,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}")
-    public ResponseEntity<AppointmentResponse> getAppointment(@PathVariable Long appointmentId) {
+    public ResponseEntity<AppointmentResponse> getAppointment(@PathVariable("appointmentId") Long appointmentId) {
         return ResponseEntity.ok(appointmentService.getAppointment(appointmentId));
     }
 }
