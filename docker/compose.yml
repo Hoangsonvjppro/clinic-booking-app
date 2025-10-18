@@ -47,6 +47,15 @@ services:
     networks:
       - clinic-network
 
+  # REDIS SERVER for API Gateway
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - clinic-network
+
 networks:
   clinic-network:
     driver: bridge
