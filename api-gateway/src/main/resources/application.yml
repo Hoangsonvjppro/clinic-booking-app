@@ -11,7 +11,7 @@ spring:
     gateway:
       routes:
         - id: auth-service
-          uri: http://localhost:8081
+          uri: http://auth-service:8081
           predicates:
             - Path=/api/v1/auth/**
           filters:
@@ -21,6 +21,20 @@ spring:
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
 
+# Redis configuration
 logging:
   level:
     org.springframework.data.redis: DEBUG
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus # Access via /actuator/*
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: api-gateway

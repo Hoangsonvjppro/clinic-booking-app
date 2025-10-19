@@ -59,7 +59,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
-  health:
-    mail:
-      enabled: false
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: auth-service
