@@ -20,6 +20,7 @@ package com.clinic.auth.web;
 import com.clinic.auth.model.User;                       // Thực thể người dùng
 import com.clinic.auth.repo.UserRepository;              // Repository truy vấn người dùng
 import com.clinic.auth.service.AuthService;              // Dịch vụ xác thực chính
+import com.clinic.auth.service.UserAccountService;
 import com.clinic.auth.web.dto.*;                        // Các DTO request/response
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;                         // Kiểm tra tính hợp lệ của dữ liệu đầu vào
@@ -40,6 +41,7 @@ public class AuthController {
 
     private final AuthService authService; // Xử lý nghiệp vụ xác thực
     private final UserRepository userRepository; // Dự phòng thao tác với User (chủ yếu cho /me)
+    private final UserAccountService userAccountService;
 
     /**
      * API: POST /register
@@ -162,4 +164,18 @@ public class AuthController {
         return ResponseEntity.ok()
                 .body(Map.of("message", "Password has been reset successfully"));
     }
+
+    @PutMapping("/users/{userId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUserStatus(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody UpdateUserStatusRequest request
+    ) {
+        userAccountService.updateUserStatus(userId, request);
+        return ResponseEntity.ok().build();
+    }
+
 }
+
+
+
