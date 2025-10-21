@@ -62,9 +62,9 @@ services:
 
   # PATIENT SERVICE
   patient-service:
-    build: .
+    build: ../patient-service
     depends_on:
-      postgres:
+      postgres-patient:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-patient:5432/clinic
@@ -94,6 +94,44 @@ services:
     networks:
       - clinic-network
 
+  # APPOINTMENT SERVICE
+  appointment-service:
+    build: ../appointment-service
+    depends_on:
+      postgres-appointment:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-appointment:5432/clinic_appointment
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      PATIENT_SERVICE_BASE_URL: http://host.docker.internal:8081
+      DOCTOR_SERVICE_BASE_URL: http://host.docker.internal:8082
+      NOTIFICATION_SERVICE_BASE_URL: http://host.docker.internal:8085
+      APPOINTMENT_CANCELLATION_CUTOFF_HOURS: 24
+    ports:
+      - "8084:8084"
+    networks:
+      - clinic-network
+
+  # POSTGRES for APPOINTMENT
+  postgres-appointment:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: clinic_appointment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d clinic_appointment" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata_appointment:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - clinic-network
+
 networks:
   clinic-network:
     driver: bridge
@@ -101,3 +139,4 @@ networks:
 volumes:
   pgdata_auth:
   pgdata_patient:
+  pgdata_appointment:
