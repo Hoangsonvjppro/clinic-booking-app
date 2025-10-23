@@ -3,3 +3,10 @@ server:
 spring:
   application:
     name: doctor-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/clinic_db
+    username: postgres
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: true

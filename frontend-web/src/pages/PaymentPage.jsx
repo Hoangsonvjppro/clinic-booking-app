@@ -1,18 +1,23 @@
 import React, {useState} from "react";
 
 import NavigationBar from "../components/NavigationBar"
+import axios from "axios";
+import { useNavigate } from "react-router-dom"
 
 
 export default function PaymentPage() {
     const [isDark, setIsDark] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState("momo");
     const [displayMethod, setDisplayMethod] = useState("webpay");
+
+    const nav = useNavigate()
+
     let order = {
         doctor: "Nguyễn Văn A",
         time: "15:00",
         date: "12/2/25",
         address: "123/45 Đường Cách mạng Tháng tám, Phường 10, Quận 3",
-        amount: "100000",
+        amount: "10000",
         user: "nguoidung"
     }
 
@@ -21,8 +26,23 @@ export default function PaymentPage() {
         document.documentElement.classList.toggle("dark")
     }
 
+    const onPayment = async () => {
+        let makePayment = {
+            amount: order.amount,
+            orderInfo: order.doctor + "\n" + order.time + "\n" + order.date + "\n" + order.address
+        }
+        axios.post('http://localhost:8080/api/momo/create', makePayment)
+        .then(function(response) {
+            console.log(response)
+            window.open(response.data.payUrl)
+        })
+        .catch(function(err) {
+            console.log(err)
+        })
+    }
+
     return (
-        <div className={`min-h-screen flex flex-col items-center py-6 transition-colors duration-300 ${isDark ? "bg-gray-900" : "bg-gray-50"} ${isDark ? "text-white" : "text-gray-900"}`}>
+        <div className={`min-h-screen flex flex-col items-center py-6 transition-colors duration-300 ${isDark ? "bg-cyan-950 text-white" : "bg-gray-50 text-gray-900"}`}>
             <NavigationBar isDark={isDark} toggleTheme={toggleTheme} />
             {/* Header */}
             <div className={`flex items-center mt-12 ${isDark ? "text-white" : "text-gray-900"}`}>
@@ -132,24 +152,24 @@ export default function PaymentPage() {
                             }`}
                         ></div>
                         </div>
-                        <p className="text-xs text-gray-500">{option.desc}</p>
+                        <p className="text-xs">{option.desc}</p>
                     </label>
                     ))}
                 </div>
 
                 {/* Buttons */}
                 <div className="flex justify-between items-center">
-                    <button className="text-gray-600 hover:underline">
+                    <button className="hover:underline">
                     ← Back to delivery details
                     </button>
-                    <button className="bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition">
+                    <button onClick={onPayment} className="bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition cursor-pointer">
                     Pay now
                     </button>
                 </div>
                 </div>
 
             {/* Order Summary */}
-            <div className={`border rounded-2xl p-6 shadow-sm  transition-colors duration-300 ${isDark ? "text-white bg-gray-900" : "text-gray-900 bg-gray-50"}`}>
+            <div className={`border rounded-2xl p-6 shadow-sm  transition-colors duration-300 ${isDark ? "text-white bg-gray-900" : "text-gray-900 bg-slate-100"}`}>
                 <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Order Summary</h2>
 
                 <div className="flex items-start justify-between mb-4">

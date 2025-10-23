@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom"
 
 
 function NavigationBar( {isDark, toggleTheme} ) {
@@ -51,9 +52,11 @@ function NavigationBar( {isDark, toggleTheme} ) {
                         </svg>
                         )}
                     </button>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                        Contact Us
-                    </button>
+                    <NavLink to="/login" activeClassName="active-link" >
+                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                            Sign up
+                        </button>
+                    </NavLink>
                     </div>
                 </div>
                 </div>
