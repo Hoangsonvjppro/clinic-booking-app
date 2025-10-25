@@ -15,12 +15,37 @@ services:
     networks:
       - clinic-network
 
-  # REDIS SERVER for API Gateway
+  # COMPONENTS SERVER for API Gateway
   redis:
     image: redis:7
     container_name: redis
     ports:
       - "6380:6379"
+    networks:
+      - clinic-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ../api-gateway/prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+    networks:
+      - clinic-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ../api-gateway/grafana/data:/var/lib/grafana
     networks:
       - clinic-network
 
