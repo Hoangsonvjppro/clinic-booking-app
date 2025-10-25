@@ -7,39 +7,8 @@ spring:
       host: localhost
       port: 6379
 
-  cloud:
-    gateway:
-      routes:
-        - id: auth-service
-          uri: http://auth-service:8081
-          predicates:
-            - Path=/api/v1/auth/**
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
-                key-resolver: "#{@ipKeyResolver}"
-        - id: patient-service
-          uri: http://patient-service:8080
-          predicates:
-            - Path=/api/patients/**
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
-                key-resolver: "#{@ipKeyResolver}"
-        - id: appointment-service
-          uri: http://appointment-service:8084
-          predicates:
-            - Path=/api/appointments/**
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
-                key-resolver: "#{@ipKeyResolver}"
+  profiles:
+    active: dev
 
 # Redis configuration
 logging:
