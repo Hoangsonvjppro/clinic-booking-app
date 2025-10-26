@@ -46,6 +46,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ../api-gateway/grafana/data:/var/lib/grafana
+      - ../api-gateway/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ../api-gateway/grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - clinic-network
 

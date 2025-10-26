@@ -66,6 +66,9 @@ management:
   metrics:
     tags:
       application: auth-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
 external-services:
   patient-service:

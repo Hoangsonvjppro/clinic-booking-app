@@ -27,3 +27,18 @@ external-services:
     base-url: ${NOTIFICATION_SERVICE_BASE_URL:http://localhost:8085}
 appointment-service:
   cancellation-cutoff-hours: ${APPOINTMENT_CANCELLATION_CUTOFF_HOURS:24}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus # Access via /actuator/*
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: appointment-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true

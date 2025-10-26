@@ -8,4 +8,4 @@ dist/
 build/
 **/target/
 
-api-gateway/compose.yml
+api-gateway/grafana/data
