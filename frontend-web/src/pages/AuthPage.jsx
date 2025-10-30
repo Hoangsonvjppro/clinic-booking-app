@@ -7,7 +7,7 @@ import NavigationBar from "../components/NavigationBar"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
   const [showPassword, setShowPassword] = useState(true)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   let email = useRef()
@@ -18,6 +18,7 @@ export default function AuthPage() {
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")
+    localStorage.setItem("mode", isDark)
   }
 
   const toggleAuthMode = () => {

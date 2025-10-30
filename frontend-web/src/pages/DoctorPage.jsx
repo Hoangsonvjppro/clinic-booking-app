@@ -6,11 +6,12 @@ import NavigationBar from "../components/NavigationBar";
 
 export default function DoctorPage() {
   const location = useLocation();
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
 
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")
+    localStorage.setItem("mode", isDark)
   }
 
   const searchParams = new URLSearchParams(location.search);
