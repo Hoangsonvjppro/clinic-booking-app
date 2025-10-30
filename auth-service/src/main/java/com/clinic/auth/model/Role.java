@@ -28,11 +28,14 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Sử dụng ID tự tăng trong DB
     private Long id; // Mã định danh duy nhất cho từng vai trò
 
-    @Column(unique = true, nullable = false) // Tên vai trò là duy nhất và bắt buộc
+    @Column(name = "code", unique = true, nullable = false) // Tên vai trò là duy nhất và bắt buộc
     @NotBlank(message = "Role name is required") // Không được để trống
     @Pattern(regexp = "^[A-Z_]+$", message = "Role name must contain only uppercase letters and underscores") // Định dạng viết hoa + gạch dưới
     @Size(min = 2, max = 50, message = "Role name must be between 2 and 50 characters") // Giới hạn độ dài hợp lý
     private String name; // Tên vai trò, ví dụ: ADMIN, DOCTOR, PATIENT
+
+    @Column(name = "display_name")
+    private String displayName;
 
     @Size(max = 255, message = "Description cannot exceed 255 characters") // Giới hạn độ dài phần mô tả
     private String description; // Mô tả chi tiết vai trò, giúp dễ hiểu khi quản trị

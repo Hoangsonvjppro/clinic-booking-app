@@ -20,16 +20,21 @@ package com.clinic.auth.web;
 import com.clinic.auth.model.User;                       // Thực thể người dùng
 import com.clinic.auth.repo.UserRepository;              // Repository truy vấn người dùng
 import com.clinic.auth.service.AuthService;              // Dịch vụ xác thực chính
+import com.clinic.auth.service.UserAccountService;
 import com.clinic.auth.web.dto.*;                        // Các DTO request/response
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;                         // Kiểm tra tính hợp lệ của dữ liệu đầu vào
 import lombok.RequiredArgsConstructor;                   // Tự động sinh constructor cho các trường final
 import org.springframework.http.ResponseEntity;           // Gói phản hồi HTTP
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal; // Lấy thông tin người dùng hiện tại
 import org.springframework.web.bind.annotation.*;         // Annotation REST
 import java.util.Map;                                     // Dùng để trả về phản hồi ngắn gọn
+import java.net.URI;
 
+@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController // Đánh dấu lớp là REST Controller
 @RequestMapping("/api/v1/auth") // Tiền tố chung cho tất cả endpoint
 @RequiredArgsConstructor // Tự động inject AuthService, UserRepository
@@ -37,6 +42,7 @@ public class AuthController {
 
     private final AuthService authService; // Xử lý nghiệp vụ xác thực
     private final UserRepository userRepository; // Dự phòng thao tác với User (chủ yếu cho /me)
+    private final UserAccountService userAccountService;
 
     /**
      * API: POST /register
@@ -64,6 +70,18 @@ public class AuthController {
     }
 
     /**
+     * API: GET /google
+     * Khởi tạo luồng đăng nhập OAuth2 với Google.
+     * Trả về phản hồi 302 để trình duyệt chuyển hướng tới endpoint OAuth2 mặc định của Spring Security.
+     */
+    @GetMapping("/google")
+    public ResponseEntity<Void> redirectToGoogleOAuth() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/oauth2/authorization/google"))
+                .build();
+    }
+
+    /**
      * API: GET /me
      * Trả về thông tin người dùng hiện tại (dựa trên token JWT).
      *
@@ -72,6 +90,7 @@ public class AuthController {
      */
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
+    @JsonIgnore
     public ResponseEntity<User> getCurrentUser(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(user);
@@ -146,4 +165,18 @@ public class AuthController {
         return ResponseEntity.ok()
                 .body(Map.of("message", "Password has been reset successfully"));
     }
+
+    @PutMapping("/users/{userId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUserStatus(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody UpdateUserStatusRequest request
+    ) {
+        userAccountService.updateUserStatus(userId, request);
+        return ResponseEntity.ok().build();
+    }
+
 }
+
+
+

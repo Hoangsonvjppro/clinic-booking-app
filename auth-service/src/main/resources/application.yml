@@ -3,19 +3,21 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/clinic_auth}
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/clinic_auth}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
   sql:
     init:
-      mode: always
+      mode: never
   flyway:
     enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -24,8 +26,25 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: openid, profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com   # OIDC discovery
 
 app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  oauth2:
+    success-redirect: ${OAUTH2_SUCCESS_REDIRECT:http://localhost:8081/api/v1/auth/me}
+    failure-redirect: ${OAUTH2_FAILURE_REDIRECT:http://localhost:8081/api/v1/auth/google?error}
+    default-role: ${OAUTH2_DEFAULT_ROLE:USER}
   jwt:
     secret: ${JWT_SECRET:change-me-please-change-me-please-2025}
     issuer: clinic-booking-app
@@ -41,3 +60,10 @@ management:
     web:
       exposure:
         include: health,info
+  health:
+    mail:
+      enabled: false
+
+external-services:
+  patient-service:
+    base-url: ${PATIENT_SERVICE_BASE_URL:http://localhost:8082}

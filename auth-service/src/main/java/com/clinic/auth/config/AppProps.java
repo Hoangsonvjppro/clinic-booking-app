@@ -58,4 +58,16 @@ public class AppProps {
     // Danh sách origin được phép truy cập CORS, đọc từ cấu hình hoặc biến môi trường, mặc định localhost:3000
     @Value("${app.cors.allowed-origins:${CORS_ALLOWED_ORIGINS:http://localhost:3000}}")
     private String corsAllowedOrigins;
+
+    // URL frontend người dùng sẽ được chuyển hướng về sau khi đăng nhập OAuth2 thành công
+    @Value("${app.oauth2.success-redirect:${OAUTH2_SUCCESS_REDIRECT:http://localhost:3000/oauth2/success}}")
+    private String oauth2SuccessRedirect;
+
+    // URL frontend khi đăng nhập OAuth2 thất bại
+    @Value("${app.oauth2.failure-redirect:${OAUTH2_FAILURE_REDIRECT:http://localhost:3000/oauth2/error}}")
+    private String oauth2FailureRedirect;
+
+    // Vai trò mặc định khi tạo mới user từ Google OAuth2
+    @Value("${app.oauth2.default-role:${OAUTH2_DEFAULT_ROLE:USER}}")
+    private String oauth2DefaultRole;
 }

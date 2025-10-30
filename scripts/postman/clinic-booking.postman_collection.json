@@ -1,0 +1,1726 @@
+{
+  "info": {
+    "_postman_id": "c1c03247-3ac6-4ae0-910a-3ce5cf5ff008",
+    "name": "Clinic Booking (Local)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_description": "Comprehensive API checks for auth-service, patient-service, and appointment-service running locally."
+  },
+  "item": [
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('admin_access_token', json.accessToken);",
+                  "pm.environment.set('admin_refresh_token', json.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Admin Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/refresh",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{admin_refresh_token}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('admin_access_token', json.accessToken);",
+                  "pm.environment.set('admin_refresh_token', json.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current Admin",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/me",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('admin_user_id', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Google OAuth Redirect",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/google",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 302', function () {",
+                  "    pm.response.to.have.status(302);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\",\n  \"password\": \"{{new_user_password}}\",\n  \"defaultRole\": \"PATIENT\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const email = `user${Date.now()}@clinic.test`;",
+                  "pm.environment.set('new_user_email', email);",
+                  "pm.environment.set('new_user_password', 'Password123!');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Duplicate User (Expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\",\n  \"password\": \"{{new_user_password}}\",\n  \"defaultRole\": \"PATIENT\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\",\n  \"password\": \"{{new_user_password}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('user_access_token', json.accessToken);",
+                  "pm.environment.set('user_refresh_token', json.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current New User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/me",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('new_user_id', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change Password (New User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/change-password",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "change-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{new_user_password}}\",\n  \"newPassword\": \"{{new_user_new_password}}\",\n  \"confirmPassword\": \"{{new_user_new_password}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const newPassword = `NewPass!${Math.floor(Math.random() * 9000 + 1000)}`;",
+                  "pm.environment.set('new_user_new_password', newPassword);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.environment.set('new_user_password', pm.environment.get('new_user_new_password'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User With New Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\",\n  \"password\": \"{{new_user_password}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('user_access_token', json.accessToken);",
+                  "pm.environment.set('user_refresh_token', json.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Forgot Password (New User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/forgot-password",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reset Password With Invalid Token (Expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/reset-password",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invalid-token\",\n  \"newPassword\": \"TempPass123!\",\n  \"confirmPassword\": \"TempPass123!\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Disable User Account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/users/{{new_user_id}}/status",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "{{new_user_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": false,\n  \"reason\": \"Automation test - disable\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Disabled User (Expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\",\n  \"password\": \"{{new_user_password}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enable User Account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/users/{{new_user_id}}/status",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "{{new_user_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": true,\n  \"reason\": \"Automation test - enable\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Enabled User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{new_user_email}}\",\n  \"password\": \"{{new_user_password}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('user_access_token', json.accessToken);",
+                  "pm.environment.set('user_refresh_token', json.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Custom Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/roles?name={{new_role_name}}",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "{{new_role_name}}"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const token = pm.environment.get('admin_access_token');",
+                  "if (!token) {",
+                  "    throw new Error('admin_access_token is missing. Run Admin Login first.');",
+                  "}",
+                  "pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const roleName = `AUTO_ROLE_${Date.now()}`;",
+                  "pm.environment.set('new_role_name', roleName);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Assign Role To User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/roles/users/{{new_user_id}}?role={{new_role_name}}",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles",
+                "users",
+                "{{new_user_id}}"
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "{{new_role_name}}"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const token = pm.environment.get('admin_access_token');",
+                  "if (!token) {",
+                  "    throw new Error('admin_access_token is missing. Run Admin Login first.');",
+                  "}",
+                  "pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Patient Service",
+      "item": [
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{test_patient_first}}\",\n  \"lastName\": \"{{test_patient_last}}\",\n  \"email\": \"{{test_patient_email}}\",\n  \"phone\": \"{{test_patient_phone}}\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"OTHER\",\n  \"addressLine\": \"123 Test Street\",\n  \"city\": \"Ho Chi Minh City\",\n  \"state\": \"HCM\",\n  \"postalCode\": \"700000\",\n  \"country\": \"Vietnam\",\n  \"active\": true,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.environment.set('test_patient_email', `patient.${ts}@clinic.test`);",
+                  "pm.environment.set('test_patient_first', 'Auto');",
+                  "pm.environment.set('test_patient_last', `Patient${ts}`);",
+                  "pm.environment.set('test_patient_phone', `090${Math.floor(Math.random() * 9000000 + 1000000)}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('test_patient_id', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients?page=0&size=10",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Suspended Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients/search?status=SUSPENDED",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "SUSPENDED"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients/{{test_patient_id}}",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{test_patient_id}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients/{{test_patient_id}}",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{test_patient_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{test_patient_first}}\",\n  \"lastName\": \"{{test_patient_last}}\",\n  \"email\": \"{{test_patient_email}}\",\n  \"phone\": \"{{test_patient_phone}}\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"OTHER\",\n  \"addressLine\": \"456 Updated Street\",\n  \"city\": \"Da Nang\",\n  \"state\": \"DN\",\n  \"postalCode\": \"550000\",\n  \"country\": \"Vietnam\",\n  \"active\": false,\n  \"status\": \"INACTIVE\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient Not Found (Expect 404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients/99999999",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "99999999"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Internal Status Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/internal/patients/status",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "internal",
+                "patients",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_patient_email}}\",\n  \"active\": true,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients/{{test_patient_id}}",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{test_patient_id}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Patient Deleted (Expect 404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{patient_base_url}}/api/patients/{{test_patient_id}}",
+              "host": [
+                "{{patient_base_url}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{test_patient_id}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Appointment Service",
+      "item": [
+        {
+          "name": "Create Appointment (Doctor Service unavailable)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": {{seed_patient_for_appointments}},\n  \"doctorId\": {{seed_doctor_for_appointments}},\n  \"appointmentTime\": \"2030-01-01T09:00:00\",\n  \"durationMinutes\": 30,\n  \"notes\": \"Integration test appointment\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 502', function () {",
+                  "    pm.response.to.have.status(502);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List All Appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const data = pm.response.json();",
+                  "pm.environment.unset('pendingAppointmentId');",
+                  "pm.environment.unset('confirmedAppointmentId');",
+                  "pm.environment.unset('cancelledAppointmentId');",
+                  "pm.environment.unset('completedAppointmentId');",
+                  "data.forEach(function (item) {",
+                  "    if (item.status === 'PENDING' && !pm.environment.get('pendingAppointmentId')) {",
+                  "        pm.environment.set('pendingAppointmentId', item.appointmentId);",
+                  "    }",
+                  "    if (item.status === 'CONFIRMED' && !pm.environment.get('confirmedAppointmentId')) {",
+                  "        pm.environment.set('confirmedAppointmentId', item.appointmentId);",
+                  "    }",
+                  "    if (item.status === 'CANCELLED' && !pm.environment.get('cancelledAppointmentId')) {",
+                  "        pm.environment.set('cancelledAppointmentId', item.appointmentId);",
+                  "    }",
+                  "    if (item.status === 'COMPLETED' && !pm.environment.get('completedAppointmentId')) {",
+                  "        pm.environment.set('completedAppointmentId', item.appointmentId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Appointments by Patient",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments?patientId={{seed_patient_for_appointments}}",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "patientId",
+                  "value": "{{seed_patient_for_appointments}}"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Appointments by Doctor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments?doctorId={{seed_doctor_for_appointments}}",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "doctorId",
+                  "value": "{{seed_doctor_for_appointments}}"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments/{{pendingAppointmentId}}",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments",
+                "{{pendingAppointmentId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Appointment Not Found (Expect 404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments/99999999",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments",
+                "99999999"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Appointment Too Late (Expect 400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments/{{pendingAppointmentId}}/cancel",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments",
+                "{{pendingAppointmentId}}",
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requesterId\": {{seed_patient_for_appointments}},\n  \"requesterRole\": \"PATIENT\",\n  \"reason\": \"Attempt cancel past cutoff\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Completed Appointment as Admin (Expect 400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments/{{completedAppointmentId}}/cancel",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments",
+                "{{completedAppointmentId}}",
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requesterId\": {{admin_user_id}},\n  \"requesterRole\": \"ADMIN\",\n  \"reason\": \"Admin attempt cancel completed appointment\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Appointment Status Invalid Transition (Expect 400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments/{{cancelledAppointmentId}}/status",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments",
+                "{{cancelledAppointmentId}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\",\n  \"requesterId\": 2001,\n  \"requesterRole\": \"DOCTOR\",\n  \"notes\": \"Attempt invalid transition\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Appointment Status Unauthorized Doctor (Expect 403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{appointment_base_url}}/api/appointments/{{confirmedAppointmentId}}/status",
+              "host": [
+                "{{appointment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "appointments",
+                "{{confirmedAppointmentId}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\",\n  \"requesterId\": 9999,\n  \"requesterRole\": \"DOCTOR\",\n  \"notes\": \"Wrong doctor attempting update\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Teardown",
+      "item": [
+        {
+          "name": "Logout Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "auth_base_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "patient_base_url",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "appointment_base_url",
+      "value": "http://localhost:8084"
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@clinic.test"
+    },
+    {
+      "key": "admin_password",
+      "value": "Clinic#2025"
+    },
+    {
+      "key": "seed_patient_for_appointments",
+      "value": "1001"
+    },
+    {
+      "key": "seed_doctor_for_appointments",
+      "value": "2001"
+    }
+  ]
+}
