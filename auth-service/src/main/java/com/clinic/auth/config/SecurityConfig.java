@@ -13,6 +13,11 @@
 package com.clinic.auth.config;
 
 import com.clinic.auth.security.JwtAuthenticationFilter; // Filter tự viết để đọc, kiểm tra và gắn Authentication từ JWT
+import com.clinic.auth.security.oauth.CustomOAuth2UserService;
+import com.clinic.auth.security.oauth.CustomOidcUserService;
+import com.clinic.auth.security.oauth.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.clinic.auth.security.oauth.OAuth2AuthenticationFailureHandler;
+import com.clinic.auth.security.oauth.OAuth2AuthenticationSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor; // Tự sinh constructor cho các field final, phục vụ DI gọn gàng
 import org.springframework.context.annotation.Bean; // Đánh dấu phương thức trả về bean cho Spring IoC
@@ -63,11 +68,18 @@ public class SecurityConfig {
      * </pre>
      */
     @Bean // Expose SecurityFilterChain cho Spring sử dụng
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            CustomOAuth2UserService customOAuth2UserService,
+            OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+            OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
+            HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
+            CustomOidcUserService customOidcUserService
+    ) throws Exception {
         http
                 // 1️⃣ Tắt CSRF vì REST API là stateless
                 .csrf(csrf -> csrf.disable())
-                // 2️⃣ Bảo đảm không tạo session
+                // 2️⃣ Bảo đảm không tạo session (hoặc có)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 3️⃣ Quy tắc phân quyền endpoint
                 .authorizeHttpRequests(auth -> auth
@@ -75,11 +87,27 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/login",
-                                "/api/v1/auth/refresh"
+                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/google",
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/reset-password",
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         // Mọi request khác đều yêu cầu xác thực
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(authorization -> authorization
+                                .authorizationRequestRepository(authorizationRequestRepository)
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService)
+                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
                 )
                 /**
                  🧠 Giải thích:
@@ -168,5 +196,10 @@ public class SecurityConfig {
         config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS")); // Cho phép các method phổ biến
         source.registerCorsConfiguration("/**", config); // Áp dụng cho toàn bộ endpoint
         return new CorsFilter(source); // Trả về filter để Spring đưa vào chain
+    }
+
+    @Bean
+    public HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
     }
 }

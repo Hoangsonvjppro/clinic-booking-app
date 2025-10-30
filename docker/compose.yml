@@ -1,138 +1,134 @@
 version: '3.9'
 services:
-  build:
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    volumes:
-      - ../:/workspace/app
-      - maven-repo:/root/.m2
-  
+  # API Gateway
   api-gateway:
     build: ../api-gateway
     ports:
       - "8080:8080"
     depends_on:
       - auth-service
+      - redis
+    environment:
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
     networks:
       - clinic-network
 
+  # REDIS SERVER for API Gateway
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6380:6379"
+    networks:
+      - clinic-network
+
+  # AUTH SERVICE
   auth-service:
     build: ../auth-service
     ports:
-      - "8081:8080"
+      - "8081:8081"
     depends_on:
-      - postgres
+      postgres-auth:
+        condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
-      - SPRING_DATASOURCE_USERNAME=clinic
-      - SPRING_DATASOURCE_PASSWORD=clinic
+      DB_URL: jdbc:postgresql://postgres-auth:5432/clinic_auth
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JAVA_TOOL_OPTIONS: >
+        -Dspring.flyway.enabled=true
+        -Dspring.jpa.hibernate.ddl-auto=none
     networks:
       - clinic-network
 
+  # POSTGRES for AUTH
+  postgres-auth:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: clinic_auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d clinic_auth" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+    networks:
+      - clinic-network
+
+  # PATIENT SERVICE
   patient-service:
     build: ../patient-service
+    depends_on:
+      postgres-patient:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-patient:5432/clinic
+      SPRING_DATASOURCE_USERNAME: clinic
+      SPRING_DATASOURCE_PASSWORD: clinic
     ports:
       - "8082:8080"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
-      - SPRING_DATASOURCE_USERNAME=clinic
-      - SPRING_DATASOURCE_PASSWORD=clinic
     networks:
       - clinic-network
 
-  doctor-service:
-    build: ../doctor-service
-    ports:
-      - "8083:8080"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
-      - SPRING_DATASOURCE_USERNAME=clinic
-      - SPRING_DATASOURCE_PASSWORD=clinic
-    networks:
-      - clinic-network
-
-  appointment-service:
-    build: ../appointment-service
-    ports:
-      - "8084:8080"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/clinic
-      - SPRING_DATASOURCE_USERNAME=clinic
-      - SPRING_DATASOURCE_PASSWORD=clinic
-    networks:
-      - clinic-network
-
-  notification-service:
-    build: ../notification-service
-    ports:
-      - "8085:8080"
-    depends_on:
-      - mongo
-    environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/clinic
-    networks:
-      - clinic-network
-
-  payment-service:
-    build: ../payment-service
-    ports:
-      - "8086:8080"
-    depends_on:
-      - mysql
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/clinic
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-    networks:
-      - clinic-network
-
-  frontend-web:
-    build: ../frontend-web
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api-gateway
-    networks:
-      - clinic-network
-
-  postgres:
-    image: postgres:15
+  # POSTGRES for PATIENT
+  postgres-patient:
+    image: postgres:16
     environment:
       POSTGRES_DB: clinic
       POSTGRES_USER: clinic
       POSTGRES_PASSWORD: clinic
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U clinic -d clinic" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata_patient:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
     networks:
       - clinic-network
 
-  mysql:
-    image: mysql:8
+  # APPOINTMENT SERVICE
+  appointment-service:
+    build: ../appointment-service
+    depends_on:
+      postgres-appointment:
+        condition: service_healthy
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: clinic
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-appointment:5432/clinic_appointment
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      PATIENT_SERVICE_BASE_URL: http://host.docker.internal:8081
+      DOCTOR_SERVICE_BASE_URL: http://host.docker.internal:8082
+      NOTIFICATION_SERVICE_BASE_URL: http://host.docker.internal:8085
+      APPOINTMENT_CANCELLATION_CUTOFF_HOURS: 24
     ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
+      - "8084:8084"
     networks:
       - clinic-network
 
-  mongo:
-    image: mongo:6
-    ports:
-      - "27017:27017"
+  # POSTGRES for APPOINTMENT
+  postgres-appointment:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: clinic_appointment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d clinic_appointment" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
-      - mongo_data:/data/db
+      - pgdata_appointment:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
     networks:
       - clinic-network
 
@@ -141,7 +137,6 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
-  mysql_data:
-  mongo_data:
-  maven-repo:
+  pgdata_auth:
+  pgdata_patient:
+  pgdata_appointment:

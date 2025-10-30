@@ -14,6 +14,7 @@
  */
 package com.clinic.auth.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*; // Các annotation JPA như @Entity, @Id, @Column, @ManyToMany, ...
 import jakarta.validation.constraints.Email; // Xác thực định dạng email
 import jakarta.validation.constraints.NotBlank; // Không cho phép chuỗi trống/null
@@ -36,18 +37,38 @@ public class User implements UserDetails { // Triển khai UserDetails để tí
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Tự tăng ID trong DB
     private Long id; // Mã định danh duy nhất cho người dùng
 
-    @Column(unique = true, nullable = false) // Email duy nhất và bắt buộc
+    @Column(name = "email", unique = true, nullable = false) // Email duy nhất và bắt buộc
     @NotBlank(message = "Email is required") // Không cho phép để trống
     @Email(message = "Invalid email format") // Kiểm tra định dạng email hợp lệ
     @Size(max = 255, message = "Email cannot exceed 255 characters") // Giới hạn độ dài tối đa 255 ký tự
     private String email; // Email người dùng, đồng thời là username đăng nhập
 
-    @Column(nullable = false) // Bắt buộc phải có mật khẩu
+    @JsonIgnore
+    @Column(name = "password_hash", nullable = false) // Bắt buộc phải có mật khẩu
     @NotBlank(message = "Password is required") // Không được để trống
     @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters") // Độ dài tối thiểu 8 ký tự
     private String password; // Mật khẩu được lưu ở dạng mã hóa (BCrypt)
 
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "email_verified_at")
+    private java.time.Instant emailVerifiedAt;
+
+    @Column(name = "last_login_at")
+    private java.time.Instant lastLoginAt;
+
+    @Builder.Default
     private boolean enabled = true; // Trạng thái hoạt động của tài khoản (true = có thể đăng nhập)
+
+    @Column(name = "created_at", updatable = false, insertable = false)
+    private java.time.Instant createdAt;
+
+    @Column(name = "updated_at", insertable = false)
+    private java.time.Instant updatedAt;
 
     @ManyToMany(fetch = FetchType.EAGER) // Một user có thể có nhiều vai trò, load ngay khi lấy user
     @JoinTable(
