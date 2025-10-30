@@ -82,7 +82,7 @@ export default function CreateDoctorAcc() {
   }
 
   return (
-    <div className={`${isDark ? "bg-cyan-950 text-white" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`${isDark ? "bg-slate-900 text-white" : "bg-gray-50 text-gray-900"}  transition-colors duration-`}>
       <div className="max-w-3xl mx-auto mt-10 flex flex-col h-screen">
         <SimpleNavigation isDark={isDark} toggleTheme={toggleTheme} />
         {/* Step Header */}
@@ -93,19 +93,19 @@ export default function CreateDoctorAcc() {
               {i < steps.length - 1 && (
                 <div
                   className={`absolute top-3 left-1/2 w-full h-[2px] ${
-                    i < step ? "bg-orange-500" : "bg-black"
+                    i < step ? "bg-orange-500" : "bg-gray-400"
                   }`}
                 ></div>
               )}
 
               {/* Step Circle */}
               <div
-                className={`w-6 h-6 flex items-center justify-center z-10 transition-all duration-100 ${isDark ? "bg-cyan-950 text-white" : "bg-gray-50 text-gray-900"} ${
+                className={`w-6 h-6 flex items-center justify-center z-10 transition-none ${
                   i < step
                     ? "bg-orange-500 border-orange-500 text-white border-2 rounded-full"
                     : i === step
-                    ? "border-orange-500 text-orange-500"
-                    : "border-gray-300 text-gray-400"
+                    ? isDark ? "bg-slate-900 border-orange-500 text-orange-500" : "bg-white border-orange-500 text-orange-500"
+                    : isDark ? "border-gray-300 text-gray-400 bg-slate-900" : "border-gray-300 text-gray-400 bg-white"
                 }`}
               >
                 {i < step ? <Check size={14} /> : getIcon(label)}
@@ -127,7 +127,7 @@ export default function CreateDoctorAcc() {
 
         {/* Step Content */}
         <AnimatePresence mode="wait" custom={direction}>
-          <motion.div className="p-8 bg-white rounded-xl shadow border border-gray-200 flex flex-col justify-between"
+          <motion.div className={`p-8 rounded-xl shadow border flex flex-col justify-between ${isDark ? "bg-[#0a0a0f] text-gray-300 border-slate-700" : "bg-white border-gray-200 text-gray-950"}`}
             key={step}
             custom={direction}
             variants={variants}
@@ -137,21 +137,21 @@ export default function CreateDoctorAcc() {
             transition={{ duration: 0.2, ease: "easeInOut" }}
           >
             {step === 0 && (
-              <DoctorInformation form={form} handleChange={handleChange} />
+              <DoctorInformation form={form} handleChange={handleChange} isDark={isDark} />
             )}
 
             {step === 1 && (
               <div className="text-gray-600 text-center py-8">
-                <PatientScheduler form={form} handleChange={handleChange} />
+                <PatientScheduler form={form} handleChange={handleChange} isDark={isDark} />
               </div>
             )}
             {step === 2 && (
               <div className="text-gray-600 text-center py-8">
-                <DegreeInformation form={form} onFilesSelect={handleFilesSelect} />
+                <DegreeInformation form={form} onFilesSelect={handleFilesSelect} isDark={isDark} />
               </div>
             )}
             {step === 3 && (
-              <div className="text-gray-600 text-center py-8 flex gap-5 justify-center items-center">
+              <div className={`text-center py-8 flex gap-5 justify-center items-center ${isDark ? "text-gray-100" : "text-gray-700"}`}>
                 <CircleCheck className="text-green-500" /> 
                 <p>Hoàn tất tạo tài khoản phòng khám!</p>
               </div>
@@ -162,7 +162,7 @@ export default function CreateDoctorAcc() {
               {step > 0 && (
                 <button
                   onClick={back}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-100"
+                  className={`px-4 py-2 border rounded-md ${isDark ? "hover:bg-gray-900" : "hover:bg-gray-100"}`}
                 >
                   Quay lại
                 </button>

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 
-export default function PatientScheduler({ form, handleChange }) {
+export default function PatientScheduler({ form, handleChange, isDark }) {
 
   return (
     <div>
@@ -8,7 +8,7 @@ export default function PatientScheduler({ form, handleChange }) {
         const checked = !!(form && form[item.key])
 
         return (
-          <div key={item.key} className="flex items-center justify-between py-3 border-b-2 border-black">
+          <div key={item.key} className={`flex items-center justify-between py-3 border-b-2 ${isDark ? "bg-[#0a0a0f] text-gray-300" : "bg-white text-gray-950 border-black"}`}>
             <span>{item.label}</span>
 
             <div

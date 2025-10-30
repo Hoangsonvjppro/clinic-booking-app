@@ -45,7 +45,7 @@ export default function AuthPage() {
       
 
       {/* Main Auth Container */}
-      <div className="flex items-center justify-center py-25 transition-all duration-300">
+      <div className="flex items-center justify-center transition-all duration-300 py-5">
         <div
           className={`w-full max-w-6xl ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-2xl overflow-hidden`}
         >

@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom"
 function NavigationBar( {isDark, toggleTheme} ) {
     return (
         <>
-            <nav className="top-0 left-0 right-0 z-50 bg-[#0a0a0f] border-b border-white/10 fixed">
+            <nav className="top-0 left-0 right-0 z-50 bg-[#0a0a0f] border-b border-white/10">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
                     <div className="hidden md:flex items-center gap-8">

@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import Modal from "react-modal"
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function DoctorInformation( {form, handleChange} ) {
+export default function DoctorInformation( {form, handleChange, isDark} ) {
     const [showModal, setShowModal] = useState(false)
 
     const [addressForm, setAddressForm] = useState({
@@ -36,7 +36,7 @@ export default function DoctorInformation( {form, handleChange} ) {
     }
 
     return (
-        <div className="space-y-4">
+        <div className={`space-y-4 ${isDark ? "bg-[#0a0a0f] text-gray-300" : "bg-white text-gray-950"}`}>
             <div>
             <label className="block text-sm font-medium mb-1">
                 * Tên của bạn
@@ -77,7 +77,7 @@ export default function DoctorInformation( {form, handleChange} ) {
                 value={form.email}
                 onChange={handleChange}
                 placeholder={form.email ? form.email : "example@gmail.com"}
-                className="border rounded-md px-3 py-2 w-full bg-gray-50"
+                className={`border rounded-md px-3 py-2 w-full ${isDark ? "bg-slate-800" : "bg-gray-50"}`}
                 readOnly
             />
             </div>
@@ -107,7 +107,7 @@ export default function DoctorInformation( {form, handleChange} ) {
                     isOpen={showModal}
                     onRequestClose={() => setShowModal(false)}
                     overlayClassName="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-40 flex justify-center items-center z-50"
-                    className="bg-white rounded-md shadow-lg p-6 w-xl outline-none"
+                    className={`rounded-md shadow-lg p-6 w-xl outline-none ${isDark ? "bg-black text-white" : "bg-white text-black"}`}
                 >
                     <motion.div className="p-6"
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -189,7 +189,7 @@ export default function DoctorInformation( {form, handleChange} ) {
                         <div className="flex justify-end gap-2 mt-6">
                             <button
                             onClick={() => setShowModal(false)}
-                            className="px-5 py-2 rounded-md border text-gray-600 hover:bg-gray-100"
+                            className={`px-5 py-2 rounded-md border hover:bg-gray-100 ${isDark ? "hover:bg-gray-900 text-slate-100" : "hover:bg-gray-100 text-gray-600"}`}
                             >
                             Hủy
                             </button>
