@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 
-
+@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController
 @RequestMapping("/api/momo")
 public class MomoController {
@@ -24,24 +24,10 @@ public class MomoController {
         this.momoConfig = momoConfig;
     }
 
-    // @PostMapping("/create")
-    // public ResponseEntity<?> createPayment(
-    //         @RequestParam(name = "orderId") String orderId,
-    //         @RequestParam(name = "amount") String amount,
-    //         @RequestParam(name = "orderInfo") String orderInfo) throws Exception {
-
-    //     long new_amount = Long.parseLong(amount);
-
-    //     return ResponseEntity.ok(Map.of(
-    //             "orderId", orderId,
-    //             "amount", amount,
-    //             "orderInfo", orderInfo,
-    //             "message", "Mock MoMo payment created successfully!",
-    //             "url", momoService.createPayment(new_amount, orderInfo)
-    //     ));
-    // }
     @PostMapping("/create")
-    public Map<String, Object> createPayment(@RequestParam long amount, @RequestParam String orderInfo) throws Exception {
+    public Map<String, Object> createPayment(@RequestBody Map<String, Object> body,  HttpServletResponse resp) throws Exception {
+        long amount = Long.parseLong(body.get("amount").toString());
+        String orderInfo = (String) body.get("orderInfo");
         return momoService.createPayment(amount, orderInfo);
     }
 
@@ -142,8 +128,9 @@ public class MomoController {
     }
 
     @PostMapping("/query")
-    public Map<String, Object> queryPayment(@RequestParam String orderId,
-                                            @RequestParam String requestId) throws Exception {
+    public Map<String, Object> queryPayment(@RequestBody Map<String, Object>body, HttpServletResponse resp) throws Exception {
+        String orderId = (String) body.get("orderId");
+        String requestId = (String) body.get("requestId");
         return momoService.queryPayment(orderId, requestId);
     }
 

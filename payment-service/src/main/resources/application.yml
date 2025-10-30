@@ -12,9 +12,9 @@ momo:
 
 spring:
   datasource:
-    url: ${MYSQL_DATABASE}
+    url: jdbc:mysql://db:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8
     username: root
-    password: MYSQL_ROOT_PASSWORD
+    password: ${MYSQL_ROOT_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

@@ -1,9 +1,10 @@
+import { NavLink } from "react-router-dom"
 
 
 function NavigationBar( {isDark, toggleTheme} ) {
     return (
         <>
-            <nav className="top-0 left-0 right-0 z-50 bg-[#0a0a0f] border-b border-white/10 fixed">
+            <nav className="top-0 left-0 right-0 z-50 bg-[#0a0a0f] border-b border-white/10">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
                     <div className="hidden md:flex items-center gap-8">
@@ -51,9 +52,11 @@ function NavigationBar( {isDark, toggleTheme} ) {
                         </svg>
                         )}
                     </button>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                        Contact Us
-                    </button>
+                    <NavLink to="/login" activeClassName="active-link" >
+                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                            Sign up
+                        </button>
+                    </NavLink>
                     </div>
                 </div>
                 </div>

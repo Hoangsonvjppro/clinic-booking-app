@@ -8,4 +8,9 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server:{
+    allowedHosts: [
+      'hoofed-alfonzo-conclusional.ngrok-free.dev',
+    ]
+  }
 })

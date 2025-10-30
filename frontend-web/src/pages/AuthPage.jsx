@@ -8,6 +8,8 @@ import NavigationBar from "../components/NavigationBar"
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [isDark, setIsDark] = useState(false)
+  const [showPassword, setShowPassword] = useState(true)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   let email = useRef()
   let username = useRef()
   let password = useRef()
@@ -43,7 +45,7 @@ export default function AuthPage() {
       
 
       {/* Main Auth Container */}
-      <div className="flex items-center justify-center py-25">
+      <div className="flex items-center justify-center transition-all duration-300 py-5">
         <div
           className={`w-full max-w-6xl ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-2xl overflow-hidden`}
         >
@@ -116,7 +118,7 @@ export default function AuthPage() {
                     <input
                       ref={(e) => (password = e)}
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••"
                       className={`w-full h-12 px-4 rounded-lg border ${
                         isDark
@@ -125,6 +127,11 @@ export default function AuthPage() {
                       } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     />
                   </div>
+                  
+                  {showPassword ? 
+                  <svg onClick={() => setShowPassword(!showPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> : 
+                  <svg onClick={() => setShowPassword(!showPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg> 
+                  }
 
                   {!isLogin && (
                     <div className="space-y-2">
@@ -137,7 +144,7 @@ export default function AuthPage() {
                       <input
                         ref={(e) => (confirm_password = e)}
                         id="confirm-password"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••"
                         className={`w-full h-12 px-4 rounded-lg border ${
                           isDark
@@ -147,6 +154,14 @@ export default function AuthPage() {
                       />
                     </div>
                   )}
+                  
+                  {!isLogin? showConfirmPassword ? 
+                  <svg onClick={() => setShowConfirmPassword(!showConfirmPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> : 
+                  <svg onClick={() => setShowConfirmPassword(!showConfirmPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg> 
+                  :
+                  <></>
+                  }
+                  
 
                   {isLogin && (
                     <div className="flex items-center justify-between">
