@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  payment-service:
+    build: .
+    container_name: clinic-payment-service  
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE}
+      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY}
+      MOMO_ENDPOINT: ${MOMO_ENDPOINT}
+      MOMO_QUERY: ${MOMO_QUERY}
+      MOMO_REDIRECT_URL: ${MOMO_REDIRECT_URL}
+      MOMO_IPN_URL: ${MOMO_IPN_URL}
+
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - clinic-net
+
+  db:
+    image: mysql:8.0
+    container_name: clinic-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - clinic-net
+
+networks:
+  clinic-net:
+
+volumes:
+  db_data:

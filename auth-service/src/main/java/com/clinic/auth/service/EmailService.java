@@ -62,6 +62,11 @@ public class EmailService {
             """, resetLink));
 
         // Gửi email qua SMTP
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (Exception ex) {
+            System.err.println("Failed to send password reset email: " + ex.getMessage());
+        }
     }
 }
+

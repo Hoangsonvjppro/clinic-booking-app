@@ -3,3 +3,27 @@ server:
 spring:
   application:
     name: appointment-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/appointment_service}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+  flyway:
+    enabled: true
+external-services:
+  patient-service:
+    base-url: ${PATIENT_SERVICE_BASE_URL:http://localhost:8080}
+  doctor-service:
+    base-url: ${DOCTOR_SERVICE_BASE_URL:http://localhost:8082}
+  notification-service:
+    base-url: ${NOTIFICATION_SERVICE_BASE_URL:http://localhost:8085}
+appointment-service:
+  cancellation-cutoff-hours: ${APPOINTMENT_CANCELLATION_CUTOFF_HOURS:24}

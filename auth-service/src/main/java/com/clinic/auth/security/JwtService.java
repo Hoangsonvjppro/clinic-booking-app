@@ -89,7 +89,7 @@ public class JwtService {
                     .build();
 
             SignedJWT signedJWT = new SignedJWT(header, claims);          // Ghép header + claims
-            signedJWT.sign(new MACSigner(appProps.getJwtSecret().getBytes())); // Ký bằng secret đối xứng
+            signedJWT.sign(new MACSigner(appProps.getJwtSecret().getBytes(StandardCharsets.UTF_8))); // Ký bằng secret đối xứng
             return signedJWT.serialize();                                 // Trả về token dạng chuỗi compact
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate JWT", e);      // Đóng gói lỗi phát hành token
@@ -119,7 +119,7 @@ public class JwtService {
     public JWTClaimsSet validateAndParse(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);                               // Phân tích token compact
-            boolean verified = signedJWT.verify(new MACVerifier(appProps.getJwtSecret().getBytes())); // Xác minh HMAC
+            boolean verified = signedJWT.verify(new MACVerifier(appProps.getJwtSecret().getBytes(StandardCharsets.UTF_8))); // Xác minh HMAC
             if (!verified) throw new RuntimeException("Invalid signature");             // Chữ ký không khớp
 
             Date exp = signedJWT.getJWTClaimsSet().getExpirationTime();                 // Lấy hạn dùng

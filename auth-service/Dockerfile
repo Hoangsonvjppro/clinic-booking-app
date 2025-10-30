@@ -1,22 +1,17 @@
-# =====================
-# Stage 1: Build
-# =====================
-FROM maven:3.9.9-eclipse-temurin-21 AS build
-WORKDIR /app
+# ===== build stage =====
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /workspace
+# copy đúng cấu trúc maven
 COPY pom.xml .
 COPY src ./src
-# Use mvn from PATH in the maven image
-RUN mvn -q -DskipTests clean package spring-boot:repackage
+# build jar (đảm bảo resources được đóng gói)
+RUN mvn -DskipTests package
 
-# =====================
-# Stage 2: Run
-# =====================
+# ===== run stage =====
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/auth-service-*.jar app.jar
-COPY start.sh .
-RUN chmod +x start.sh
-
-EXPOSE 8081
-ENV JAVA_OPTS=""
-ENTRYPOINT ["./start.sh"]
+# copy jar đã build sang runtime, đặt tên cố định app.jar
+COPY --from=build /workspace/target/*.jar /app/app.jar
+# JAVA_TOOL_OPTIONS sẽ được JVM đọc tự động, không cần shell
+ENV JAVA_TOOL_OPTIONS=""
+ENTRYPOINT ["java","-jar","/app/app.jar"]
