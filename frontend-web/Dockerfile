@@ -1,12 +1,11 @@
 FROM node:21.4.0
 WORKDIR /app
+
 COPY package*.json ./
+RUN npm install
+
 COPY . .
 
-RUN npm install
-RUN npm install
+EXPOSE 5173
 
-ENV PORT=8080
-EXPOSE 8080
-
-CMD ["npm","run","start"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
