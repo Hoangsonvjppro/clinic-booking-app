@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController
 @RequestMapping("/api/appointments")
 @Validated

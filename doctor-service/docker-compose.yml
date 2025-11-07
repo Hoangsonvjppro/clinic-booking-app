@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  doctor-service:
+    build: .
+    depends_on:
+      - doctor-db
+    environment:
+      DB_HOST: doctor-db
+      DB_PORT: 5432
+      DB_NAME: doctordb
+      DB_USER: doctoruser
+      DB_PASSWORD: StrongP@ssw0rd!
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./uploads:/app/uploads
+      
+  doctor-db:
+    image: postgres:16
+    container_name: doctor-db
+    restart: always
+    environment:
+      POSTGRES_DB: doctordb
+      POSTGRES_USER: doctoruser
+      POSTGRES_PASSWORD: StrongP@ssw0rd!
+    ports:
+      - "5433:5432"
+    volumes:
+      - doctor_db_data:/var/lib/postgresql/data
+
+volumes:
+  doctor_db_data:

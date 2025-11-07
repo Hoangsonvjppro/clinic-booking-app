@@ -9,3 +9,4 @@ build/
 **/target/
 
 api-gateway/grafana/data
+.env
