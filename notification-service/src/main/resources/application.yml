@@ -1,5 +1,21 @@
 server:
   port: 8085
+
 spring:
   application:
     name: notification-service
+
+  mail:
+    # Real google's service and its port
+    host: smtp.gmail.com
+    port: 587
+    username: "huyeunhan@gmail.com"   # Real email username
+    password: "czqp bsfs oqzx lovx"   # App password for avoiding abuse
+
+    # Attach username and password when using gmail's service
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
