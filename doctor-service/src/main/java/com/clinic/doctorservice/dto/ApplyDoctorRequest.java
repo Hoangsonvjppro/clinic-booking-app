@@ -11,7 +11,8 @@ import java.util.UUID;
 
 @Getter @Setter @NoArgsConstructor
 public class ApplyDoctorRequest {
-    private UUID userId;
+    private String userId;
+    private String name;
     private String hospitalEmail;
     private String address;
     private String phone;

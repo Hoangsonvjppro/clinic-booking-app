@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter @AllArgsConstructor
-public class ApplyDoctorResponse {
-    private UUID applicationId;
+public class DeleteDoctorResponse {
+    private String message;
     private String userId;
-    private String status;
 }

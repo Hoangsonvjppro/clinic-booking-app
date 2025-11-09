@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +32,7 @@ public class DoctorApplicationService {
 
         repo.findByUserId(app.getUserId()).ifPresent(existing -> {
             if (existing.getStatus() == DoctorApplicationStatus.PENDING) {
-                throw new ApplicationException("You already have a pending doctor application");
+                throw new ApplicationException("You already have a pending doctor application: " + existing.getId());
             }
         });
 
@@ -45,7 +46,7 @@ public class DoctorApplicationService {
         return repo.save(app);
     }
 
-    private String saveFile(UUID userId, MultipartFile file) {
+    private String saveFile(String userId, MultipartFile file) {
         try {
             String filename = userId + "-" + System.currentTimeMillis() + "-" + file.getOriginalFilename();
             Path target = uploadDir.resolve(filename);
@@ -56,6 +57,14 @@ public class DoctorApplicationService {
         }
     }
 
+    public List<String> getAllUserIds() {
+        return repo.findAll() // fetch all DoctorApplication entities
+                .stream()
+                .map(DoctorApplication::getUserId) // extract userId
+                .toList();
+    }
+
+
     public DoctorApplication approve(UUID applicationId) {
         DoctorApplication app = repo.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
         app.setStatus(DoctorApplicationStatus.APPROVED);
@@ -63,8 +72,34 @@ public class DoctorApplicationService {
         return repo.save(app);
     }
 
-    public DoctorApplication get(UUID id) {
-        DoctorApplication app = repo.findById(id).orElseThrow(() -> new RuntimeException("Application not found"));
-        return repo.save(app);
+    // --- Get status by application ID ---
+    public DoctorApplication getStatus(UUID applicationId) {
+        return repo.findById(applicationId)
+                .orElseThrow(() -> new ApplicationException("Application not found"));
+    }
+
+    // --- Get by user ID ---
+    public DoctorApplication getByUserId(String userId) {
+        return repo.findByUserId(userId)
+                .orElseThrow(() -> new ApplicationException("Application not found for userId: " + userId));
+    }
+
+    // --- Update by user ID ---
+    public DoctorApplication updateByUserId(String userId, DoctorApplication updated) {
+        DoctorApplication existing = getByUserId(userId);
+
+        existing.setHospitalEmail(updated.getHospitalEmail());
+        existing.setAddress(updated.getAddress());
+        existing.setPhone(updated.getPhone());
+        existing.setDescription(updated.getDescription());
+        existing.setPaymentMethods(updated.getPaymentMethods());
+
+        return repo.save(existing);
+    }
+
+    // --- Delete by user ID ---
+    public void deleteByUserId(String userId) {
+        DoctorApplication existing = getByUserId(userId);
+        repo.delete(existing);
     }
 }

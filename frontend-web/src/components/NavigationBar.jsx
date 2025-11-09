@@ -1,7 +1,23 @@
-import { NavLink } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { NavLink, useNavigate } from "react-router-dom"
 
 
 function NavigationBar( {isDark, toggleTheme} ) {
+    const [email, setEmail] = useState("");
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const storedEmail = localStorage.getItem("email");
+        if (storedEmail) {
+            setEmail(storedEmail);
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("email")
+        navigate("/")
+    }
+
     return (
         <>
             <nav className="top-0 left-0 right-0 z-50 bg-[#0a0a0f] border-b border-white/10">
@@ -52,11 +68,19 @@ function NavigationBar( {isDark, toggleTheme} ) {
                         </svg>
                         )}
                     </button>
-                    <NavLink to="/login" activeClassName="active-link" >
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                            Sign up
-                        </button>
-                    </NavLink>
+                    {email ? 
+                        <div className="flex gap-5">
+                            <NavLink to={`/profile?email=${email}`} className="text-white bg-indigo-900 px-6 py-2 rounded-full">{email}
+                            </NavLink>
+                            <button onClick={handleLogout} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">Log out</button>
+                        </div>
+                        :
+                        <NavLink to="/login" activeClassName="active-link" >
+                            <button className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                                Sign up
+                            </button>
+                        </NavLink>
+                    }
                     </div>
                 </div>
                 </div>

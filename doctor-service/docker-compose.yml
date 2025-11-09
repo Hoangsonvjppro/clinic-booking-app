@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: doctoruser
       POSTGRES_PASSWORD: StrongP@ssw0rd!
     ports:
-      - "5433:5432"
+      - "5435:5435"
     volumes:
       - doctor_db_data:/var/lib/postgresql/data
 

@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.*;         // Annotation REST
 import java.util.Map;                                     // Dùng để trả về phản hồi ngắn gọn
 import java.net.URI;
 
-@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
+@CrossOrigin()
 @RestController // Đánh dấu lớp là REST Controller
 @RequestMapping("/api/v1/auth") // Tiền tố chung cho tất cả endpoint
 @RequiredArgsConstructor // Tự động inject AuthService, UserRepository

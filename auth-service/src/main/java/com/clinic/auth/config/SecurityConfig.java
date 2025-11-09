@@ -188,16 +188,65 @@ public class SecurityConfig {
      * danh sách origin tường minh từ cấu hình.
      */
     @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // Bộ ánh xạ path -> CORS config
-        CorsConfiguration config = new CorsConfiguration(); // Đối tượng cấu hình CORS
-        config.setAllowCredentials(true); // Cho phép gửi cookie/authorization header qua CORS (phải dùng origin tường minh)
-        config.setAllowedOrigins(List.of(appProps.getCorsAllowedOrigins().split(","))); // Đọc danh sách origin hợp lệ từ cấu hình
-        config.setAllowedHeaders(List.of("*")); // Cho phép mọi header (có thể siết chặt sau)
-        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS")); // Cho phép các method phổ biến
-        source.registerCorsConfiguration("/**", config); // Áp dụng cho toàn bộ endpoint
-        return new CorsFilter(source); // Trả về filter để Spring đưa vào chain
+    public SecurityFilterChain filterChain(
+        HttpSecurity http,
+        CustomOAuth2UserService customOAuth2UserService,
+        OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+        OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
+        HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
+        CustomOidcUserService customOidcUserService
+    ) throws Exception {
+    http
+        // ✅ Enable CORS support from Spring Security
+        .cors(cors -> {}) 
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/api/v1/auth/register",
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/refresh",
+                        "/api/v1/auth/google",
+                        "/api/v1/auth/forgot-password",
+                        "/api/v1/auth/reset-password",
+                        "/oauth2/authorization/**",
+                        "/login/oauth2/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+                .anyRequest().authenticated()
+        )
+        .oauth2Login(oauth -> oauth
+                .authorizationEndpoint(authorization -> authorization
+                        .authorizationRequestRepository(authorizationRequestRepository)
+                )
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(customOAuth2UserService)
+                        .oidcUserService(customOidcUserService)
+                )
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler)
+        )
+        .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, e) -> {
+                        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        res.setContentType("application/json");
+                        res.getWriter().write("""
+                        {"error":"unauthorized","message":"Thông tin đăng nhập không hợp lệ"}
+                        """);
+                })
+                .accessDeniedHandler((req, res, e) -> {
+                        res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        res.setContentType("application/json");
+                        res.getWriter().write("""
+                        {"error":"forbidden","message":"Bạn không có quyền truy cập tài nguyên này"}
+                        """);
+                })
+        )
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
     }
+
 
     @Bean
     public HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository() {

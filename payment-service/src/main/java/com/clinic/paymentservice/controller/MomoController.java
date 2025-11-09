@@ -1,16 +1,24 @@
 package com.clinic.paymentservice.controller;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import com.clinic.paymentservice.service.MomoService;
 import java.util.HashMap;
-import com.clinic.paymentservice.util.CryptoUtil;
-import com.clinic.paymentservice.config.MomoConfig;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
+import com.clinic.paymentservice.config.MomoConfig;
+import com.clinic.paymentservice.service.MomoService;
+import com.clinic.paymentservice.util.CryptoUtil;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+
+@CrossOrigin
 @RestController
 @RequestMapping("/api/momo")
 public class MomoController {
