@@ -18,7 +18,6 @@ services:
   # COMPONENTS SERVER for API Gateway
   redis:
     image: redis:7
-    container_name: redis
     ports:
       - "6380:6379"
     networks:
@@ -26,7 +25,6 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
     volumes:
       - ../api-gateway/prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -36,7 +34,6 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
     depends_on:
       - prometheus
     ports:
