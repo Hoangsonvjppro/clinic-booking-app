@@ -2,7 +2,6 @@ package com.clinic.notificationservice.services;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,18 +24,6 @@ public class EmailService {
     public EmailService(JavaMailSender mailSender, SpringTemplateEngine templateEngine) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
-    }
-
-    public void sendEmail(String toEmail, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject(subject);
-        message.setText(body);
-
-        mailSender.send(message);
-        System.out.println("Gui mail thanh cong");
     }
 
     public void sendEmailHtml(String toEmail, String subject, Map<String, Object> variables) throws MessagingException {
