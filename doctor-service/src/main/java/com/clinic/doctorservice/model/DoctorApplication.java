@@ -23,8 +23,9 @@ public class DoctorApplication {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private UUID userId;
+    private String userId;
 
+    private String name;
     private String hospitalEmail;
     private String address;
     private String phone;

@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion"
 import { Check, Info, GraduationCap, CalendarCheck, PartyPopper, CircleCheck } from "lucide-react"
 import DoctorInformation from "../components/DoctorInformation"
@@ -18,10 +19,12 @@ export default function CreateDoctorAcc() {
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(0)
   const [form, setForm] = useState({
+    userId: "1",
     doctorName: "",
     address: "",
-    email: "",
-    phone: "",
+    hospitalEmail: "example@gmail.com",
+    phone: "+84xxxxxxxxx",
+    description: "",
     options: [
       { key: "autoAccept", label: "Tự động nhận khách" },
       { key: "deposit", label: "Chuyển khoản cọc" },
@@ -37,9 +40,57 @@ export default function CreateDoctorAcc() {
       document.documentElement.classList.toggle("dark")
     }
 
-  const showInfo = () => {
-    console.log(form)
-  }
+  const createDoctor = async () => {
+    console.log(form);
+
+    // Map boolean options to payment methods
+    const paymentMethods = [];
+    if (form.autoAccept) paymentMethods.push("AUTO_ACCEPT");
+    if (form.deposit) paymentMethods.push("DEPOSIT");
+    if (form.fullOnly) paymentMethods.push("FULL_ONLY");
+    if (form.payOnSite) paymentMethods.push("PAY_ON_SITE");
+
+    // Flatten address object into a string
+    const addressString = form.address
+      ? `hospital-name:${form.address.name}, ${form.address.detail}, ${form.address.region}, phone:${form.address.phone}`
+      : "";
+
+    // Prepare payload
+    const payload = {
+      userId: form.userId, // Make sure this is set
+      name: form.doctorName,
+      hospitalEmail: form.hospitalEmail,
+      address: addressString,
+      phone: form.phone,
+      description: form.description,
+      paymentMethods: paymentMethods.join(","),
+    };
+
+    // Create FormData
+    const formData = new FormData();
+    formData.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+
+    if (form.files && form.files.length > 0) {
+      form.files.forEach((file) => formData.append("certificates", file));
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8083/api/doctor/apply",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error submitting doctor application:", error.response?.data || error.message);
+    }
+  };
 
   const handleFilesSelect = (newFiles) => {
     setForm((prev) => ({
@@ -86,7 +137,7 @@ export default function CreateDoctorAcc() {
       <div className="max-w-3xl mx-auto mt-10 flex flex-col h-screen">
         <SimpleNavigation isDark={isDark} toggleTheme={toggleTheme} />
         {/* Step Header */}
-        <div className="flex justify-between items-center w-full my-10 relative">
+        <div className="flex justify-between items-center w-full mt-10 mb-5 relative">
           {steps.map((label, i) => (
             <div key={i} className="flex-1 flex flex-col items-center relative">
               {/* Connector line */}
@@ -158,7 +209,7 @@ export default function CreateDoctorAcc() {
             )}
 
             {/* Buttons */}
-            <div className="flex justify-end gap-3 mt-8">
+            <div className="flex justify-end gap-3 mt-4">
               {step > 0 && (
                 <button
                   onClick={back}
@@ -175,7 +226,7 @@ export default function CreateDoctorAcc() {
                   Tiếp theo
                 </button>
               ) : (
-                <button onClick={showInfo} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+                <button onClick={createDoctor} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
                   Hoàn tất
                 </button>
               )}

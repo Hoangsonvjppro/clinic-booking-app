@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Star, MapPin, Calendar, Phone } from "lucide-react";
 import { doctors } from "../utils/doctors";
+import Cookies from "js-cookie"
 import NavigationBar from "../components/NavigationBar";
+import { use } from "react";
 
 export default function DoctorPage() {
   const location = useLocation();

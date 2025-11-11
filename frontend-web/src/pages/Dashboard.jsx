@@ -1,14 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import DoctorCard from "../components/DoctorCard";
 import DoctorQuickView from "../components/DoctorQuickView";
 import NavigationBar from "../components/NavigationBar";
 import { doctors } from "../utils/doctors";
+import { useLocation } from "react-router-dom";
+import Cookies from "js-cookie"
+import axios from "axios";
 
 export default function Dashboard() {
+  const location = useLocation();
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [isDark, setIsDark] = useState(false)
+
+    const user = {}
+    useEffect(() => {
+        const token = Cookies.get("accessToken");
+        axios.get("http://localhost:8081/api/v1/auth/me", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
+        .then((res) => {
+            console.log(res)
+        })
+        .catch((res) => {
+            console.log(res)
+        })
+    }, [])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
