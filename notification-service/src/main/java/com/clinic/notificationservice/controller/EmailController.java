@@ -26,7 +26,7 @@ public class EmailController implements CommandLineRunner {
     }
 
     /**
-     * This endpoint is for sending email automatically with Kafka
+     * This endpoint is for sending email, appointment can call
      */
     @PostMapping("/send-email")
     public ResponseEntity<Map<String, Object>> sendEmail(@RequestBody AppointmentDTO appointmentRequest) {

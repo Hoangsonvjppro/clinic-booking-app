@@ -40,5 +40,11 @@
       <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
 
+    <!-- Dependency helps communicate with the Kafka server -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+
   </dependencies>
 </project>
