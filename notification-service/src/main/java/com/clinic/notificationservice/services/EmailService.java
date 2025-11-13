@@ -15,8 +15,8 @@ import java.util.Map;
 @Service
 public class EmailService {
 
-    private JavaMailSender mailSender;
-    private SpringTemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
