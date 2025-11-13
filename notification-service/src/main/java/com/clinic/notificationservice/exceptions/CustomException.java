@@ -18,4 +18,11 @@ public class CustomException {
             super(message);
         }
     }
+
+    // Doctor not found
+    public static class DoctorNotFoundException extends RuntimeException {
+        public DoctorNotFoundException(String message) {
+            super(message);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.clinic.notificationservice.controller;
 
 import com.clinic.notificationservice.dto.AppointmentDTO;
+import com.clinic.notificationservice.dto.DoctorDTO;
 import com.clinic.notificationservice.dto.PatientDTO;
 import com.clinic.notificationservice.exceptions.CustomException;
 import com.clinic.notificationservice.services.ApiService;
@@ -36,11 +37,12 @@ public class EmailController implements CommandLineRunner {
             // Call API and get data
             AppointmentDTO appointmentDTO = apiService.getAppointmentById(appointmentRequest.getAppointmentId());
             PatientDTO patientDTO = apiService.getPatientById(appointmentDTO.getPatientId());
+            DoctorDTO doctorDTO = apiService.getDoctorById(appointmentDTO.getDoctorId());
 
             // Prepare email's content
             String toEmail = patientDTO.getEmail();
             String subject = "Xác nhận lịch hẹn khám chữa bệnh";
-            Map<String, Object> body = getBody(patientDTO, appointmentDTO);
+            Map<String, Object> body = getBody(patientDTO, appointmentDTO, doctorDTO);
 
             // Send email
             emailService.sendEmailHtml(toEmail, subject, body);
@@ -52,6 +54,9 @@ public class EmailController implements CommandLineRunner {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (CustomException.PatientNotFoundException e) {
             response.put("message", "Patient not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (CustomException.DoctorNotFoundException e) {
+            response.put("message", "Doctor not found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,13 +82,11 @@ public class EmailController implements CommandLineRunner {
 //        System.out.println(body);
     }
 
-    private static Map<String, Object> getBody(PatientDTO patientDTO, AppointmentDTO appointmentDTO) {
+    private static Map<String, Object> getBody(PatientDTO patientDTO, AppointmentDTO appointmentDTO, DoctorDTO doctorDTO) {
         String patientName = patientDTO.getFullName();
         String appointmentTime = appointmentDTO.getAppointmentTimeString();
-
-        // Temporary fixed doctor name wait until the doctor service completes
-        String doctorName = "Võ Cao Sang";
-
+        String doctorName = doctorDTO.getName();
+        String doctorAddress = doctorDTO.getAddress();
         String notes = appointmentDTO.getNotes();
         String status = appointmentDTO.getVietnameseStatus();
 
@@ -91,6 +94,7 @@ public class EmailController implements CommandLineRunner {
                 "patientName", patientName,
                 "appointmentTime", appointmentTime,
                 "doctorName", doctorName,
+                "address", doctorAddress,
                 "notes", notes,
                 "status", status
         );
