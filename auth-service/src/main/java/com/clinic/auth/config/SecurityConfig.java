@@ -95,6 +95,7 @@ public class SecurityConfig {
                                 "/login/oauth2/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/prometheus").permitAll()
                         // Mọi request khác đều yêu cầu xác thực
                         .anyRequest().authenticated()
                 )

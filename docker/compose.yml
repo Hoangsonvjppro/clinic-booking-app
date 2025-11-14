@@ -11,15 +11,40 @@ services:
     environment:
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
+      - SPRING_PROFILES_ACTIVE=docker
     networks:
       - clinic-network
 
-  # REDIS SERVER for API Gateway
+  # COMPONENTS SERVER for API Gateway
   redis:
     image: redis:7
-    container_name: redis
     ports:
       - "6380:6379"
+    networks:
+      - clinic-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ../api-gateway/prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+    networks:
+      - clinic-network
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ../api-gateway/grafana/data:/var/lib/grafana
+      - ../api-gateway/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ../api-gateway/grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - clinic-network
 
