@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
     <meta charset="UTF-8" />
-    <title>Xác nhận lịch hẹn - Clinic Booking App</title>
-    <style>
+    <title th:text="${title}"></title>
+    <style th:inline="css">
         body {
             margin: 0;
             padding: 0;
@@ -28,7 +28,6 @@
         }
 
         .header {
-            background-color: #0ea5e9;
             text-align: center;
             padding: 24px 0;
         }
@@ -52,7 +51,6 @@
 
         .info-box {
             background-color: #f0f9ff;
-            border-left: 4px solid #0ea5e9;
             padding: 16px 20px;
             border-radius: 6px;
             margin: 20px 0;
@@ -103,8 +101,8 @@
 <body>
 <div class="wrapper">
     <div class="email-container">
-        <div class="header">
-            <h1>Xác nhận lịch hẹn</h1>
+        <div class="header" th:style="'background-color:' + ${headerColor}">
+            <h1 th:text="${title}">[title]</h1>
         </div>
 
         <div class="content">
@@ -112,7 +110,7 @@
             <p>Cảm ơn bạn đã tin tưởng và đặt lịch khám tại <strong>Clinic Booking App</strong>.</p>
             <p>Dưới đây là thông tin chi tiết về lịch hẹn của bạn:</p>
 
-            <div class="info-box">
+            <div class="info-box" th:style="'border-left: 4px solid ' + ${statusColor}">
                 <p><strong>⏰ Thời gian:</strong> <span th:text="${appointmentTime}">[appointmentTime]</span></p>
                 <p><strong>👨‍⚕️ Bác sĩ:</strong> <span th:text="${doctorName}">[doctorName]</span></p>
                 <p><strong>📍 Địa chỉ phòng khám:</strong> <span th:text="${address}">[address]</span></p>

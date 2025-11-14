@@ -67,18 +67,19 @@ public class EmailController implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        int appointmentId = 1;
-//        AppointmentDTO appointmentDTO = apiService.getAppointmentById(appointmentId);
-//
-//        int patientId = appointmentDTO.getPatientId();
-//        PatientDTO patientDTO = apiService.getPatientById(patientId);
-//
-//        String toEmail = "tuyetan419@gmail.com";
-//        String subject = "Xác nhận lịch hẹn khám chữa bệnh";
-//        Map<String, Object> body = getBody(patientDTO, appointmentDTO);
-//
-//        emailService.sendEmailHtml(toEmail, subject, body);
-//        System.out.println("Gui mail thanh cong");
+        int appointmentId = 1;
+        AppointmentDTO appointmentDTO = apiService.getAppointmentById(appointmentId);
+
+        int patientId = appointmentDTO.getPatientId();
+        PatientDTO patientDTO = apiService.getPatientById(patientId);
+        DoctorDTO doctorDTO = new DoctorDTO("Vo Cao Sang", "123 An duong vuong");
+
+        String toEmail = "tuyetan419@gmail.com";
+        String subject = "Xác nhận lịch hẹn khám chữa bệnh";
+        Map<String, Object> body = getBody(patientDTO, appointmentDTO, doctorDTO);
+
+        emailService.sendEmailHtml(toEmail, subject, body);
+        System.out.println("Gui mail thanh cong");
 //        System.out.println(body);
     }
 
