@@ -1,7 +1,5 @@
 import { useState, useRef } from "react"
 import axios from "axios"
-import Cookies from "js-cookie"
-import { useNavigate } from "react-router-dom"
 import googleIcon from "../assets/google.png"
 import facebookIcon from "../assets/facebook.png"
 import promotionBanner from "../assets/banner.png"
@@ -9,22 +7,9 @@ import NavigationBar from "../components/NavigationBar"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
-  const [isDark, setIsDark] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
+  const [showPassword, setShowPassword] = useState(true)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  const [emailInUse, setEmailInUse] = useState(false)
-  const [wrongInfo, setWrongInfo] = useState(false)
-  const [blankPassword, setBlankPassword] = useState(false)
-  const [blankEmail, setBlankEmail] = useState(false)
-  const [blankUsername, setBlankUsername] = useState(false)
-  const [emailFormat, setEmailFormat] = useState(false)
-  const [confirmPassword, setConfirmPassword] = useState(false)
-  const [passwordLength, setPasswordLength] = useState(false)
-  const [passwordFormat, setPasswordFormat] = useState(false)
-
-  const nav = useNavigate()
-
   let email = useRef()
   let username = useRef()
   let password = useRef()
@@ -33,193 +18,24 @@ export default function AuthPage() {
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")
+    localStorage.setItem("mode", isDark)
   }
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin)
-    email.value = ""
-    username.value = ""
-    password.value = ""
-    confirm_password.value = ""
-    setEmailInUse(false)
-    setWrongInfo(false)
-    setBlankPassword(false)
-    setBlankEmail(false)
-    setEmailFormat(false)
-    setConfirmPassword(false)
-    setPasswordLength(false)
-    setPasswordFormat(false)
   }
 
-  async function submitLogin() {
-  let user = {
-    email: email.value,
-    password: password.value
-  };
-
-  await axios.post('http://localhost:8081/api/v1/auth/login', user)
-    .then(function (res) {
-      console.log(res.data);
-      
-      setBlankPassword(false);
-      setBlankEmail(false);
-      setEmailFormat(false);
-      setWrongInfo(false);
-
-      Cookies.set("accessToken", res.data.accessToken, {
-        expires: 2, // 2 days
-        secure: false,
-        sameSite: "Lax"
-      });
-
-      Cookies.set("refreshToken", res.data.refreshToken, {
-        expires: 2,
-        secure: false,
-        sameSite: "Lax"
-      });
-
-      Cookies.set("tokenType", res.data.tokenType, {
-        expires: 2,
-        secure: false,
-        sameSite: "Lax"
-      });
-      // localStorage.setItem("email", us er.email)
-
-      nav('/?email=' + user.email )
-    })
-    .catch(function (err) {
-      if (!err.response) {
-        console.log("Network error or server not reachable");
-        return;
-      }
-
-      const data = err.response.data;
-      console.log(data);
-      
-      if (data.email === "must not be blank") {
-        setBlankEmail(true);
-        setBlankPassword(false);
-        setEmailFormat(false);
-        setWrongInfo(false);
-        return false;
-      } 
-      if (data.password === "must not be blank") {
-        setBlankPassword(true);
-        setBlankEmail(false);
-        setEmailFormat(false);
-        setWrongInfo(false);
-        return false;
-      } 
-      if (data.email === "must be a well-formed email address") {
-        setEmailFormat(true);
-        setBlankPassword(false);
-        setBlankEmail(false);
-        setWrongInfo(false);
-        return false;
-      } 
-      if (data.error === "unauthorized") {
-        setWrongInfo(true);
-        setBlankPassword(false);
-        setBlankEmail(false);
-        setEmailFormat(false);
-        return false;
-      } 
-    });
-  }
-
-
-  function submitRegister() {
-    if (password.value !== confirm_password.value) {
-      setConfirmPassword(true);
-      setPasswordFormat(false);
-      setPasswordLength(false);
-      setBlankPassword(false);
-      setEmailFormat(false);
-      setEmailInUse(false);
-      setBlankEmail(false);
-      return false;
-    }
-
+  function submitLogin() {
     let user = {
       "email": email.value,
-      "password": password.value,
-      "defaultRole": "PATIENT"
+      "password": password.value
     }
-    axios.post('http://localhost:8081/api/v1/auth/register', user)
+    axios.post('http://localhost:8081/api/v1/auth/login', user)
     .then(function(response) {
       console.log(response)
-      // localStorage.setItem("email", user.email)
-      // localStorage.setItem("role", user.role)
-      nav('/?email=' + user.email )
     })
-    .catch(function(err) {
-      if (!err.response) {
-        console.log("Network error or server not reachable");
-        return;
-      }
-
-      const data = err.response.data;
-      console.log(data);
-      
-      if (data.email === "Email cannot be empty") {
-        setConfirmPassword(false);
-        setPasswordFormat(false);
-        setPasswordLength(false);
-        setBlankPassword(false);
-        setEmailFormat(false);
-        setBlankEmail(true);
-        return false;
-      } 
-      if (data.password === "Passwod cannot be empty") {
-        setConfirmPassword(false);
-        setPasswordFormat(false);
-        setPasswordLength(false);
-        setBlankPassword(true);
-        setEmailFormat(false);
-        setEmailInUse(false);
-        setBlankEmail(false);
-        return false;
-      } 
-      if (data.password === "Mật khẩu phải chứa ít nhất 1 chữ cái và 1 chữ số") {
-        setConfirmPassword(false);
-        setPasswordFormat(true);
-        setPasswordLength(false);
-        setBlankPassword(false);
-        setEmailFormat(false);
-        setEmailInUse(false);
-        setBlankEmail(false);
-        return false;
-      }
-      if (data.password === "Mật khẩu phải từ 8 đến 64 ký tự") {
-        setConfirmPassword(false);
-        setPasswordFormat(false);
-        setPasswordLength(true);
-        setBlankPassword(false);
-        setEmailFormat(false);
-        setEmailInUse(false);
-        setBlankEmail(false);
-        return false;
-      }
-      if (data.email === "Địa chỉ email không hợp lệ (phải có dạng name@domain.com)") {
-        setConfirmPassword(false);
-        setPasswordFormat(false);
-        setPasswordLength(false);
-        setBlankPassword(false);
-        setEmailFormat(true);
-        setEmailInUse(false);
-        setBlankEmail(false);
-        return false;
-      } 
-      if (data.message === "Email already in use") {
-        setConfirmPassword(false);
-        setPasswordFormat(false);
-        setPasswordLength(false);
-        setBlankPassword(false);
-        setEmailFormat(false);
-        setEmailInUse(true);
-        setBlankEmail(false);
-        return false;
-      } 
+    .catch(function(error) {
+        console.log(error)
     })
   }
 
@@ -244,7 +60,7 @@ export default function AuthPage() {
                   </h1>
                   <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>
                     {isLogin ? "Don't have an account? " : "Already have an account? "}
-                    <button onClick={toggleAuthMode} className="text-blue-600 hover:underline font-medium cursor-pointer">
+                    <button onClick={toggleAuthMode} className="text-blue-600 hover:underline font-medium">
                       {isLogin ? "Create now" : "Sign in"}
                     </button>
                   </p>
@@ -373,56 +189,11 @@ export default function AuthPage() {
                   )}
 
                   <button
-                    className="w-full h-12 bg-[#1a4d3a] hover:bg-[#153d2e] cursor-pointer text-white rounded-lg font-medium transition-colors"
-                    onClick={isLogin ? submitLogin : submitRegister}
+                    className="w-full h-12 bg-[#1a4d3a] hover:bg-[#153d2e] text-white rounded-lg font-medium transition-colors"
+                    onClick={submitLogin}
                   >
                     {isLogin ? "Sign in" : "Create account"}
                   </button>
-                  
-
-                  <div>
-                    {isLogin && (
-                      <div className="space-y-2" role="alert" aria-live="polite">
-                        {wrongInfo && (
-                          <p className="text-sm text-red-600">Incorrect email or password.</p>
-                        )}
-                        {blankPassword && (
-                          <p className="text-sm text-red-600">Password must not be blank.</p>
-                        )}
-                        {blankEmail && (
-                          <p className="text-sm text-red-600">Email must not be blank.</p>
-                        )}
-                        {emailFormat && (
-                          <p className="text-sm text-red-600">Email must be a well-formed email address.</p>
-                        )}
-                      </div>
-                    )}
-                    {!isLogin && (
-                      <div className="space-y-2" role="alert" aria-live="polite">
-                        {emailInUse && (
-                          <p className="text-sm text-red-600">Email is already used.</p>
-                        )}
-                        {passwordFormat && (
-                          <p className="text-sm text-red-600">Password must contains characters and numbers.</p>
-                        )}
-                        {blankPassword && (
-                          <p className="text-sm text-red-600">Password must not be blank.</p>
-                        )}
-                        {passwordLength && (
-                          <p className="text-sm text-red-600">Password must contains 8 to 64 characters.</p>
-                        )}
-                        {blankEmail && (
-                          <p className="text-sm text-red-600">Email must not be blank.</p>
-                        )}
-                        {emailFormat && (
-                          <p className="text-sm text-red-600">Email must be a well-formed email address.</p>
-                        )}
-                        {confirmPassword && (
-                          <p className="text-sm text-red-600">Confirm password is not the same.</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
 
                   <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center">

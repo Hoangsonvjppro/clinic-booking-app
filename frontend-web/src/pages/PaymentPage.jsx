@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"
 
 
 export default function PaymentPage() {
-    const [isDark, setIsDark] = useState(false)
+    const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
     const [paymentMethod, setPaymentMethod] = useState("momo");
     const [displayMethod, setDisplayMethod] = useState("webpay");
 
@@ -24,6 +24,7 @@ export default function PaymentPage() {
     const toggleTheme = () => {
         setIsDark(!isDark)
         document.documentElement.classList.toggle("dark")
+        localStorage.setItem("mode", isDark)
     }
 
     const onPayment = async () => {

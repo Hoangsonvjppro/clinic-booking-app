@@ -33,12 +33,13 @@ export default function CreateDoctorAcc() {
     ],
     files: [],
   })
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
 
   const toggleTheme = () => {
-      setIsDark(!isDark)
-      document.documentElement.classList.toggle("dark")
-    }
+    setIsDark(!isDark)
+    document.documentElement.classList.toggle("dark")
+    localStorage.setItem("mode", isDark)
+  }
 
   const createDoctor = async () => {
     console.log(form);
