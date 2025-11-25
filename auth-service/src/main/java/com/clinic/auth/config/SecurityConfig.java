@@ -79,6 +79,15 @@ public class SecurityConfig {
         http
                 // 1️⃣ Tắt CSRF vì REST API là stateless
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(request -> {
+                CorsConfiguration cfg = new CorsConfiguration();
+                cfg.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000")); // Cho phép Frontend gọi vào
+                cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                cfg.setAllowedHeaders(Arrays.asList("*"));
+                cfg.setAllowCredentials(true);
+                return cfg;
+                }))
+        
                 // 2️⃣ Bảo đảm không tạo session (hoặc có)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 3️⃣ Quy tắc phân quyền endpoint
