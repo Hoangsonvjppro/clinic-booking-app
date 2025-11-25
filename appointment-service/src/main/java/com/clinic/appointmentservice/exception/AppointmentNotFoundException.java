@@ -1,8 +1,9 @@
 package com.clinic.appointmentservice.exception;
 
-public class AppointmentNotFoundException extends RuntimeException {
+import java.util.UUID;
 
-    public AppointmentNotFoundException(Long appointmentId) {
-        super("Appointment not found: " + appointmentId);
+public class AppointmentNotFoundException extends RuntimeException {
+    public AppointmentNotFoundException(UUID id) {
+        super("Appointment not found with id: " + id);
     }
 }

@@ -1,0 +1,3 @@
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS doctor_name VARCHAR(255);
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS patient_name VARCHAR(255);
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS clinic_address TEXT;

@@ -1,9 +1,11 @@
 package com.clinic.appointmentservice.client.dto;
 
+import java.util.UUID;
+
 public record NotificationRequest(
-        Long patientId,
-        Long doctorId,
-        Long appointmentId,
+        UUID patientId,
+        UUID doctorId,
+        UUID appointmentId,
         String subject,
         String message,
         String channel

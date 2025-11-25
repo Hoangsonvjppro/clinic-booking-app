@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
 
-public interface PatientRepository extends JpaRepository<Patient, Long>, JpaSpecificationExecutor<Patient> {
+import java.util.UUID;
+
+public interface PatientRepository extends JpaRepository<Patient, UUID>, JpaSpecificationExecutor<Patient> {
     Optional<Patient> findByEmail(String email);
     Optional<Patient> findByEmailIgnoreCase(String email);
     boolean existsByEmail(String email);

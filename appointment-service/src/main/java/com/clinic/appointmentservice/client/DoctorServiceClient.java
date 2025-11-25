@@ -10,6 +10,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.clinic.appointmentservice.client.dto.DoctorResponse;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 @Component
@@ -23,7 +25,7 @@ public class DoctorServiceClient {
         this.properties = properties;
     }
 
-    public DoctorAvailability verifyAvailability(Long doctorId, LocalDateTime appointmentTime, Integer durationMinutes) {
+    public DoctorAvailability verifyAvailability(UUID doctorId, LocalDateTime appointmentTime, Integer durationMinutes) {
         String baseUrl = properties.getDoctorService().getBaseUrl();
         if (baseUrl == null) {
             throw new RemoteServiceException("Doctor service base URL is not configured");
@@ -54,6 +56,27 @@ public class DoctorServiceClient {
             throw new RemoteServiceException("Error calling doctor service: " + ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new RemoteServiceException("Doctor service is unavailable", ex);
+        }
+    }
+
+    public DoctorResponse getDoctor(UUID doctorId) {
+        String baseUrl = properties.getDoctorService().getBaseUrl();
+        if (baseUrl == null) {
+            throw new RemoteServiceException("Doctor service base URL is not configured");
+        }
+
+        String url = String.format("%s/api/doctors/%s", baseUrl, doctorId);
+
+        try {
+            DoctorResponse doctor = restTemplate.getForObject(url, DoctorResponse.class);
+            if (doctor == null) {
+                throw new RemoteServiceException("Doctor service returned empty response for doctorId=" + doctorId);
+            }
+            return doctor;
+        } catch (HttpClientErrorException.NotFound ex) {
+            throw new RemoteServiceException("Doctor not found: " + doctorId);
+        } catch (Exception ex) {
+            throw new RemoteServiceException("Error calling doctor service", ex);
         }
     }
 }

@@ -3,10 +3,12 @@ package com.clinic.appointmentservice.dto;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+import java.util.UUID;
+
 public record AppointmentResponse(
-        Long appointmentId,
-        Long patientId,
-        Long doctorId,
+        UUID id,
+        UUID patientId,
+        UUID doctorId,
         LocalDateTime appointmentTime,
         Integer durationMinutes,
         String status,

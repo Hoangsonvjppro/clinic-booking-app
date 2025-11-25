@@ -1,8 +1,9 @@
 package com.clinic.appointmentservice.exception;
 
-public class PatientNotFoundException extends RuntimeException {
+import java.util.UUID;
 
-    public PatientNotFoundException(Long patientId) {
-        super("Patient not found: " + patientId);
+public class PatientNotFoundException extends RuntimeException {
+    public PatientNotFoundException(UUID patientId) {
+        super("Patient not found with ID: " + patientId);
     }
 }

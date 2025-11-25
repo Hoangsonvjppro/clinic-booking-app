@@ -1,12 +1,13 @@
 package com.clinic.appointmentservice.exception;
 
-public class DoctorUnavailableException extends RuntimeException {
+import java.util.UUID;
 
-    public DoctorUnavailableException(Long doctorId) {
-        super("Doctor is not available: " + doctorId);
+public class DoctorUnavailableException extends RuntimeException {
+    public DoctorUnavailableException(UUID doctorId) {
+        super("Doctor " + doctorId + " is not available at the requested time");
     }
 
-    public DoctorUnavailableException(Long doctorId, String message) {
-        super(message + " (doctorId=" + doctorId + ")");
+    public DoctorUnavailableException(UUID doctorId, String message) {
+        super("Doctor " + doctorId + ": " + message);
     }
 }

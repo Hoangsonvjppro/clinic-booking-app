@@ -4,10 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 public class CancelAppointmentRequest {
 
     @NotNull
-    private Long requesterId;
+    private UUID requesterId;
 
     @NotNull
     private RequesterRole requesterRole;
@@ -15,11 +17,11 @@ public class CancelAppointmentRequest {
     @Size(max = 500)
     private String reason;
 
-    public Long getRequesterId() {
+    public UUID getRequesterId() {
         return requesterId;
     }
 
-    public void setRequesterId(Long requesterId) {
+    public void setRequesterId(UUID requesterId) {
         this.requesterId = requesterId;
     }
 

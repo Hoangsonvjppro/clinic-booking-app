@@ -4,6 +4,7 @@ import com.clinic.appointmentservice.client.DoctorServiceClient;
 import com.clinic.appointmentservice.client.NotificationServiceClient;
 import com.clinic.appointmentservice.client.PatientServiceClient;
 import com.clinic.appointmentservice.client.dto.DoctorAvailability;
+import com.clinic.appointmentservice.client.dto.DoctorResponse;
 import com.clinic.appointmentservice.client.dto.NotificationRequest;
 import com.clinic.appointmentservice.client.dto.PatientProfile;
 import com.clinic.appointmentservice.config.AppointmentProperties;
@@ -28,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class AppointmentService {
@@ -74,12 +76,21 @@ public class AppointmentService {
 
         ensureNoConflict(request.getDoctorId(), request.getAppointmentTime());
 
+        // Snapshot Logic
+        String patientName = patient.firstName() + " " + patient.lastName();
+        DoctorResponse doctorInfo = doctorServiceClient.getDoctor(request.getDoctorId());
+
         Appointment appointment = Appointment.create();
         appointment.setPatientId(request.getPatientId());
         appointment.setDoctorId(request.getDoctorId());
         appointment.setAppointmentTime(request.getAppointmentTime());
         appointment.setDurationMinutes(request.getDurationMinutes());
         appointment.setNotes(request.getNotes());
+        
+        // Set Snapshot Data
+        appointment.setPatientName(patientName);
+        appointment.setDoctorName(doctorInfo.fullName());
+        appointment.setClinicAddress(doctorInfo.hospitalAddress());
 
         AppointmentStatus initialStatus = doctorAvailability.autoAccept()
                 ? appointmentStatusService.getStatus(AppointmentStatusCode.CONFIRMED)
@@ -106,7 +117,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponse cancelAppointment(Long appointmentId, CancelAppointmentRequest request) {
+    public AppointmentResponse cancelAppointment(UUID appointmentId, CancelAppointmentRequest request) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
 
@@ -136,7 +147,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponse updateStatus(Long appointmentId, UpdateAppointmentStatusRequest request) {
+    public AppointmentResponse updateStatus(UUID appointmentId, UpdateAppointmentStatusRequest request) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
 
@@ -165,21 +176,21 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public AppointmentResponse getAppointment(Long appointmentId) {
+    public AppointmentResponse getAppointment(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
         return AppointmentMapper.toResponse(appointment);
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponse> getAppointmentsByPatient(Long patientId) {
+    public List<AppointmentResponse> getAppointmentsByPatient(UUID patientId) {
         return appointmentRepository.findAllByPatientId(patientId).stream()
                 .map(AppointmentMapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponse> getAppointmentsByDoctor(Long doctorId) {
+    public List<AppointmentResponse> getAppointmentsByDoctor(UUID doctorId) {
         return appointmentRepository.findAllByDoctorId(doctorId).stream()
                 .map(AppointmentMapper::toResponse)
                 .toList();
@@ -192,7 +203,7 @@ public class AppointmentService {
                 .toList();
     }
 
-    private void ensureNoConflict(Long doctorId, LocalDateTime appointmentTime) {
+    private void ensureNoConflict(UUID doctorId, LocalDateTime appointmentTime) {
         if (appointmentRepository.existsByDoctorIdAndAppointmentTime(doctorId, appointmentTime)) {
             throw new AppointmentConflictException(doctorId, appointmentTime.toString());
         }
@@ -209,7 +220,7 @@ public class AppointmentService {
         }
     }
 
-    private void validateRequesterForAppointment(Appointment appointment, Long requesterId, RequesterRole role) {
+    private void validateRequesterForAppointment(Appointment appointment, UUID requesterId, RequesterRole role) {
         if (role == RequesterRole.PATIENT && !Objects.equals(appointment.getPatientId(), requesterId)) {
             throw new UnauthorizedActionException("Patient cannot modify another patient's appointment");
         }
@@ -221,7 +232,7 @@ public class AppointmentService {
     private void validateStatusTransition(Appointment appointment,
                                           AppointmentStatusCode targetStatus,
                                           RequesterRole requesterRole,
-                                          Long requesterId) {
+                                          UUID requesterId) {
         AppointmentStatusCode currentStatus = appointment.getStatus().getCode();
 
         if (currentStatus == targetStatus) {
@@ -252,7 +263,7 @@ public class AppointmentService {
         }
     }
 
-    private void ensureRoleIsDoctorOrAdmin(Appointment appointment, RequesterRole role, Long requesterId) {
+    private void ensureRoleIsDoctorOrAdmin(Appointment appointment, RequesterRole role, UUID requesterId) {
         if (role == RequesterRole.DOCTOR && Objects.equals(appointment.getDoctorId(), requesterId)) {
             return;
         }
@@ -347,7 +358,7 @@ public class AppointmentService {
         }
     }
 
-    private String buildPerformer(RequesterRole role, Long id) {
+    private String buildPerformer(RequesterRole role, UUID id) {
         return role.name() + "_" + id;
     }
 }

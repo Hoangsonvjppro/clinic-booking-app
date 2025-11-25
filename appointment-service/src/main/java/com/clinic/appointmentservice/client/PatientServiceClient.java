@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import java.util.UUID;
 
 @Component
 public class PatientServiceClient {
@@ -20,13 +21,13 @@ public class PatientServiceClient {
         this.properties = properties;
     }
 
-    public PatientProfile getPatient(Long patientId) {
+    public PatientProfile getPatient(UUID patientId) {
         String baseUrl = properties.getPatientService().getBaseUrl();
         if (baseUrl == null) {
             throw new RemoteServiceException("Patient service base URL is not configured");
         }
 
-        String url = String.format("%s/api/patients/%d", baseUrl, patientId);
+        String url = String.format("%s/api/patients/%s", baseUrl, patientId);
 
         try {
             PatientProfile profile = restTemplate.getForObject(url, PatientProfile.class);
