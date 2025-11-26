@@ -10,7 +10,10 @@ export default function SettingsSection({ title, items, onEdit }) {
           >
             <div>
               <p className="font-medium text-gray-800">{label}</p>
-              <p className="text-gray-500 text-sm">{value || "N/A"}</p>
+              <p className="text-gray-500 text-sm">{Array.isArray(value) ? value.map((role, ind) => {
+                if (ind == value.length - 1) return <p>{role.displayName}</p>
+                else return <p>{role.displayName}, </p>
+                }) : value || "N/A"}</p>
             </div>
             {editable && (
               <button

@@ -1,21 +1,17 @@
 import { useEffect, useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
+import Cookies from "js-cookie"
 
 
-function NavigationBar( {isDark, toggleTheme} ) {
-    const [email, setEmail] = useState("");
+function NavigationBar( {isDark, toggleTheme, user} ) {
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const storedEmail = localStorage.getItem("email");
-        if (storedEmail) {
-            setEmail(storedEmail);
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem("email")
+    const handleLogout = () => {    
+        Cookies.remove("accessToken")
+        Cookies.remove("refreshToken")
+        Cookies.remove("tokenType")
         navigate("/")
+        window.location.reload();
     }
 
     return (
@@ -68,9 +64,9 @@ function NavigationBar( {isDark, toggleTheme} ) {
                         </svg>
                         )}
                     </button>
-                    {email ? 
+                    {user ? 
                         <div className="flex gap-5">
-                            <NavLink to={`/profile?email=${email}`} className="text-white bg-indigo-900 px-6 py-2 rounded-full">{email}
+                            <NavLink to="/profile/setting" className="text-white bg-indigo-900 p-5 rounded-full">
                             </NavLink>
                             <button onClick={handleLogout} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">Log out</button>
                         </div>

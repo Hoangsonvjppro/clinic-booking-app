@@ -1,20 +1,20 @@
 /*
- * AuthController là REST Controller trung tâm của hệ thống xác thực,
- * chịu trách nhiệm định nghĩa các endpoint liên quan đến quản lý người dùng và bảo mật:
- *
- *  - /register        → Đăng ký tài khoản mới
- *  - /login           → Đăng nhập, trả về cặp token (access + refresh)
- *  - /me              → Truy vấn thông tin người dùng hiện tại (dựa trên token JWT)
- *  - /refresh         → Làm mới token khi access token hết hạn
- *  - /logout          → Đăng xuất, thu hồi refresh token của người dùng
- *  - /change-password → Đổi mật khẩu cho người dùng đã đăng nhập
- *  - /forgot-password → Gửi email đặt lại mật khẩu
- *  - /reset-password  → Đặt lại mật khẩu bằng token từ email
- *
- * Controller này không xử lý logic nghiệp vụ trực tiếp, mà ủy quyền cho AuthService.
- * Mỗi endpoint đều có validation đầu vào (@Valid),
- * và phản hồi chuẩn RESTful dưới dạng ResponseEntity với mã trạng thái phù hợp.
- */
+* AuthController là REST Controller trung tâm của hệ thống xác thực,
+* chịu trách nhiệm định nghĩa các endpoint liên quan đến quản lý người dùng và bảo mật:
+*
+*  - /register        → Đăng ký tài khoản mới
+*  - /login           → Đăng nhập, trả về cặp token (access + refresh)
+*  - /me              → Truy vấn thông tin người dùng hiện tại (dựa trên token JWT)
+*  - /refresh         → Làm mới token khi access token hết hạn
+*  - /logout          → Đăng xuất, thu hồi refresh token của người dùng
+*  - /change-password → Đổi mật khẩu cho người dùng đã đăng nhập
+*  - /forgot-password → Gửi email đặt lại mật khẩu
+*  - /reset-password  → Đặt lại mật khẩu bằng token từ email
+*
+* Controller này không xử lý logic nghiệp vụ trực tiếp, mà ủy quyền cho AuthService.
+* Mỗi endpoint đều có validation đầu vào (@Valid),
+* và phản hồi chuẩn RESTful dưới dạng ResponseEntity với mã trạng thái phù hợp.
+*/
 package com.clinic.auth.web;
 
 import com.clinic.auth.model.User;                       // Thực thể người dùng
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.*;         // Annotation REST
 import java.util.Map;                                     // Dùng để trả về phản hồi ngắn gọn
 import java.net.URI;
 
-@CrossOrigin()
+
 @RestController // Đánh dấu lớp là REST Controller
 @RequestMapping("/api/v1/auth") // Tiền tố chung cho tất cả endpoint
 @RequiredArgsConstructor // Tự động inject AuthService, UserRepository
@@ -90,7 +90,6 @@ public class AuthController {
      */
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    @JsonIgnore
     public ResponseEntity<User> getCurrentUser(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(user);

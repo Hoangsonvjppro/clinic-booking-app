@@ -10,6 +10,19 @@ export default function AuthPage() {
   const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
   const [showPassword, setShowPassword] = useState(true)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [remember, setRemember] = useState(false)
+
+  const [emailInUse, setEmailInUse] = useState(false)
+  const [wrongInfo, setWrongInfo] = useState(false)
+  const [blankPassword, setBlankPassword] = useState(false)
+  const [blankEmail, setBlankEmail] = useState(false)
+  const [emailFormat, setEmailFormat] = useState(false)
+  const [confirmPassword, setConfirmPassword] = useState(false)
+  const [passwordLength, setPasswordLength] = useState(false)
+  const [passwordFormat, setPasswordFormat] = useState(false)
+
+  const nav = useNavigate()
+
   let email = useRef()
   let username = useRef()
   let password = useRef()
@@ -23,6 +36,96 @@ export default function AuthPage() {
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin)
+    email.value = ""
+    username.value = ""
+    password.value = ""
+    confirm_password.value = ""
+    setEmailInUse(false)
+    setWrongInfo(false)
+    setBlankPassword(false)
+    setBlankEmail(false)
+    setEmailFormat(false)
+    setConfirmPassword(false)
+    setPasswordLength(false)
+    setPasswordFormat(false)
+  }
+
+  async function submitLogin() {
+    let user = {
+      email: email.value,
+      password: password.value
+    };
+
+    await axios.post('http://localhost:8081/api/v1/auth/login', user)
+    .then(function (res) {
+      console.log(res.data);
+      
+      setBlankPassword(false);
+      setBlankEmail(false);
+      setEmailFormat(false);
+      setWrongInfo(false);
+
+      
+      if (remember) {
+        Cookies.set("accessToken", res.data.accessToken, {
+          expires: 2, // 2 days
+          secure: false,
+          sameSite: "Lax"
+        });
+        
+        Cookies.set("refreshToken", res.data.refreshToken, {
+          expires: 2,
+          secure: false,
+          sameSite: "Lax"
+        });
+  
+        Cookies.set("tokenType", res.data.tokenType, {
+          expires: 2,
+          secure: false,
+          sameSite: "Lax"
+        });
+      }
+
+      nav('/')
+    })
+    .catch(function (err) {
+      if (!err.response) {
+        console.log("Network error or server not reachable");
+        return;
+      }
+
+      const data = err.response.data;
+      console.log(data);
+      
+      if (data.email === "must not be blank") {
+        setBlankEmail(true);
+        setBlankPassword(false);
+        setEmailFormat(false);
+        setWrongInfo(false);
+        return false;
+      } 
+      if (data.password === "must not be blank") {
+        setBlankPassword(true);
+        setBlankEmail(false);
+        setEmailFormat(false);
+        setWrongInfo(false);
+        return false;
+      } 
+      if (data.email === "must be a well-formed email address") {
+        setEmailFormat(true);
+        setBlankPassword(false);
+        setBlankEmail(false);
+        setWrongInfo(false);
+        return false;
+      } 
+      if (data.error === "unauthorized") {
+        setWrongInfo(true);
+        setBlankPassword(false);
+        setBlankEmail(false);
+        setEmailFormat(false);
+        return false;
+      } 
+    });
   }
 
   function submitLogin() {
@@ -33,6 +136,7 @@ export default function AuthPage() {
     axios.post('http://localhost:8081/api/v1/auth/login', user)
     .then(function(response) {
       console.log(response)
+      nav('/' )
     })
     .catch(function(error) {
         console.log(error)
@@ -67,27 +171,6 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {!isLogin && (
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="name"
-                        className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        ref={(e) => (username = e)}
-                        id="name"
-                        type="text"
-                        placeholder="John Doe"
-                        className={`w-full h-12 px-4 rounded-lg border ${
-                          isDark
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      />
-                    </div>
-                  )}
 
                   <div className="space-y-2">
                     <label
@@ -171,6 +254,7 @@ export default function AuthPage() {
                           id="remember"
                           type="checkbox"
                           className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          onClick={() => {setRemember(!remember)}}
                         />
                         <label
                           htmlFor="remember"
