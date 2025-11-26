@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Bean; // Đánh dấu phương th�
 import org.springframework.context.annotation.Configuration; // Đánh dấu lớp cấu hình
 import org.springframework.http.HttpMethod; // Hằng số HTTP method (GET/POST/...)
 import org.springframework.security.authentication.AuthenticationManager; // Điểm điều phối quá trình xác thực
+import org.springframework.web.cors.CorsConfigurationSource;
+
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider; // Provider xác thực dựa trên UserDetailsService + PasswordEncoder
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration; // Cung cấp AuthenticationManager mặc định
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // Bật @PreAuthorize/@PostAuthorize ở cấp method
@@ -67,87 +69,88 @@ public class SecurityConfig {
      *   return http.build()
      * </pre>
      */
-    @Bean // Expose SecurityFilterChain cho Spring sử dụng
-    public SecurityFilterChain filterChain(
-            HttpSecurity http,
-            CustomOAuth2UserService customOAuth2UserService,
-            OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
-            OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
-            HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
-            CustomOidcUserService customOidcUserService
-    ) throws Exception {
-        http
-                // 1️⃣ Tắt CSRF vì REST API là stateless
-                .csrf(csrf -> csrf.disable())
-                // 2️⃣ Bảo đảm không tạo session (hoặc có)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 3️⃣ Quy tắc phân quyền endpoint
-                .authorizeHttpRequests(auth -> auth
-                        // Các endpoint public (không cần token)
-                        .requestMatchers(
-                                "/api/v1/auth/register",
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/refresh",
-                                "/api/v1/auth/google",
-                                "/api/v1/auth/forgot-password",
-                                "/api/v1/auth/reset-password",
-                                "/oauth2/authorization/**",
-                                "/login/oauth2/**"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                        // Mọi request khác đều yêu cầu xác thực
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth -> oauth
-                        .authorizationEndpoint(authorization -> authorization
-                                .authorizationRequestRepository(authorizationRequestRepository)
-                        )
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                                .oidcUserService(customOidcUserService)
-                        )
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(oAuth2AuthenticationFailureHandler)
-                )
-                /**
-                 🧠 Giải thích:
-                 401 (Unauthorized): người dùng chưa xác thực thành công (ví dụ: sai username/password).
-                 403 (Forbidden): người dùng đã xác thực nhưng thiếu quyền để truy cập endpoint.
-                 Mặc định, nếu không có authenticationEntryPoint, Spring sẽ trả 403 cho mọi lỗi security → gây nhầm lẫn khi test login.
+//     @Bean // Expose SecurityFilterChain cho Spring sử dụng
+//     public SecurityFilterChain filterChain(
+//             HttpSecurity http,
+//             CustomOAuth2UserService customOAuth2UserService,
+//             OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+//             OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
+//             HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
+//             CustomOidcUserService customOidcUserService
+//     ) throws Exception {
+//         http
+//                 // 1️⃣ Tắt CSRF vì REST API là stateless
+//                 .csrf(csrf -> csrf.disable())
+//                 // 2️⃣ Bảo đảm không tạo session (hoặc có)
+//                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                 // 3️⃣ Quy tắc phân quyền endpoint
+//                 .authorizeHttpRequests(auth -> auth
+//                         // Các endpoint public (không cần token)
+//                         .requestMatchers(
+//                                 "/api/v1/auth/register",
+//                                 "/api/v1/auth/login",
+//                                 "/api/v1/auth/me",
+//                                 "/api/v1/auth/refresh",
+//                                 "/api/v1/auth/google",
+//                                 "/api/v1/auth/forgot-password",
+//                                 "/api/v1/auth/reset-password",
+//                                 "/oauth2/authorization/**",
+//                                 "/login/oauth2/**"
+//                         ).permitAll()
+//                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+//                         // Mọi request khác đều yêu cầu xác thực
+//                         .anyRequest().authenticated()
+//                 )
+//                 .oauth2Login(oauth -> oauth
+//                         .authorizationEndpoint(authorization -> authorization
+//                                 .authorizationRequestRepository(authorizationRequestRepository)
+//                         )
+//                         .userInfoEndpoint(userInfo -> userInfo
+//                                 .userService(customOAuth2UserService)
+//                                 .oidcUserService(customOidcUserService)
+//                         )
+//                         .successHandler(oAuth2AuthenticationSuccessHandler)
+//                         .failureHandler(oAuth2AuthenticationFailureHandler)
+//                 )
+//                 /**
+//                  🧠 Giải thích:
+//                  401 (Unauthorized): người dùng chưa xác thực thành công (ví dụ: sai username/password).
+//                  403 (Forbidden): người dùng đã xác thực nhưng thiếu quyền để truy cập endpoint.
+//                  Mặc định, nếu không có authenticationEntryPoint, Spring sẽ trả 403 cho mọi lỗi security → gây nhầm lẫn khi test login.
 
-                 ⚙️ Kiểm tra lại flow Login:
-                 Khi gọi /api/v1/auth/login với mật khẩu đúng → trả 200, sinh JWT.
-                 Khi gọi mật khẩu sai → BadCredentialsException → authenticationEntryPoint → 401 Unauthorized.
-                 Khi gọi API yêu cầu quyền cao hơn (vd. /api/v1/admin/...) với token user thường → 403 Forbidden.
+//                  ⚙️ Kiểm tra lại flow Login:
+//                  Khi gọi /api/v1/auth/login với mật khẩu đúng → trả 200, sinh JWT.
+//                  Khi gọi mật khẩu sai → BadCredentialsException → authenticationEntryPoint → 401 Unauthorized.
+//                  Khi gọi API yêu cầu quyền cao hơn (vd. /api/v1/admin/...) với token user thường → 403 Forbidden.
 
-                 👉 Sau khi bạn thêm đoạn exceptionHandling này và build lại container (mvn clean package && docker compose up -d --build), hãy test lại Postman:
-                 Sai mật khẩu → 401
-                 Đúng mật khẩu → 200
-                 Token không đủ quyền → 403
+//                  👉 Sau khi bạn thêm đoạn exceptionHandling này và build lại container (mvn clean package && docker compose up -d --build), hãy test lại Postman:
+//                  Sai mật khẩu → 401
+//                  Đúng mật khẩu → 200
+//                  Token không đủ quyền → 403
 
-                 */
-                .exceptionHandling(ex -> ex
-                        // Khi xác thực thất bại (ví dụ sai mật khẩu) → trả về 401
-                        .authenticationEntryPoint((req, res, e) -> {
-                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            res.setContentType("application/json");
-                            res.getWriter().write("""
-                    {"error":"unauthorized","message":"Thông tin đăng nhập không hợp lệ"}
-                """);
-                        })
-                        // Khi người dùng đã đăng nhập nhưng không đủ quyền → 403
-                        .accessDeniedHandler((req, res, e) -> {
-                            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            res.setContentType("application/json");
-                            res.getWriter().write("""
-                    {"error":"forbidden","message":"Bạn không có quyền truy cập tài nguyên này"}
-                """);
-                        })
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Chèn filter JWT trước filter xác thực username/password
+//                  */
+//                 .exceptionHandling(ex -> ex
+//                         // Khi xác thực thất bại (ví dụ sai mật khẩu) → trả về 401
+//                         .authenticationEntryPoint((req, res, e) -> {
+//                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                             res.setContentType("application/json");
+//                             res.getWriter().write("""
+//                     {"error":"unauthorized","message":"Thông tin đăng nhập không hợp lệ"}
+//                 """);
+//                         })
+//                         // Khi người dùng đã đăng nhập nhưng không đủ quyền → 403
+//                         .accessDeniedHandler((req, res, e) -> {
+//                             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//                             res.setContentType("application/json");
+//                             res.getWriter().write("""
+//                     {"error":"forbidden","message":"Bạn không có quyền truy cập tài nguyên này"}
+//                 """);
+//                         })
+//                 )
+//                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Chèn filter JWT trước filter xác thực username/password
 
-        return http.build(); // Kết xuất chuỗi filter hoàn chỉnh
-    }
+//         return http.build(); // Kết xuất chuỗi filter hoàn chỉnh
+//     }
 
     /**
      * PasswordEncoder sử dụng BCrypt, một thuật toán “salted & adaptive” phù hợp để lưu trữ mật khẩu an toàn.
@@ -204,6 +207,7 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/api/v1/auth/register",
                         "/api/v1/auth/login",
+                        "/api/v1/auth/me",
                         "/api/v1/auth/refresh",
                         "/api/v1/auth/google",
                         "/api/v1/auth/forgot-password",

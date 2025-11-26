@@ -2,17 +2,21 @@ package com.clinic.doctorservice.model;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.util.List;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Setter;   
 
 @Entity
 @Getter @Setter @NoArgsConstructor
@@ -38,6 +42,11 @@ public class DoctorApplication {
     private String certificatePaths;
 
     private String paymentMethods; // e.g. CREDIT,CASH,INSTALLMENT
+
+    @ElementCollection
+    @CollectionTable(name = "doctor_application_ratings", joinColumns = @JoinColumn(name = "doctor_application_id"))
+    @Column(name = "rating")
+    private List<Integer> ratings;
 
     @Enumerated(EnumType.STRING)
     private DoctorApplicationStatus status = DoctorApplicationStatus.PENDING;

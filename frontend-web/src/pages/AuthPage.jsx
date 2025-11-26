@@ -12,12 +12,12 @@ export default function AuthPage() {
   const [isDark, setIsDark] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [remember, setRemember] = useState(false)
 
   const [emailInUse, setEmailInUse] = useState(false)
   const [wrongInfo, setWrongInfo] = useState(false)
   const [blankPassword, setBlankPassword] = useState(false)
   const [blankEmail, setBlankEmail] = useState(false)
-  const [blankUsername, setBlankUsername] = useState(false)
   const [emailFormat, setEmailFormat] = useState(false)
   const [confirmPassword, setConfirmPassword] = useState(false)
   const [passwordLength, setPasswordLength] = useState(false)
@@ -52,12 +52,12 @@ export default function AuthPage() {
   }
 
   async function submitLogin() {
-  let user = {
-    email: email.value,
-    password: password.value
-  };
+    let user = {
+      email: email.value,
+      password: password.value
+    };
 
-  await axios.post('http://localhost:8081/api/v1/auth/login', user)
+    await axios.post('http://localhost:8081/api/v1/auth/login', user)
     .then(function (res) {
       console.log(res.data);
       
@@ -66,26 +66,28 @@ export default function AuthPage() {
       setEmailFormat(false);
       setWrongInfo(false);
 
-      Cookies.set("accessToken", res.data.accessToken, {
-        expires: 2, // 2 days
-        secure: false,
-        sameSite: "Lax"
-      });
+      
+      if (remember) {
+        Cookies.set("accessToken", res.data.accessToken, {
+          expires: 2, // 2 days
+          secure: false,
+          sameSite: "Lax"
+        });
+        
+        Cookies.set("refreshToken", res.data.refreshToken, {
+          expires: 2,
+          secure: false,
+          sameSite: "Lax"
+        });
+  
+        Cookies.set("tokenType", res.data.tokenType, {
+          expires: 2,
+          secure: false,
+          sameSite: "Lax"
+        });
+      }
 
-      Cookies.set("refreshToken", res.data.refreshToken, {
-        expires: 2,
-        secure: false,
-        sameSite: "Lax"
-      });
-
-      Cookies.set("tokenType", res.data.tokenType, {
-        expires: 2,
-        secure: false,
-        sameSite: "Lax"
-      });
-      // localStorage.setItem("email", us er.email)
-
-      nav('/?email=' + user.email )
+      nav('/')
     })
     .catch(function (err) {
       if (!err.response) {
@@ -148,9 +150,7 @@ export default function AuthPage() {
     axios.post('http://localhost:8081/api/v1/auth/register', user)
     .then(function(response) {
       console.log(response)
-      // localStorage.setItem("email", user.email)
-      // localStorage.setItem("role", user.role)
-      nav('/?email=' + user.email )
+      nav('/' )
     })
     .catch(function(err) {
       if (!err.response) {
@@ -251,27 +251,6 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {!isLogin && (
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="name"
-                        className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        ref={(e) => (username = e)}
-                        id="name"
-                        type="text"
-                        placeholder="John Doe"
-                        className={`w-full h-12 px-4 rounded-lg border ${
-                          isDark
-                            ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      />
-                    </div>
-                  )}
 
                   <div className="space-y-2">
                     <label
@@ -355,6 +334,7 @@ export default function AuthPage() {
                           id="remember"
                           type="checkbox"
                           className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          onClick={() => {setRemember(!remember)}}
                         />
                         <label
                           htmlFor="remember"
