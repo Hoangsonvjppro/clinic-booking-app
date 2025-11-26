@@ -274,7 +274,7 @@ export default function AuthPage() {
                   )}
 
                   <button
-                    className="w-full h-12 bg-[#1a4d3a] hover:bg-[#153d2e] text-white rounded-lg font-medium transition-colors"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                     onClick={submitLogin}
                   >
                     {isLogin ? "Sign in" : "Create account"}
@@ -321,7 +321,7 @@ export default function AuthPage() {
 
             {/* Image Banner Section - Slides based on auth mode */}
             <div className={`hidden md:block transition-all duration-500 ${isLogin ? "md:order-2" : "md:order-1"}`}>
-              <div className="relative h-full min-h-[400px] bg-gradient-to-br from-[#1a4d3a] to-[#2d6b4f] p-8 md:p-12 flex flex-col justify-between overflow-hidden">
+              <div className="relative h-full min-h-[400px] bg-gradient-to-br from-blue-600 to-violet-600 p-8 md:p-12 flex flex-col justify-between overflow-hidden">
                 {/* Support Badge */}
                 <div className="flex justify-end">
                   <div className="flex items-center gap-2 text-white/90 text-sm">
@@ -352,7 +352,7 @@ export default function AuthPage() {
                       ? "Use your Venus card around the world with no hidden fees. Hold, transfer and spend money."
                       : "Join thousands of users who trust our platform for their financial needs."}
                   </p>
-                  <button className="bg-[#1a4d3a] hover:bg-[#153d2e] text-white px-6 py-2 rounded-lg transition-colors">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
                     Learn more
                   </button>
                 </div>

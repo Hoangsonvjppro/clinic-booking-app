@@ -147,7 +147,7 @@ public class SecurityConfig {
                 """);
                         })
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Chèn filter JWT trước filter xác thực username/password
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // Chèn filter JWT trước filter xác thực username/password
 
 //                  ⚙️ Kiểm tra lại flow Login:
 //                  Khi gọi /api/v1/auth/login với mật khẩu đúng → trả 200, sinh JWT.
@@ -160,28 +160,28 @@ public class SecurityConfig {
 //                  Token không đủ quyền → 403
 
 //                  */
-//                 .exceptionHandling(ex -> ex
-//                         // Khi xác thực thất bại (ví dụ sai mật khẩu) → trả về 401
-//                         .authenticationEntryPoint((req, res, e) -> {
-//                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                             res.setContentType("application/json");
-//                             res.getWriter().write("""
-//                     {"error":"unauthorized","message":"Thông tin đăng nhập không hợp lệ"}
-//                 """);
-//                         })
-//                         // Khi người dùng đã đăng nhập nhưng không đủ quyền → 403
-//                         .accessDeniedHandler((req, res, e) -> {
-//                             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//                             res.setContentType("application/json");
-//                             res.getWriter().write("""
-//                     {"error":"forbidden","message":"Bạn không có quyền truy cập tài nguyên này"}
-//                 """);
-//                         })
-//                 )
-//                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Chèn filter JWT trước filter xác thực username/password
+                .exceptionHandling(ex -> ex
+                        // Khi xác thực thất bại (ví dụ sai mật khẩu) → trả về 401
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("""
+                    {"error":"unauthorized","message":"Thông tin đăng nhập không hợp lệ"}
+                """);
+                        })
+                        // Khi người dùng đã đăng nhập nhưng không đủ quyền → 403
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            res.setContentType("application/json");
+                            res.getWriter().write("""
+                    {"error":"forbidden","message":"Bạn không có quyền truy cập tài nguyên này"}
+                """);
+                        })
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Chèn filter JWT trước filter xác thực username/password
 
-//         return http.build(); // Kết xuất chuỗi filter hoàn chỉnh
-//     }
+        return http.build(); // Kết xuất chuỗi filter hoàn chỉnh
+    }
 
     /**
      * PasswordEncoder sử dụng BCrypt, một thuật toán “salted & adaptive” phù hợp để lưu trữ mật khẩu an toàn.

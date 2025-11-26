@@ -57,28 +57,28 @@ export default function PaymentPage() {
                 </div>
 
                 {/* Progress Bar */}
-                <div className={`flex items-center mb-8 text-sm transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>
-                <div className={`flex items-center ${isDark ? "text-white" : "text-gray-900"}`}>
-                    <div className={`w-6 h-6 rounded-full border-2 border-red-600 flex items-center justify-center text-red-600 font-semibold transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>
-                    ✓
+                {/* <div className={`flex items-center mb-8 text-sm transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>
+                    <div className={`flex items-center ${isDark ? "text-white" : "text-gray-900"}`}>
+                        <div className={`w-6 h-6 rounded-full border-2 border-red-600 flex items-center justify-center text-red-600 font-semibold transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>
+                        ✓
+                        </div>
+                        <span className={`ml-2 ${isDark ? "text-white" : "text-gray-900"}`}>Shipping</span>
                     </div>
-                    <span className={`ml-2 ${isDark ? "text-white" : "text-gray-900"}`}>Shipping</span>
-                </div>
-                <div className="w-16 h-[1px] bg-gray-300 mx-3"></div>
-                <div className={`flex items-center ${isDark ? "text-white" : "text-gray-900"}`}>
-                    <div className={`w-6 h-6 rounded-full border-2 border-red-600 flex items-center justify-center text-red-600 font-semibold transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>
-                    2
+                    <div className="w-16 h-[1px] bg-gray-300 mx-3"></div>
+                    <div className={`flex items-center ${isDark ? "text-white" : "text-gray-900"}`}>
+                        <div className={`w-6 h-6 rounded-full border-2 border-red-600 flex items-center justify-center text-red-600 font-semibold transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>
+                        2
+                        </div>
+                        <span className={`ml-2 font-medium text-red-600 transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>Review & Pay</span>
                     </div>
-                    <span className={`ml-2 font-medium text-red-600 transition-colors duration-300 ${isDark ? "text-white" : "text-gray-900"}`}>Review & Pay</span>
-                </div>
-                <div className="w-16 h-[1px] bg-gray-300 mx-3"></div>
-                <div className={`flex items-center ${isDark ? "text-white" : "text-gray-900"}`}>
-                    <div className={`w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                    3
+                    <div className="w-16 h-[1px] bg-gray-300 mx-3"></div>
+                    <div className={`flex items-center ${isDark ? "text-white" : "text-gray-900"}`}>
+                        <div className={`w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+                        3
+                        </div>
+                        <span className={`ml-2 ${isDark ? "text-white" : "text-gray-900"}`}>Complete</span>
                     </div>
-                    <span className={`ml-2 ${isDark ? "text-white" : "text-gray-900"}`}>Complete</span>
-                </div>
-                </div>
+                </div> */}
 
                 {/* Main Container */}
                 <div className="grid md:grid-cols-3 gap-8 w-full max-w-5xl">
