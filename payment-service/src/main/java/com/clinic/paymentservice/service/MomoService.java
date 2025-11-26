@@ -5,6 +5,8 @@ import com.clinic.paymentservice.util.CryptoUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -64,15 +66,21 @@ public class MomoService {
 
 
         HttpEntity<Map<String, Object>> req = new HttpEntity<>(body, headers);
-        ResponseEntity<String> resp = rest.postForEntity(momoConfig.getEndpoint(), req, String.class);
+        try {
+            ResponseEntity<String> resp = rest.postForEntity(momoConfig.getEndpoint(), req, String.class);
 
-        if (resp.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> json = mapper.readValue(resp.getBody(), Map.class);
-            json.put("signature", signature);
-            return json;
-            // return (String) json.get("payUrl");
-        } else {
-            throw new RuntimeException("Momo API error: HTTP " + resp.getStatusCodeValue());
+            if (resp.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> json = mapper.readValue(resp.getBody(), Map.class);
+                json.put("signature", signature);
+                return json;
+                // return (String) json.get("payUrl");
+            } else {
+                throw new RuntimeException("Momo API error: HTTP " + resp.getStatusCodeValue());
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            // Log body lỗi trả về từ MoMo để biết tại sao sai
+            System.err.println("Lỗi MoMo: " + e.getResponseBodyAsString());
+            throw new RuntimeException("Lỗi thanh toán: " + e.getResponseBodyAsString());
         }
     }
 

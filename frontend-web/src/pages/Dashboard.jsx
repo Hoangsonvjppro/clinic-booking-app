@@ -12,7 +12,7 @@ import axios from "axios";
 export default function Dashboard() {
   const location = useLocation();
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
   const [user, setUser] = useState()
 
   useEffect(() => {
@@ -37,6 +37,7 @@ export default function Dashboard() {
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")
+    localStorage.setItem("mode", isDark)
     console.log(user)
   }
 

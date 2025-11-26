@@ -2,6 +2,13 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export default function PaymentComplete() {
+    const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
+
+    const toggleTheme = () => {
+        setIsDark(!isDark)
+        document.documentElement.classList.toggle("dark")
+        localStorage.setItem("mode", isDark)
+    }
 
     const [orderId, setOrderId] = useState()
 

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}"></title>
+    <style th:inline="css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .wrapper {
+            width: 100%;
+            padding: 40px 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 24px 0;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        .content h2 {
+            font-size: 20px;
+            color: #111827;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background-color: #f0f9ff;
+            padding: 16px 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .info-box p {
+            margin: 6px 0;
+        }
+
+        .info-box strong {
+            color: #0c4a6e;
+        }
+
+        .thankyou {
+            text-align: center;
+            margin: 30px 0;
+            background-color: #e0f2fe;
+            padding: 18px;
+            border-radius: 8px;
+            color: #0c4a6e;
+            font-weight: 500;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-top: 16px;
+        }
+
+        .footer {
+            background-color: #f3f4f6;
+            text-align: center;
+            font-size: 0.85em;
+            color: #6b7280;
+            padding: 16px;
+        }
+
+        .footer a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="email-container">
+        <div class="header" th:style="'background-color:' + ${headerColor}">
+            <h1 th:text="${title}">[title]</h1>
+        </div>
+
+        <div class="content">
+            <h2>Kính gửi <span th:text="${patientName}">[patientName]</span>,</h2>
+            <p>Cảm ơn bạn đã tin tưởng và đặt lịch khám tại <strong>Clinic Booking App</strong>.</p>
+            <p>Dưới đây là thông tin chi tiết về lịch hẹn của bạn:</p>
+
+            <div class="info-box" th:style="'border-left: 4px solid ' + ${statusColor}">
+                <p><strong>⏰ Thời gian:</strong> <span th:text="${appointmentTime}">[appointmentTime]</span></p>
+                <p><strong>👨‍⚕️ Bác sĩ:</strong> <span th:text="${doctorName}">[doctorName]</span></p>
+                <p><strong>📍 Địa chỉ phòng khám:</strong> <span th:text="${address}">[address]</span></p>
+                <p><strong>📝 Ghi chú:</strong> <span th:text="${notes}">[notes]</span></p>
+                <p><strong>📋 Trạng thái:</strong> <span th:text="${status}">[status]</span></p>
+            </div>
+
+            <div class="thankyou">
+                💙 Cảm ơn bạn đã đồng hành cùng chúng tôi!
+                Hẹn gặp lại bạn vào ngày khám đã đăng ký.
+            </div>
+
+            <p class="muted">
+                Nếu bạn cần thay đổi hoặc hủy lịch hẹn, vui lòng liên hệ <strong>hotline</strong> của chúng tôi để được hỗ trợ nhanh nhất.
+            </p>
+
+            <p>Trân trọng,<br><strong>Clinic Booking App</strong></p>
+        </div>
+
+        <div class="footer">
+            © 2025 Clinic Booking App —
+            <a href="https://clinic.booking.com">clinic.booking.com</a><br/>
+            Email này được gửi tự động, vui lòng không trả lời trực tiếp.
+        </div>
+    </div>
+</div>
+</body>
+</html>
