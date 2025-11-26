@@ -4,6 +4,7 @@ import googleIcon from "../assets/google.png"
 import facebookIcon from "../assets/facebook.png"
 import promotionBanner from "../assets/banner.png"
 import NavigationBar from "../components/NavigationBar"
+import { useNavigate } from "react-router-dom"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
