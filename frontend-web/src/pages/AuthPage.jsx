@@ -1,10 +1,11 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import axios from "axios"
 import googleIcon from "../assets/google.png"
 import facebookIcon from "../assets/facebook.png"
 import promotionBanner from "../assets/banner.png"
 import NavigationBar from "../components/NavigationBar"
 import { useNavigate } from "react-router-dom"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -161,12 +162,12 @@ export default function AuthPage() {
               <div className="p-8 md:p-12 h-full flex flex-col justify-center">
                 <div className="mb-8">
                   <h1 className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"} mb-2`}>
-                    {isLogin ? "Sign in" : "Create account"}
+                    {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
                   </h1>
                   <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                    {isLogin ? "Chưa có tài khoản? " : "Đã có tài khoản? "}
                     <button onClick={toggleAuthMode} className="text-blue-600 hover:underline font-medium">
-                      {isLogin ? "Create now" : "Sign in"}
+                      {isLogin ? "Tạo tài khoản ngay" : "Đăng nhập"}
                     </button>
                   </p>
                 </div>
@@ -214,8 +215,8 @@ export default function AuthPage() {
                   </div>
                   
                   {showPassword ? 
-                  <svg onClick={() => setShowPassword(!showPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> : 
-                  <svg onClick={() => setShowPassword(!showPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg> 
+                  <Eye onClick={() => setShowPassword(!showPassword)} size={20} className={`${isDark ? "text-white" : "text-black"}`} /> : 
+                  <EyeOff onClick={() => setShowPassword(!showPassword)} size={20} className={`${isDark ? "text-white" : "text-black"}`} />
                   }
 
                   {!isLogin && (
@@ -241,8 +242,8 @@ export default function AuthPage() {
                   )}
                   
                   {!isLogin? showConfirmPassword ? 
-                  <svg onClick={() => setShowConfirmPassword(!showConfirmPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> : 
-                  <svg onClick={() => setShowConfirmPassword(!showConfirmPassword)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg> 
+                  <Eye onClick={() => setShowPassword(!showPassword)} size={20} className={`${isDark ? "text-white" : "text-black"}`} /> : 
+                  <EyeOff onClick={() => setShowPassword(!showPassword)} size={20} className={`${isDark ? "text-white" : "text-black"}`} />
                   :
                   <></>
                   }
@@ -261,14 +262,14 @@ export default function AuthPage() {
                           htmlFor="remember"
                           className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"} cursor-pointer`}
                         >
-                          Remember me
+                          Ghi nhớ tôi
                         </label>
                       </div>
                       <a
                         href="#"
                         className={`text-sm ${isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-900"}`}
                       >
-                        Forgot Password?
+                        Quên mật khẩu?
                       </a>
                     </div>
                   )}
@@ -277,7 +278,7 @@ export default function AuthPage() {
                     className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                     onClick={submitLogin}
                   >
-                    {isLogin ? "Sign in" : "Create account"}
+                    {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
                   </button>
 
                   <div className="relative my-6">
@@ -301,18 +302,19 @@ export default function AuthPage() {
                       } flex items-center justify-center gap-2 transition-colors`}
                     >
                       <img src={googleIcon} alt="Google" className="w-5 h-5" />
-                      Continue with Google
+                      Đăng nhập bằng Google
                     </button>
                     <button
+                      disabled
                       type="button"
-                      className={`w-full h-12 rounded-lg border ${
+                      className={`w-full cursor-not-allowed h-12 rounded-lg border ${
                         isDark
                           ? "border-gray-600 hover:bg-gray-700 text-white"
                           : "border-gray-300 hover:bg-gray-50 text-gray-900"
                       } flex items-center justify-center gap-2 transition-colors`}
                     >
                       <img src={facebookIcon} alt="Facebook" className="w-5 h-5" />
-                      Continue with Facebook
+                      Đăng nhập bằng Facebook
                     </button>
                   </div>
                 </div>
@@ -333,7 +335,7 @@ export default function AuthPage() {
                         d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
                       />
                     </svg>
-                    Support
+                    Hỗ trợ
                   </div>
                 </div>
 
@@ -349,23 +351,23 @@ export default function AuthPage() {
                   </h2>
                   <p className={`text-sm mb-4 ${isDark ? "text-white" : "text-gray-600"}`}>
                     {isLogin
-                      ? "Use your Venus card around the world with no hidden fees. Hold, transfer and spend money."
-                      : "Join thousands of users who trust our platform for their financial needs."}
+                      ? "Tạo nên một nguồn thông tin sức khoẻ đáng tin cậy, dễ đọc, dễ hiểu cho mọi đối tượng độc giả"
+                      : "Hội đồng tham vấn y khoa cùng đội ngũ biên tập viên là các bác sĩ, dược sĩ đảm bảo nội dung chúng tôi cung cấp chính xác về mặt y khoa và cập nhật những thông tin mới nhất. "}
                   </p>
                   <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                    Learn more
+                    Tìm hiểu thêm
                   </button>
                 </div>
 
                 {/* Bottom Section */}
                 <div className="text-white">
                   <h3 className="text-2xl font-bold mb-3">
-                    {isLogin ? "Introducing new features" : "Welcome to our platform"}
+                    {isLogin ? "Nền tảng đánh tin cậy" : "Chào mừng đến booking clinic"}
                   </h3>
                   <p className="text-white/80 text-sm leading-relaxed">
                     {isLogin
-                      ? "Analyzing previous trends ensures that businesses always make the right decision. And as the scale of the decision and its impact magnifies..."
-                      : "Experience seamless authentication and access to powerful features designed to help you succeed."}
+                      ? "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt, eum, doloremque quasi, eveniet excepturi magni"
+                      : "quo dolorem minus in distinctio rerum! Nemo molestias laudantium nihil porro fuga, quidem rem laborum."}
                   </p>
                 </div>
               </div>

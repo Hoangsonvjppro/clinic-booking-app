@@ -10,6 +10,7 @@ import DoctorsPage from "../components/admin/AdminDoctor";
 
 function AdminDashboard() {
   const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
+
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")

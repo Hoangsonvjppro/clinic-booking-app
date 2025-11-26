@@ -1,22 +1,37 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Check, X, Download, Eye, XCircle, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import axios from "axios"
+import Cookies from "js-cookie"
 
-const requests = [
-  { id: 1, name: "Dr. Michael Chen", email: "m.chen@med.com", phone: "0912345678", specialty: "Pediatrician", licenseNumber: "MD-2021-08765", issuedDate: "2021-05-15", documents: [ /* ... */ ] },
-  { id: 2, name: "Dr. Sarah Johnson", email: "sarah@clinic.com", phone: "0901234567", specialty: "Cardiologist", licenseNumber: "MD-2019-04521", issuedDate: "2019-11-20", documents: [ /* ... */ ] },
-  { id: 3, name: "Dr. James Williams", email: "james.williams@health.org", phone: "0934567890", specialty: "Neurologist", licenseNumber: "MD-2020-11234", issuedDate: "2020-08-10", documents: [ /* ... */ ] },
-  { id: 4, name: "Dr. Lisa Park", email: "lisa@medpro.com", phone: "0945678901", specialty: "Dermatologist", licenseNumber: "MD-2022-05678", issuedDate: "2022-03-22", documents: [ /* ... */ ] },
-  { id: 5, name: "Dr. David Lee", email: "david@clinic.org", phone: "0956789012", specialty: "Orthopedist", licenseNumber: "MD-2020-09876", issuedDate: "2020-07-15", documents: [ /* ... */ ] },
-  { id: 6, name: "Dr. Anna Brown", email: "anna@healthcare.vn", phone: "0967890123", specialty: "Psychiatrist", licenseNumber: "MD-2023-11223", issuedDate: "2023-01-10", documents: [ /* ... */ ] },
-  // Add more if needed...
-];
+// const requests = [
+//   { id: 1, name: "Dr. Michael Chen", email: "m.chen@med.com", phone: "0912345678", specialty: "Pediatrician", licenseNumber: "MD-2021-08765", issuedDate: "2021-05-15", documents: [ /* ... */ ] },
+//   { id: 2, name: "Dr. Sarah Johnson", email: "sarah@clinic.com", phone: "0901234567", specialty: "Cardiologist", licenseNumber: "MD-2019-04521", issuedDate: "2019-11-20", documents: [ /* ... */ ] },
+//   { id: 3, name: "Dr. James Williams", email: "james.williams@health.org", phone: "0934567890", specialty: "Neurologist", licenseNumber: "MD-2020-11234", issuedDate: "2020-08-10", documents: [ /* ... */ ] },
+//   { id: 4, name: "Dr. Lisa Park", email: "lisa@medpro.com", phone: "0945678901", specialty: "Dermatologist", licenseNumber: "MD-2022-05678", issuedDate: "2022-03-22", documents: [ /* ... */ ] },
+//   { id: 5, name: "Dr. David Lee", email: "david@clinic.org", phone: "0956789012", specialty: "Orthopedist", licenseNumber: "MD-2020-09876", issuedDate: "2020-07-15", documents: [ /* ... */ ] },
+//   { id: 6, name: "Dr. Anna Brown", email: "anna@healthcare.vn", phone: "0967890123", specialty: "Psychiatrist", licenseNumber: "MD-2023-11223", issuedDate: "2023-01-10", documents: [ /* ... */ ] },
+//   // Add more if needed...
+// ];
 
 export default function DoctorRequestPage({ isDark }) {
+  const [requests, setRequests] = useState([])
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [zoomedImage, setZoomedImage] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+  const token = Cookies.get("accessToken")
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get("http://localhost:8083/api/doctor/all-application")
+        setRequests(res.data.filter(req => req.status === "PENDING"))
+        console.log(res)
+      } catch(err) {
+        console.log(err)
+      }
+    })()
+  }, [])
 
   // Filter + Pagination
   const filteredAndPaginated = useMemo(() => {
@@ -39,7 +54,7 @@ export default function DoctorRequestPage({ isDark }) {
     const items = filtered.slice(start, end);
 
     return { items, totalPages, totalItems: filtered.length };
-  }, [searchTerm, currentPage]);
+  }, [requests, searchTerm, currentPage]);
 
   const { items, totalPages, totalItems } = filteredAndPaginated;
 
@@ -59,6 +74,38 @@ export default function DoctorRequestPage({ isDark }) {
     setZoomedImage(null);
   };
 
+  const approveApplication = async (applicationId) => {
+    console.log("Approve")
+    try {
+      const res = await axios.put(
+        `http://localhost:8083/api/doctor/approve?id=${applicationId}`, {});
+      console.log("Approved:", res.data);
+      setRequests(prev =>
+        prev.map(req =>
+          req.id === applicationId ? { ...req, status: "APPROVED" } : req
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const rejectApplication = async (applicationId) => {
+    console.log("Reject")
+    try {
+      const res = await axios.put(
+        `http://localhost:8083/api/doctor/reject?id=${applicationId}`, {});
+      console.log("Rejected:", res.data);
+      setRequests(prev =>
+        prev.map(req => 
+          req.id === applicationId ? {...req, status: "REJECTED"} : req 
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className={`min-h-screen transition-all duration-500 p-8 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
       <div className="max-w-7xl mx-auto">
@@ -71,7 +118,7 @@ export default function DoctorRequestPage({ isDark }) {
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
           <input
             type="text"
-            placeholder="Search by name, email, phone, specialty, or license..."
+            placeholder="Tìm kiếm theo tên, email, số điện thoại, chuyên ngành"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -99,24 +146,24 @@ export default function DoctorRequestPage({ isDark }) {
         {/* Table */}
         <div className={`rounded-2xl shadow-2xl overflow-hidden ${isDark ? "bg-gray-800" : "bg-white"}`}>
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+            <thead className={`bg-gradient-to-r ${isDark ? "from-slate-800 to-black text-white" : "from-gray-200 to-slate-200 text-black"}`}>
               <tr>
-                <th className="px-8 py-6 text-left font-bold">Doctor Name</th>
+                <th className="px-8 py-6 text-left font-bold">Tên bác sĩ</th>
                 <th className="px-8 py-6 text-left">Email</th>
-                <th className="px-8 py-6 text-left">Phone</th>
-                <th className="px-8 py-6 text-left">Specialty</th>
-                <th className="px-8 py-6 text-center">Actions</th>
+                <th className="px-8 py-6 text-left">Số điện thoại</th>
+                <th className="px-8 py-6 text-left">Chuyên ngành</th>
+                <th className="px-8 py-6 text-center">Xác nhận</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 <tr>
                   <td colSpan="5" className={`text-center py-20 text-xl ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                    No doctors found matching "<strong>{searchTerm}</strong>"
+                    Không tìm thấy yêu cầu làm bác sĩ ...
                   </td>
                 </tr>
               ) : (
-                items.map((req) => (
+                items.filter(i => i.status === "PENDING").map((req) => (
                   <tr
                     key={req.id}
                     onClick={() => openModal(req)}
@@ -134,10 +181,10 @@ export default function DoctorRequestPage({ isDark }) {
                     <td className={`px-8 py-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>{req.specialty || "-"}</td>
                     <td className="px-8 py-6 text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-center gap-4">
-                        <button className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow-xl transition transform hover:scale-110">
+                        <button onClick={() => {approveApplication(req.id)}} className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow-xl transition transform hover:scale-110">
                           <Check size={18} />
                         </button>
-                        <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-xl transition transform hover:scale-110">
+                        <button onClick={() => {rejectApplication(req.id)}} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-xl transition transform hover:scale-110">
                           <X size={18} />
                         </button>
                       </div>
@@ -162,23 +209,9 @@ export default function DoctorRequestPage({ isDark }) {
               <ChevronLeft size={20} /> Previous
             </button>
 
-            <div className={`flex gap-2 ${isDark ? "text-white" : "text-gray-800"}`}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                <button
-                  key={pageNum}
-                  onClick={() => goToPage(pageNum)}
-                  className={`w-12 h-12 rounded-xl font-semibold transition ${
-                    currentPage === pageNum
-                      ? "bg-indigo-600 text-white shadow-lg"
-                      : isDark
-                      ? "hover:bg-gray-700"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              ))}
-            </div>
+            <span className={`font-semibold ${isDark ? "text-white" : "text-gray-800"}`}>
+              Page {currentPage} of {totalPages || 1}
+            </span>
 
             <button
               onClick={() => goToPage(currentPage + 1)}

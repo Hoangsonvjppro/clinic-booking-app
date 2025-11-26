@@ -51,7 +51,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center mb-6">
             <input
               type="text"
-              placeholder="Search doctor or hospital..."
+              placeholder="Tìm kiếm bác sĩ hoặc bệnh viện..."
               className="border rounded-lg px-4 py-2 w-1/3"
             />
           </div>

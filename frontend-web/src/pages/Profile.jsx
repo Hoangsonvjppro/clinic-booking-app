@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import SettingsSection from "../components/SettingsSection";
+import SettingsSection from "../components/profile/SettingsSection";
 import SettingSidebar from "../components/SettingsSidebar";
 import EditSettingModal from "../components/EditSettingModal";
 import EditPasswordModal from "../components/EditPasswordModal";
@@ -60,7 +60,7 @@ export default function Profile() {
             animate={{ opacity: 1 }}
             className="p-8 flex-1 overflow-y-auto"
         >
-            <h1 className="text-2xl font-semibold text-gray-800 mb-6">Settings</h1>
+            <h1 className="text-2xl font-semibold text-gray-800 mb-6">Tài khoản</h1>
 
             <div className="border-b border-gray-200 flex gap-8 mb-4">
             <button className="pb-2 border-b-2 border-teal-600 text-teal-600 font-medium">

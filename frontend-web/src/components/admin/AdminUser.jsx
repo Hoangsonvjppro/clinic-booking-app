@@ -82,7 +82,7 @@ export default function UsersPage({ isDark }) {
         {/* Table */}
         <div className={`rounded-2xl shadow-2xl overflow-hidden ${isDark ? "bg-gray-800" : "bg-white"}`}>
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+            <thead className={`bg-gradient-to-r ${isDark ? "from-slate-800 to-black text-white" : "from-gray-200 to-slate-200 text-black"}`}>
               <tr>
                 <th className="px-8 py-5 text-left font-bold">Name</th>
                 <th className="px-8 py-5 text-left">Email</th>

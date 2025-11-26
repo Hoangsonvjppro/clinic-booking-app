@@ -10,7 +10,13 @@ import BookingSummary from "../components/BookingSummary";
 export default function BookingPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
+
+  const toggleTheme = () => {
+    setIsDark(!isDark)
+    document.documentElement.classList.toggle("dark")
+    localStorage.setItem("mode", isDark)
+  }
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [bookingData, setBookingData] = useState({
@@ -22,12 +28,7 @@ export default function BookingPage() {
     patientEmail: "",
     reason: "",
   });
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
-  };
-
+  
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const doctorId = parseInt(searchParams.get("doctorId"), 10);

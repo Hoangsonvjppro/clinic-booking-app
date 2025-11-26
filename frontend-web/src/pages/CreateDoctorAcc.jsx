@@ -22,8 +22,8 @@ export default function CreateDoctorAcc() {
     userId: "1",
     doctorName: "",
     address: "",
-    hospitalEmail: "example@gmail.com",
-    phone: "+84xxxxxxxxx",
+    hospitalEmail: "",
+    phone: "",
     description: "",
     options: [
       { key: "autoAccept", label: "Tự động nhận khách" },
@@ -33,6 +33,11 @@ export default function CreateDoctorAcc() {
     ],
     files: [],
   })
+  const [user, setUser] = useState({
+    email: "placeholder@gmail.com",
+    phone: "placeholder number",
+  })
+
   const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
 
   const toggleTheme = () => {
@@ -134,7 +139,7 @@ export default function CreateDoctorAcc() {
   }
 
   return (
-    <div className={`${isDark ? "bg-slate-900 text-white" : "bg-gray-50 text-gray-900"}  transition-colors duration-`}>
+    <div className={`${isDark ? "bg-slate-900 text-white" : "bg-gray-50 text-gray-900"}  transition-colors duration-100 overflow-auto`}>
       <div className="max-w-3xl mx-auto mt-10 flex flex-col h-screen">
         <SimpleNavigation isDark={isDark} toggleTheme={toggleTheme} />
         {/* Step Header */}
@@ -189,7 +194,7 @@ export default function CreateDoctorAcc() {
             transition={{ duration: 0.2, ease: "easeInOut" }}
           >
             {step === 0 && (
-              <DoctorInformation form={form} handleChange={handleChange} isDark={isDark} />
+              <DoctorInformation form={form} handleChange={handleChange} isDark={isDark} user={user} />
             )}
 
             {step === 1 && (

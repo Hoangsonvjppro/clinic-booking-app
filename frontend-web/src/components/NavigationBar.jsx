@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
 import Cookies from "js-cookie"
+import { ChevronLeft } from "lucide-react"
 
 
 function NavigationBar( {isDark, toggleTheme, user} ) {
@@ -19,22 +20,23 @@ function NavigationBar( {isDark, toggleTheme, user} ) {
             <nav className="top-0 left-0 right-0 z-50 bg-[#0a0a0f] border-b border-white/10">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
-                    <div className="hidden md:flex items-center gap-8">
-                    <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                        About
-                    </a>
-                    <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                        Works
-                    </a>
-                    <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                        Services
-                    </a>
-                    <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                        Pricing
-                    </a>
-                    <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                        Features
-                    </a>
+                    <ChevronLeft onClick={() => {navigate(-1)}} className="mr-10 text-white" />
+                    <div className="hidden flex-1 md:flex items-center gap-8">
+                    <NavLink to="/" className="text-gray-300 hover:text-white transition-colors">
+                        Trang chủ
+                    </NavLink>
+                    <NavLink to="/about-us" className="text-gray-300 hover:text-white transition-colors">
+                        Về chúng tôi
+                    </NavLink>
+                    <NavLink to="#" className="text-gray-300 hover:text-white transition-colors">
+                        Điều khoản
+                    </NavLink>
+                    <NavLink to="/help" className="text-gray-300 hover:text-white transition-colors">
+                        Giúp đỡ & Liên hệ
+                    </NavLink>
+                    {user?.role === "admin" && <NavLink to="/admin" className="text-gray-300 hover:text-white transition-colors">
+                        Dashboard
+                    </NavLink>}
                     </div>
 
                     {/* Right Side Actions */}
@@ -73,7 +75,7 @@ function NavigationBar( {isDark, toggleTheme, user} ) {
                         :
                         <NavLink to="/login" activeClassName="active-link" >
                             <button className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                                Sign up
+                                Đăng ký
                             </button>
                         </NavLink>
                     }
