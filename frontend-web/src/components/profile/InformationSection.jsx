@@ -1,11 +1,12 @@
+import EditSettingModal from "../EditSettingModal";
+import EditPasswordModal from "../EditPasswordModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import MessageSection from "./MessageSettingSection";
-import NotificationSection from "./NotificationSettingSection";
-import PrivacySection from "./PrivacySerrtingSection";
-import LanguageSection from "./LanguageSettingSection";
+import ProfileSection from "./ProfileInfoSection";
+import PaymentSection from "./PaymentInfoSection";
+import SecuritySection from "./SecurityInfoSection";
 
-export default function SettingsSection({ user }) {
+export default function InformationSection({ user }) {
   const [profile, setProfile] = useState([
                 { label: "Username", value: user.name, editable: true },
                 { label: "Email", value: user.email, editable: false },
@@ -13,7 +14,7 @@ export default function SettingsSection({ user }) {
                 { label: "Role", value: user.roles, editable: false },]);
   const [editingField, setEditingField] = useState(null);
   const [editingValue, setEditingValue] = useState("");
-  const [activeTab, setActiveTab] = useState("Privacy")
+  const [activeTab, setActiveTab] = useState("Personal")
   
   const stats = {
     messages: 42,
@@ -46,15 +47,15 @@ export default function SettingsSection({ user }) {
       {/* Tabs */}
       <div className="border-b border-gray-300 flex gap-10 mb-8">
         <button
-          onClick={() => setActiveTab("Privacy")}
+          onClick={() => setActiveTab("Personal")}
           className={`pb-3 text-lg font-medium transition-all duration-75 relative ${
-            activeTab === "Privacy"
+            activeTab === "Personal"
               ? "text-teal-600"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          Cài đặt riêng tư
-          {activeTab === "Privacy" && (
+          Tài khoản
+          {activeTab === "Personal" && (
             <motion.div
               layoutId="activeTab"
               className="absolute bottom-0 left-0 right-0 h-1 bg-teal-600 rounded-full"
@@ -62,15 +63,15 @@ export default function SettingsSection({ user }) {
           )}
         </button>
         <button
-          onClick={() => setActiveTab("Chat")}
+          onClick={() => setActiveTab("Payment")}
           className={`pb-3 text-lg font-medium transition-all duration-75 relative ${
-            activeTab === "Chat"
+            activeTab === "Payment"
               ? "text-teal-600"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          Cài đặt tin nhắn
-          {activeTab === "Chat" && (
+          Thanh toán
+          {activeTab === "Payment" && (
             <motion.div
               layoutId="activeTab"
               className="absolute bottom-0 left-0 right-0 h-1 bg-teal-600 rounded-full"
@@ -78,31 +79,15 @@ export default function SettingsSection({ user }) {
           )}
         </button>
         <button
-          onClick={() => setActiveTab("Notification")}
+          onClick={() => setActiveTab("Security")}
           className={`pb-3 text-lg font-medium transition-all duration-75 relative ${
-            activeTab === "Notification"
+            activeTab === "Security"
               ? "text-teal-600"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          Cài đặt thông báo
-          {activeTab === "Notification" && (
-            <motion.div
-              layoutId="activeTab"
-              className="absolute bottom-0 left-0 right-0 h-1 bg-teal-600 rounded-full"
-            />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab("Language")}
-          className={`pb-3 text-lg font-medium transition-all duration-75 relative ${
-            activeTab === "Language"
-              ? "text-teal-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Ngôn ngữ
-          {activeTab === "Language" && (
+          Bảo mật
+          {activeTab === "Security" && (
             <motion.div
               layoutId="activeTab"
               className="absolute bottom-0 left-0 right-0 h-1 bg-teal-600 rounded-full"
@@ -112,13 +97,11 @@ export default function SettingsSection({ user }) {
       </div>
 
       {/* Content */}
-      {activeTab === "Chat" && <MessageSection stats={stats} user={user} />}
+      {activeTab === "Personal" && <ProfileSection stats={stats} user={user} />}
 
-      {activeTab === "Notification" && <NotificationSection />}
+      {activeTab === "Payment" && <PaymentSection />}
 
-      {activeTab === "Privacy" && <PrivacySection profile={profile} onEdit={handleEdit} />}
-
-      {activeTab === "Language" && <LanguageSection profile={profile} onEdit={handleEdit} />}
+      {activeTab === "Security" && <SecuritySection profile={profile} onEdit={handleEdit} />}
 
       {/* Modals */}
       <AnimatePresence>

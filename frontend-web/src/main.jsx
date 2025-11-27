@@ -23,7 +23,7 @@ createRoot(document.getElementById('root')).render(
       <Route path="/profile/*" element={<Profile />} />
       <Route path="/payment" element={<PaymentPage />} />
       <Route path="/payment-complete" element={<PaymentComplete />} />
-      <Route path="/doctor-appointment/form" element={<CreateDoctorAcc />} />
+      <Route path="/doctor/form" element={<CreateDoctorAcc />} />
       <Route path="/doctor-appointment" element={<DoctorPage />} />
       <Route path="/doctor-appointment/booking" element={<BookingPage />} />
       <Route path="/admin/*" element={<AdminDashboard />}>

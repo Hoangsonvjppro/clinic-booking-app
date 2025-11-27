@@ -26,7 +26,6 @@ export default function DashboardSidebar( { isDark } ) {
       <nav className="mt-10">
         {menu.map((item) => {
           const isActive = location.pathname === item.path;
-          console.log(isActive)
           return (
             <motion.button
               key={item.path}
