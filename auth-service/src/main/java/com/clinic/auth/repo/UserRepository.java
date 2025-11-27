@@ -22,7 +22,7 @@ import org.springframework.data.jpa.repository.JpaRepository; // Giao diện CRU
 
 import java.util.Optional; // Kiểu trả về an toàn, tránh NullPointerException
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, java.util.UUID> {
 
     /**
      * Tìm người dùng theo địa chỉ email.

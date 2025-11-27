@@ -46,7 +46,7 @@ public class RoleController {
 
     @PutMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> assignRoles(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> assignRoles(@PathVariable("userId") java.util.UUID userId,
                                          @RequestParam(name = "role") String role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));

@@ -169,7 +169,7 @@ public class AuthController {
     @PutMapping("/users/{userId}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUserStatus(
-            @PathVariable("userId") Long userId,
+            @PathVariable("userId") java.util.UUID userId,
             @Valid @RequestBody UpdateUserStatusRequest request
     ) {
         userAccountService.updateUserStatus(userId, request);

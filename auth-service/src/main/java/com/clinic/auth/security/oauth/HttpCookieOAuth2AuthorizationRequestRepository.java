@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
 
 import java.util.Base64;
@@ -13,6 +14,7 @@ import java.util.Optional;
 /**
  * Lưu trữ OAuth2AuthorizationRequest trong cookie để hỗ trợ flow OAuth2 mà không phụ thuộc session.
  */
+@Component
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     public static final String OAUTH2_AUTH_REQUEST_COOKIE_NAME = "oauth2_auth_request";
