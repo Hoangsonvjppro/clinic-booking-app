@@ -16,7 +16,7 @@ export default function Sidebar( {isDark} ) {
         <SidebarItem icon={<Users size={18} />} text="Đăng ký" isDark={isDark} location="" />
         <SidebarItem icon={<Calendar size={18} />} text="Lịch của bạn" isDark={isDark} location="" />
         <SidebarItem icon={<MessageSquare size={18} />} text="Tin nhắn" isDark={isDark} location="" />
-        <SidebarItem icon={<Settings size={18} />} text="Cài đặt" isDark={isDark} location="profile" />
+        <SidebarItem icon={<Settings size={18} />} text="Cài đặt" isDark={isDark} location="profile/setting" />
       </nav>
     </aside>
   );

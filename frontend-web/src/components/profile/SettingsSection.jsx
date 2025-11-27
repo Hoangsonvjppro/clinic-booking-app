@@ -39,7 +39,7 @@ export default function SettingsSection({ user }) {
       <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="p-8 pr-24 flex-1 overflow-y-auto h-screen"
+      className="p-8 pr-24 flex-1 overflow-y-auto h-[75%]"
     >
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Thông tin tài khoản</h1>
 

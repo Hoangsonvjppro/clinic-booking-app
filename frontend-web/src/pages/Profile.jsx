@@ -5,6 +5,7 @@ import SettingSidebar from "../components/SettingsSidebar";
 import axios from "axios";
 import Cookies from "js-cookie"
 import { Routes, Route } from "react-router-dom";
+import NavigationBar from "../components/NavigationBar";
 
 
 export default function Profile() {
@@ -30,13 +31,16 @@ export default function Profile() {
     
 
     return (
-        <div className="flex min-h-screen bg-white text-gray-800">
-        <SettingSidebar role={user.role} />
+        <>
+            <NavigationBar />
+            <div className="flex min-h-screen bg-white text-gray-800">
+            <SettingSidebar role={user.role} />
 
-        <Routes>
-            <Route path="/information" element={<InformationSection user={user} />} />
-            <Route path="/setting" element={<SettingsSection user={user} />} />
-        </Routes>
-        </div>
+            <Routes>
+                <Route path="/information" element={<InformationSection user={user} />} />
+                <Route path="/setting" element={<SettingsSection user={user} />} />
+            </Routes>
+            </div>
+        </>
     );
 }

@@ -44,7 +44,7 @@ export default function SettingSidebar( {role} ) {
           })}
         </nav>
       </div>
-      <div className="text-center text-sm text-gray-400">© 2025</div>
+      <div className="text-center text-sm text-gray-400 mt-auto">© 2025</div>
     </motion.aside>
   );
 }

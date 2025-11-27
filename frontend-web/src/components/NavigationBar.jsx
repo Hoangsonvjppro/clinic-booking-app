@@ -70,7 +70,7 @@ function NavigationBar( {isDark, toggleTheme, user} ) {
                         <div className="flex gap-5">
                             <NavLink to="/profile/setting" className="text-white bg-indigo-900 p-5 rounded-full">
                             </NavLink>
-                            <button onClick={handleLogout} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">Log out</button>
+                            <button onClick={handleLogout} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">Thoát đăng nhập</button>
                         </div>
                         :
                         <NavLink to="/login" activeClassName="active-link" >
