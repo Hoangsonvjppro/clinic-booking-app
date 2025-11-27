@@ -72,4 +72,4 @@ management:
 
 external-services:
   patient-service:
-    base-url: ${PATIENT_SERVICE_BASE_URL:http://localhost:8082}
+    base-url: ${PATIENT_SERVICE_BASE_URL:http://localhost:8083}
