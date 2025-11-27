@@ -13,18 +13,16 @@ import Profile from './pages/Profile'
 
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/Homepage" element={<MainPage />} />
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/payment-complete" element={<PaymentComplete />} />
-        <Route path="/doctor-appointment/form" element={<CreateDoctorAcc />} />
-        <Route path="/doctor-appointment" element={<DoctorPage />} />
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>,
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/Homepage" element={<MainPage />} />
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/profile/*" element={<Profile />} />
+      <Route path="/payment" element={<PaymentPage />} />
+      <Route path="/payment-complete" element={<PaymentComplete />} />
+      <Route path="/doctor-appointment/form" element={<CreateDoctorAcc />} />
+      <Route path="/doctor-appointment" element={<DoctorPage />} />
+    </Routes>
+  </BrowserRouter>
 )

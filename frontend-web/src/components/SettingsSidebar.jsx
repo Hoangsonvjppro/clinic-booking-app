@@ -1,14 +1,14 @@
-import { Home, MessageSquare, Calendar, Trophy, Users, MoreHorizontal } from "lucide-react";
+import { Home, Settings, Calendar, Trophy, Users, MoreHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 import { NavLink } from "react-router-dom";
 
 const menuItems = [
-  { icon: <Home size={20} />, label: "Home" },
-  { icon: <MessageSquare size={20} />, label: "Messages" },
-  { icon: <Calendar size={20} />, label: "Bookings" },
-  { icon: <Trophy size={20} />, label: "Achievements" },
-  { icon: <Users size={20} />, label: "Connections" },
-  { icon: <MoreHorizontal size={20} />, label: "More" },
+  { icon: <Home size={20} />, label: "Home", location: "/" },
+  { icon: <Settings size={20} />, label: "Messages", location: "" },
+  { icon: <Calendar size={20} />, label: "Bookings", location: "" },
+  { icon: <Trophy size={20} />, label: "Certificates", location: "/profile/certificate" },
+  { icon: <Users size={20} />, label: "Connections", location: "" },
+  { icon: <MoreHorizontal size={20} />, label: "More", location: "" },
 ];
 
 export default function SettingSidebar() {
@@ -27,18 +27,17 @@ export default function SettingSidebar() {
         </div>
         <nav className="flex flex-col gap-3 mb-4">
           {menuItems.map((item, i) => (
-            <button
-              key={i}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
+            <NavLink to={item.location}>
+              <button
+                key={i}
+                className="flex items-center w-full gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            </NavLink>
           ))}
         </nav>
-        <NavLink to="/">
-          <button className="text-white bg-indigo-900 px-6 py-2 rounded-full w-full hover:bg-indigo-700 transition-color duration-200">Go back</button>
-        </NavLink>
       </div>
       <div className="text-center text-sm text-gray-400">© 2025</div>
     </motion.aside>

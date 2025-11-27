@@ -3,32 +3,36 @@ import { motion, AnimatePresence } from "framer-motion";
 import SettingsSection from "../components/SettingsSection";
 import SettingSidebar from "../components/SettingsSidebar";
 import EditSettingModal from "../components/EditSettingModal";
+import EditPasswordModal from "../components/EditPasswordModal";
 import axios from "axios";
 import Cookies from "js-cookie"
 
+
 export default function Profile() {
-    const user = {}
+    const [user, setUser] = useState({})
+    const [menteeProfile, setMenteeProfile] = useState([]);
+
     useEffect(() => {
         const token = Cookies.get("accessToken");
-        axios.get("http://localhost:8081/api/v1/auth/me", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
+            console.log(token)
+            axios.get("http://localhost:8081/api/v1/auth/me", {
+            headers: {Authorization: `Bearer ${token}`},
         })
         .then((res) => {
             console.log(res)
+            setUser(res.data)
+            setMenteeProfile([
+                { label: "Username", value: res.data.name, editable: true },
+                { label: "Email", value: res.data.email, editable: false },
+                { label: "Password", value: "**********", editable: true },
+                { label: "Role", value: res.data.roles, editable: false },])
         })
         .catch((res) => {
             console.log(res)
+            setUser({})
         })
     }, [])
     
-    const [menteeProfile, setMenteeProfile] = useState([
-        { label: "Username", value: user.name, editable: true },
-        { label: "Email", value: user.email, editable: true },
-        { label: "Password", value: "**********", editable: true },
-        { label: "Role", value: user.role, editable: true },
-    ]);
 
     const [editingField, setEditingField] = useState(null);
     const [editingValue, setEditingValue] = useState("");
@@ -77,14 +81,22 @@ export default function Profile() {
             />
 
             <AnimatePresence>
-            {editingField && (
-                <EditSettingModal
-                field={editingField}
-                value={editingValue}
-                onClose={() => setEditingField(null)}
-                onSave={handleSave}
-                />
-            )}
+                {editingField && editingField === "Password" && (
+                    <EditPasswordModal
+                        field={editingField}
+                        value={editingValue}
+                        onClose={() => setEditingField(null)}
+                        onSave={handleSave}
+                    />
+                )}
+                {editingField && editingField !== "Password" && (
+                    <EditSettingModal
+                        field={editingField}
+                        value={editingValue}
+                        onClose={() => setEditingField(null)}
+                        onSave={handleSave}
+                    />
+                )}
             </AnimatePresence>
         </motion.div>
         </div>

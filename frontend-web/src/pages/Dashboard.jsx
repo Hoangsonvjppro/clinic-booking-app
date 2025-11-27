@@ -13,32 +13,37 @@ export default function Dashboard() {
   const location = useLocation();
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [isDark, setIsDark] = useState(localStorage.getItem("mode"))
+  const [user, setUser] = useState()
 
-    const user = {}
-    useEffect(() => {
-        const token = Cookies.get("accessToken");
-        axios.get("http://localhost:8081/api/v1/auth/me", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
-        .then((res) => {
-            console.log(res)
-        })
-        .catch((res) => {
-            console.log(res)
-        })
-    }, [])
+  useEffect(() => {
+    const token = Cookies.get("accessToken");
+    // if (!Cookies.get("refreshToken")) {
+    //   Cookies.remove("accessToken")
+    // }
+    console.log(token)
+    axios.get("http://localhost:8081/api/v1/auth/me", {
+      headers: {Authorization: `Bearer ${token}`},
+    })
+    .then((res) => {
+      console.log(res)
+      setUser(res.data)
+    })
+    .catch((res) => {
+      console.log(res)
+    })
+
+  }, [])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")
     localStorage.setItem("mode", isDark)
+    console.log(user)
   }
 
   return (
     <div>
-      <NavigationBar isDark={isDark} toggleTheme={toggleTheme} />
+      <NavigationBar isDark={isDark} toggleTheme={toggleTheme} user={user} />
       
       <div className={`flex h-screen ${isDark ? "bg-slate-900 text-white" : "bg-gray-50 text-black"}`}>
         <Sidebar isDark={isDark} />
