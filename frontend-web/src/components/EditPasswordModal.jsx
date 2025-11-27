@@ -27,20 +27,20 @@ export default function EditPasswordModal({ field, value, onClose, onSave }) {
             <X size={20} />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">Edit {field}</h2>
+            <h2 className="text-xl font-semibold mb-4">Chỉnh sửa {field}</h2>
 
             <input
             type="text"
             onChange={(e) => setNewValue(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder={`Enter new ${field.toLowerCase()}`}
+            placeholder={`Nhập ${field.toLowerCase()} mới`}
             />
             
             <input
             type="text"
             onChange={(e) => setNewValue(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder={`Confirm new ${field.toLowerCase()}`}
+            placeholder={`Xác nhận ${field.toLowerCase()} mới`}
             />
 
             <div className="flex justify-end gap-3">
@@ -48,13 +48,13 @@ export default function EditPasswordModal({ field, value, onClose, onSave }) {
                 onClick={onClose}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
-                Cancel
+                Hủy
             </button>
             <button
                 onClick={() => onSave(field, newValue)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
-                Save
+                Lưu
             </button>
             </div>
         </motion.div>

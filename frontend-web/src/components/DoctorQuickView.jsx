@@ -38,22 +38,22 @@ export default function DoctorQuickView({ doctor, onClose, isDark }) {
               className="w-full h-48 object-cover rounded-lg mb-4"
             />
 
+            {/* <p className="text-gray-600 mb-2">
+              <strong>Chuyên gia:</strong> {doctor.specialty}
+            </p> */}
             <p className="text-gray-600 mb-2">
-              <strong>Specialty:</strong> {doctor.specialty}
+              <strong>Địa chỉ:</strong> {doctor.location}
             </p>
             <p className="text-gray-600 mb-2">
-              <strong>Location:</strong> {doctor.location}
+              <strong>Bài đánh giá:</strong> {doctor.experience}
             </p>
             <p className="text-gray-600 mb-2">
-              <strong>Experience:</strong> {doctor.experience}
-            </p>
-            <p className="text-gray-600 mb-2">
-              <strong>Rating:</strong> {doctor.rating} ⭐
+              <strong>Đánh giá:</strong> {doctor.rating} ⭐
             </p>
 
             <NavLink to={`/doctor-appointment?id=${doctor.id}`} activeClassName="active-link" >
                 <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-                Book Appointment
+                Đặt lịch
                 </button>
             </NavLink>
           </motion.div>

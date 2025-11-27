@@ -64,10 +64,18 @@ public class DoctorApplicationService {
                 .toList();
     }
 
-
+    // --- Approve application ---
     public DoctorApplication approve(UUID applicationId) {
         DoctorApplication app = repo.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
         app.setStatus(DoctorApplicationStatus.APPROVED);
+        // In real app: create Doctor entity, grant roles, notify user, etc.
+        return repo.save(app);
+    }
+    
+    // --- Reject application ---
+    public DoctorApplication reject(UUID applicationId) {
+        DoctorApplication app = repo.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        app.setStatus(DoctorApplicationStatus.REJECTED);
         // In real app: create Doctor entity, grant roles, notify user, etc.
         return repo.save(app);
     }
@@ -82,6 +90,13 @@ public class DoctorApplicationService {
     public DoctorApplication getByUserId(String userId) {
         return repo.findByUserId(userId)
                 .orElseThrow(() -> new ApplicationException("Application not found for userId: " + userId));
+    }
+
+    // --- Get all application ---
+    public List<DoctorApplication> getAllApplication() {
+        return repo.findAll()
+            .stream()
+            .toList();
     }
 
     // --- Update by user ID ---

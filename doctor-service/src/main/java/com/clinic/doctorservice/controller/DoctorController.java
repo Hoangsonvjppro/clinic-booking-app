@@ -49,9 +49,18 @@ public class DoctorController {
     /** Approve an application (admin).
      * In a real system protect with roles/authorization.
      */
-    @PostMapping("/approve")
+    @PutMapping("/approve")
     public ResponseEntity<ApplyDoctorResponse> approve(@RequestParam("id") UUID applicationId) {
         DoctorApplication saved = service.approve(applicationId);
+        return ResponseEntity.ok(new ApplyDoctorResponse(saved.getId(), saved.getUserId(), saved.getStatus().name()));
+    }
+    
+    /** Reject an application (admin).
+     * In a real system protect with roles/authorization.
+     */
+    @PutMapping("/reject")
+    public ResponseEntity<ApplyDoctorResponse> reject(@RequestParam("id") UUID applicationId) {
+        DoctorApplication saved = service.reject(applicationId);
         return ResponseEntity.ok(new ApplyDoctorResponse(saved.getId(), saved.getUserId(), saved.getStatus().name()));
     }
 
@@ -92,6 +101,12 @@ public class DoctorController {
     public ResponseEntity<List<String>> getAllUserIds() {
         List<String> userIds = service.getAllUserIds();
         return ResponseEntity.ok(userIds);
+    }
+
+    // --- GET ALL USER ---
+    @GetMapping("/all-application")
+    public ResponseEntity<List<DoctorApplication>> getAllApplications() {
+        return ResponseEntity.ok(service.getAllApplication());
     }
 
 }

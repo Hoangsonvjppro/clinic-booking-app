@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import Modal from "react-modal"
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function DoctorInformation( {form, handleChange, isDark} ) {
+export default function DoctorInformation( {form, handleChange, isDark, user} ) {
     const [showModal, setShowModal] = useState(false)
 
     const [addressForm, setAddressForm] = useState({
@@ -47,7 +47,7 @@ export default function DoctorInformation( {form, handleChange, isDark} ) {
         handleChange({
         target: { name: "address", value: addressForm },
         })
-        closeModal()``
+        closeModal()
     }
 
     return (
@@ -75,9 +75,9 @@ export default function DoctorInformation( {form, handleChange, isDark} ) {
             </label>
             {form.address ? 
                 <div>
-                    <div>{form.address.fullName} | {form.address.phone}</div>
-                    <div>{form.address.detail}</div>
-                    <div>{form.address.region}</div>
+                    <div>Tên phòng khám: {form.address.fullName} | Số điện thoại: {form.address.phone}</div>
+                    <div>Địa chỉ: {form.address.detail}</div>
+                    <div>Thông tin thêm: {form.address.region}</div>
                     <button onClick={openAddressModal} className="bg-none border-none text-sm font-semibold text-blue-500 underline">Chỉnh sửa</button>
                 </div> :
                 <button onClick={openAddressModal} className="border px-4 py-1 rounded-md hover:bg-gray-100">Thêm</button>
@@ -89,11 +89,11 @@ export default function DoctorInformation( {form, handleChange, isDark} ) {
             <input
                 type="email"
                 name="email"
-                value={form.hospitalEmail}
+                value={user.email}
                 onChange={handleChange}
-                placeholder={form.hospitalEmail}
+                placeholder={user.email}
                 className={`border rounded-md px-3 py-2 w-full ${isDark ? "bg-slate-800" : "bg-gray-50"}`}
-                readOnly
+                disabled={user.email}
             />
             </div>
 
@@ -104,11 +104,11 @@ export default function DoctorInformation( {form, handleChange, isDark} ) {
             <input
                 type="phone"
                 name="phone"
-                value={form.phone}
+                value={user.phone}
                 onChange={handleChange}
-                placeholder={form.phone}
+                placeholder={user.phone}
                 className={`border rounded-md px-3 py-2 w-full ${isDark ? "bg-slate-800" : "bg-gray-50"}`}
-                readOnly
+                disabled={user.phone}
             />
             </div>
 
@@ -122,7 +122,7 @@ export default function DoctorInformation( {form, handleChange, isDark} ) {
                     onChange={handleChange}
                     rows={4}
                     placeholder="Nhập thông tin chi tiết về phòng khám, ví dụ: loại hình dịch vụ, thời gian làm việc, ghi chú..."
-                    className={`w-full px-3 py-2 rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-y ${
+                    className={`w-full px-3 py-2 rounded-md border transition-colors focus:outline-none focus:ring-2 max-h-24 focus:ring-orange-500 focus:border-orange-500 resize-y ${
                     isDark 
                         ? "bg-slate-800 text-gray-300 border-slate-600 placeholder-gray-400" 
                         : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-400"
