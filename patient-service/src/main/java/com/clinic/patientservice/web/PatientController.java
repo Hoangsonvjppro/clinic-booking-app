@@ -43,7 +43,7 @@ public class PatientController {
     }
 
     @GetMapping("/{id}")
-    public PatientResponse get(@PathVariable("id") Long id) {
+    public PatientResponse get(@PathVariable("id") java.util.UUID id) {
         return toDto(patientService.get(id));
     }
 
@@ -54,13 +54,13 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
-    public PatientResponse update(@PathVariable("id") Long id, @Valid @RequestBody UpdatePatientRequest req) {
+    public PatientResponse update(@PathVariable("id") java.util.UUID id, @Valid @RequestBody UpdatePatientRequest req) {
         return toDto(patientService.update(id, req));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
+    public void delete(@PathVariable("id") java.util.UUID id) {
         patientService.delete(id);
     }
 

@@ -1,8 +1,9 @@
 package com.clinic.appointmentservice.exception;
 
-public class PatientInactiveException extends RuntimeException {
+import java.util.UUID;
 
-    public PatientInactiveException(Long patientId) {
-        super("Patient account is not active: " + patientId);
+public class PatientInactiveException extends RuntimeException {
+    public PatientInactiveException(UUID patientId) {
+        super("Patient with ID " + patientId + " is inactive");
     }
 }

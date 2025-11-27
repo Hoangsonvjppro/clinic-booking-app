@@ -26,7 +26,7 @@ public class OAuthAccount {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "UUID")
     private User user;
 
     @Column(nullable = false, length = 50)

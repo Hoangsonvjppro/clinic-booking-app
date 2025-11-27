@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController
@@ -31,15 +32,17 @@ public class AppointmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
+
     @PutMapping("/{appointmentId}/cancel")
-    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable("appointmentId") Long appointmentId,
+    public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable("appointmentId") UUID appointmentId,
                                                                  @Valid @RequestBody CancelAppointmentRequest request) {
         AppointmentResponse response = appointmentService.cancelAppointment(appointmentId, request);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{appointmentId}/status")
-    public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable("appointmentId") Long appointmentId,
+    public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable("appointmentId") UUID appointmentId,
                                                             @Valid @RequestBody UpdateAppointmentStatusRequest request) {
         AppointmentResponse response = appointmentService.updateStatus(appointmentId, request);
         return ResponseEntity.ok(response);
@@ -47,8 +50,8 @@ public class AppointmentController {
 
     @GetMapping
     public ResponseEntity<List<AppointmentResponse>> listAppointments(
-            @RequestParam(name = "patientId", required = false) Long patientId,
-            @RequestParam(name = "doctorId", required = false) Long doctorId) {
+            @RequestParam(name = "patientId", required = false) UUID patientId,
+            @RequestParam(name = "doctorId", required = false) UUID doctorId) {
         if (patientId != null) {
             return ResponseEntity.ok(appointmentService.getAppointmentsByPatient(patientId));
         }
@@ -59,7 +62,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}")
-    public ResponseEntity<AppointmentResponse> getAppointment(@PathVariable("appointmentId") Long appointmentId) {
+    public ResponseEntity<AppointmentResponse> getAppointment(@PathVariable("appointmentId") UUID appointmentId) {
         return ResponseEntity.ok(appointmentService.getAppointment(appointmentId));
     }
 }

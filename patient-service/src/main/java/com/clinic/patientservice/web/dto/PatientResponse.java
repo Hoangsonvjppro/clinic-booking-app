@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 public class PatientResponse {
-    public Long id;
+    public java.util.UUID id;
     public String patientCode;
     public String firstName;
     public String lastName;

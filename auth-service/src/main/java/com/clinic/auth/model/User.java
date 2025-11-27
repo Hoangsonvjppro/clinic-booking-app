@@ -34,8 +34,8 @@ import java.util.stream.Collectors; // Chuyển đổi Set<Role> thành Set<Gran
 public class User implements UserDetails { // Triển khai UserDetails để tích hợp Spring Security
 
     @Id // Khóa chính
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Tự tăng ID trong DB
-    private Long id; // Mã định danh duy nhất cho người dùng
+    @GeneratedValue(strategy = GenerationType.UUID) // UUID tự động sinh
+    private java.util.UUID id; // Mã định danh duy nhất cho người dùng (UUID)
 
     @Column(name = "email", unique = true, nullable = false) // Email duy nhất và bắt buộc
     @NotBlank(message = "Email is required") // Không cho phép để trống

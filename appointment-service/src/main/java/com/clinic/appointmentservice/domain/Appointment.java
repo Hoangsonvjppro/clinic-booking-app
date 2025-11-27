@@ -6,22 +6,30 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import java.util.UUID;
+
 @Entity
-@Table(name = "appointments", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_appointments_doctor_time", columnNames = {"doctor_id", "appointment_time"})
-})
+@Table(name = "appointments")
 public class Appointment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "appointment_id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "patient_id", nullable = false)
-    private Long patientId;
+    private UUID patientId;
 
     @Column(name = "doctor_id", nullable = false)
-    private Long doctorId;
+    private UUID doctorId;
+
+    @Column(name = "doctor_name")
+    private String doctorName;
+
+    @Column(name = "patient_name")
+    private String patientName;
+
+    @Column(name = "clinic_address")
+    private String clinicAddress;
 
     @Column(name = "appointment_time", nullable = false)
     private LocalDateTime appointmentTime;
@@ -50,7 +58,9 @@ public class Appointment {
     }
 
     public static Appointment create() {
-        return new Appointment();
+        Appointment appointment = new Appointment();
+        appointment.setId(UUID.randomUUID());
+        return appointment;
     }
 
     @PrePersist
@@ -65,24 +75,52 @@ public class Appointment {
         this.updatedAt = Instant.now();
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public Long getPatientId() {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public UUID getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Long patientId) {
+    public void setPatientId(UUID patientId) {
         this.patientId = patientId;
     }
 
-    public Long getDoctorId() {
+    public UUID getDoctorId() {
         return doctorId;
     }
 
-    public void setDoctorId(Long doctorId) {
+    public void setDoctorId(UUID doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getClinicAddress() {
+        return clinicAddress;
+    }
+
+    public void setClinicAddress(String clinicAddress) {
+        this.clinicAddress = clinicAddress;
     }
 
     public LocalDateTime getAppointmentTime() {

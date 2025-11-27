@@ -7,13 +7,19 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
+import java.util.UUID;
+
 public class CreateAppointmentRequest {
 
     @NotNull
-    private Long patientId;
+    private UUID patientId;
 
     @NotNull
-    private Long doctorId;
+    private UUID doctorId;
+
+    private String doctorName;
+    private String patientName;
+    private String clinicAddress;
 
     @NotNull
     @Future
@@ -25,20 +31,44 @@ public class CreateAppointmentRequest {
     @Size(max = 500)
     private String notes;
 
-    public Long getPatientId() {
+    public UUID getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Long patientId) {
+    public void setPatientId(UUID patientId) {
         this.patientId = patientId;
     }
 
-    public Long getDoctorId() {
+    public UUID getDoctorId() {
         return doctorId;
     }
 
-    public void setDoctorId(Long doctorId) {
+    public void setDoctorId(UUID doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getClinicAddress() {
+        return clinicAddress;
+    }
+
+    public void setClinicAddress(String clinicAddress) {
+        this.clinicAddress = clinicAddress;
     }
 
     public LocalDateTime getAppointmentTime() {
