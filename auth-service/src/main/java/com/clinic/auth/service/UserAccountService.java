@@ -19,7 +19,7 @@ public class UserAccountService {
     private final AuditService auditService;
 
     @Transactional
-    public void updateUserStatus(Long userId, UpdateUserStatusRequest request) {
+    public void updateUserStatus(java.util.UUID userId, UpdateUserStatusRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 

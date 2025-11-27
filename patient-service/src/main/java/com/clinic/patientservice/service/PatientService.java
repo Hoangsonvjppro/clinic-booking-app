@@ -46,7 +46,7 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
-    public Patient get(Long id) {
+    public Patient get(java.util.UUID id) {
         return patientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found: " + id));
     }
@@ -65,7 +65,7 @@ public class PatientService {
     }
 
     @Transactional
-    public Patient update(Long id, UpdatePatientRequest req) {
+    public Patient update(java.util.UUID id, UpdatePatientRequest req) {
         Patient p = get(id);
         // if email changed, check uniqueness
         if (!p.getEmail().equals(req.email) && patientRepository.existsByEmail(req.email)) {
@@ -78,7 +78,7 @@ public class PatientService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(java.util.UUID id) {
         Patient p = get(id);
         patientRepository.delete(p);
     }
