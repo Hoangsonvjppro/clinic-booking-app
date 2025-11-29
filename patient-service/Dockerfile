@@ -1,15 +1,18 @@
-# ===== build stage =====
+# Stage 1: Build
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /workspace
 
-# Copy pom first to leverage Docker layer caching
-COPY pom.xml .
+# Copy parent POM first (required for multi-module project)
+COPY pom.xml ../pom.xml
 
-# Copy sources and build (with robust network retry flags)
-COPY src ./src
+# Copy service POM and sources
+COPY patient-service/pom.xml .
+COPY patient-service/src ./src
+
+# Build the service
 RUN mvn -DskipTests package
 
-# ===== run stage =====
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /workspace/target/*.jar /app/app.jar

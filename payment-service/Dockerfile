@@ -1,28 +1,25 @@
+# Stage 1: Build
 FROM maven:3.9.8-eclipse-temurin-21 AS build
-WORKDIR /app
+WORKDIR /workspace
 
-# Copy pom.xml first and download dependencies (cached)
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# Copy parent POM first (required for multi-module project)
+COPY pom.xml ../pom.xml
 
-# Copy the rest of your source code
-COPY src ./src
+# Copy service POM and sources
+COPY payment-service/pom.xml .
+COPY payment-service/src ./src
 
-# Package the Spring Boot app
+# Build the service
 RUN mvn clean package -DskipTests
 
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
+COPY --from=build /workspace/target/*.jar app.jar
 
-# Copy the built JAR from the previous stage
-COPY --from=build /app/target/*.jar app.jar
-
-# Expose the port
-EXPOSE 8080
-
-# Environment vars (example defaults)
+# Environment vars defaults
 ENV MOMO_ENDPOINT=https://test-payment.momo.vn/v2/gateway/api/create
 ENV MOMO_QUERY=https://test-payment.momo.vn/v2/gateway/api/query
 
-# Run the app
+EXPOSE 8085
 ENTRYPOINT ["java", "-jar", "app.jar"]

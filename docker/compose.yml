@@ -1,7 +1,14 @@
 version: '3.9'
+
 services:
+  # ============================================
+  # API GATEWAY
+  # ============================================
   api-gateway:
-    build: ../api-gateway
+    profiles: ["gateway"]
+    build:
+      context: ..
+      dockerfile: api-gateway/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -14,7 +21,267 @@ services:
     networks:
       - clinic-network
 
+  # ============================================
+  # MICROSERVICES
+  # ============================================
+  auth-service:
+    profiles: ["services"]
+    container_name: Auth
+    build:
+      context: ..
+      dockerfile: auth-service/Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres-auth:5432/auth
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123456@
+      JAVA_TOOL_OPTIONS: >
+        -Dspring.flyway.enabled=true
+        -Dspring.jpa.hibernate.ddl-auto=none
+    networks:
+      - clinic-network
+
+  doctor-service:
+    profiles: ["services"]
+    container_name: Doctor
+    build:
+      context: ..
+      dockerfile: doctor-service/Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres-doctor:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres-doctor
+      DB_PORT: 5432
+      DB_NAME: doctor
+      DB_USER: postgres
+      DB_PASSWORD: 123456@
+    networks:
+      - clinic-network
+
+  patient-service:
+    profiles: ["services"]
+    container_name: Patient
+    build:
+      context: ..
+      dockerfile: patient-service/Dockerfile
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres-patient:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-patient:5432/patient
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456@
+    networks:
+      - clinic-network
+
+  appointment-service:
+    profiles: ["services"]
+    container_name: Appointment
+    build:
+      context: ..
+      dockerfile: appointment-service/Dockerfile
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres-appointment:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-appointment:5432/appointment
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456@
+      PATIENT_SERVICE_BASE_URL: http://patient-service:8083
+      DOCTOR_SERVICE_BASE_URL: http://doctor-service:8082
+      NOTIFICATION_SERVICE_BASE_URL: http://notification-service:8086
+      APPOINTMENT_CANCELLATION_CUTOFF_HOURS: 24
+    networks:
+      - clinic-network
+
+  payment-service:
+    profiles: ["services"]
+    container_name: Payment
+    build:
+      context: ..
+      dockerfile: payment-service/Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres-payment:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payment:5432/payment
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456@
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
+      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY:-}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
+    networks:
+      - clinic-network
+
+  notification-service:
+    profiles: ["services"]
+    container_name: Notification
+    build:
+      context: ..
+      dockerfile: notification-service/Dockerfile
+    ports:
+      - "8086:8086"
+    depends_on:
+      postgres-notification:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-notification:5432/notification
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456@
+    networks:
+      - clinic-network
+
+  # ============================================
+  # DATABASES
+  # ============================================
+  postgres-auth:
+    profiles: ["databases"]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456@
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d auth" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+    networks:
+      - clinic-network
+
+  postgres-doctor:
+    profiles: ["databases"]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: doctor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456@
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d doctor" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_doctor:/var/lib/postgresql/data
+    networks:
+      - clinic-network
+
+  postgres-patient:
+    profiles: ["databases"]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: patient
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456@
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d patient" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata_patient:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - clinic-network
+
+  postgres-appointment:
+    profiles: ["databases"]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: appointment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456@
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d appointment" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata_appointment:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    networks:
+            - clinic-network
+
+  postgres-payment:
+    profiles: ["databases"]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: payment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456@
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d payment" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata_payment:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
+    networks:
+      - clinic-network
+
+  postgres-notification:
+    profiles: ["databases"]
+    image: postgres:16
+    environment:
+      POSTGRES_DB: notification
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456@
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d notification" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata_notification:/var/lib/postgresql/data
+    ports:
+      - "5438:5432"
+    networks:
+      - clinic-network
+
+  # ============================================
+  # FRONTEND
+  # ============================================
+  frontend-web:
+    profiles: ["frontend"]
+    build: ../frontend-web
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend-web:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - clinic-network
+
+  # ============================================
+  # MONITORING & INFRASTRUCTURE
+  # ============================================
   redis:
+    profiles: ["monitoring"]
     image: redis:7
     ports:
       - "6380:6379"
@@ -22,6 +289,7 @@ services:
       - clinic-network
 
   prometheus:
+    profiles: ["monitoring"]
     image: prom/prometheus:latest
     volumes:
       - ../api-gateway/prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml
@@ -31,6 +299,7 @@ services:
       - clinic-network
 
   grafana:
+    profiles: ["monitoring"]
     image: grafana/grafana:latest
     depends_on:
       - prometheus
@@ -46,185 +315,6 @@ services:
     networks:
       - clinic-network
 
-  auth-service:
-    build: ../auth-service
-    ports:
-      - "8081:8081"
-    depends_on:
-      postgres-auth:
-        condition: service_healthy
-    environment:
-      DB_URL: jdbc:postgresql://postgres-auth:5432/clinic_auth
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      JAVA_TOOL_OPTIONS: >
-        -Dspring.flyway.enabled=true
-        -Dspring.jpa.hibernate.ddl-auto=none
-    networks:
-      - clinic-network
-
-  postgres-auth:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: clinic_auth
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d clinic_auth" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata_auth:/var/lib/postgresql/data
-    networks:
-      - clinic-network
-
-  doctor-service:
-    build: ../doctor-service
-    ports:
-      - "8082:8082"
-    depends_on:
-      postgres-doctor:
-        condition: service_healthy
-    environment:
-      DB_HOST: postgres-doctor
-      DB_PORT: 5432
-      DB_NAME: doctordb
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-    networks:
-      - clinic-network
-
-  postgres-doctor:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: doctordb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d doctordb" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    ports:
-      - "5436:5432"
-    volumes:
-      - pgdata_doctor:/var/lib/postgresql/data
-    networks:
-      - clinic-network
-
-  patient-service:
-    build: ../patient-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      postgres-patient:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-patient:5432/clinic
-      SPRING_DATASOURCE_USERNAME: clinic
-      SPRING_DATASOURCE_PASSWORD: clinic
-    networks:
-      - clinic-network
-
-  postgres-patient:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: clinic
-      POSTGRES_USER: clinic
-      POSTGRES_PASSWORD: clinic
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U clinic -d clinic" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    volumes:
-      - pgdata_patient:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
-    networks:
-      - clinic-network
-
-  appointment-service:
-    build: ../appointment-service
-    ports:
-      - "8084:8084"
-    depends_on:
-      postgres-appointment:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-appointment:5432/clinic_appointment
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      PATIENT_SERVICE_BASE_URL: http://patient-service:8083
-      DOCTOR_SERVICE_BASE_URL: http://doctor-service:8082
-      NOTIFICATION_SERVICE_BASE_URL: http://notification-service:8086
-      APPOINTMENT_CANCELLATION_CUTOFF_HOURS: 24
-    networks:
-      - clinic-network
-
-  postgres-appointment:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: clinic_appointment
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d clinic_appointment" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    volumes:
-      - pgdata_appointment:/var/lib/postgresql/data
-    ports:
-      - "5435:5432"
-    networks:
-            - clinic-network
-
-  payment-service:
-    build: ../payment-service
-    ports:
-      - "8085:8085"
-    depends_on:
-      postgres-payment:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payment:5432/clinic_payment
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      MOMO_PARTNER_CODE: c:\Users\Hoangson Le\Workspace\IdeaProjects\clinic-booking-app\docker{MOMO_PARTNER_CODE:-}
-      MOMO_ACCESS_KEY: c:\Users\Hoangson Le\Workspace\IdeaProjects\clinic-booking-app\docker{MOMO_ACCESS_KEY:-}
-      MOMO_SECRET_KEY: c:\Users\Hoangson Le\Workspace\IdeaProjects\clinic-booking-app\docker{MOMO_SECRET_KEY:-}
-    networks:
-      - clinic-network
-
-  postgres-payment:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: clinic_payment
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d clinic_payment" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    volumes:
-      - pgdata_payment:/var/lib/postgresql/data
-    ports:
-      - "5437:5432"
-    networks:
-      - clinic-network
-
-  notification-service:
-    build: ../notification-service
-    ports:
-      - "8086:8086"
-    networks:
-      - clinic-network
-
 networks:
   clinic-network:
     driver: bridge
@@ -235,3 +325,4 @@ volumes:
   pgdata_patient:
   pgdata_appointment:
   pgdata_payment:
+  pgdata_notification:

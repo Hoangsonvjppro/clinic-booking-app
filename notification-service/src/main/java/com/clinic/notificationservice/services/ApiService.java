@@ -15,9 +15,9 @@ public class ApiService {
     private final WebClient doctorWebClient;
 
     public ApiService() {
-        this.patientWebClient = WebClient.builder().baseUrl("http://localhost:8082").build();
-        this.appointmentWebClient = WebClient.builder().baseUrl("http://localhost:8084").build();
-        this.doctorWebClient = WebClient.builder().baseUrl("http://localhost:8083").build();
+        this.patientWebClient = WebClient.builder().baseUrl("http://doctor-service:8082").build();
+        this.appointmentWebClient = WebClient.builder().baseUrl("http://appointment-service:8084").build();
+        this.doctorWebClient = WebClient.builder().baseUrl("http://patient-service:8083").build();
     }
 
     public PatientDTO getPatientById(int id) throws CustomException.PatientNotFoundException {

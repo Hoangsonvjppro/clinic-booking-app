@@ -67,6 +67,8 @@ public class EmailController implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // TODO: Remove or fix this test code - it crashes on startup if appointment ID=1 doesn't exist
+        /* 
         int appointmentId = 1;
         AppointmentDTO appointmentDTO = apiService.getAppointmentById(appointmentId);
 
@@ -80,6 +82,7 @@ public class EmailController implements CommandLineRunner {
 
         emailService.sendEmailHtml(toEmail, subject, body);
         System.out.println("Gui mail thanh cong");
+        */
 //        System.out.println(body);
     }
 
