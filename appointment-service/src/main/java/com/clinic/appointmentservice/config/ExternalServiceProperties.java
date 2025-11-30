@@ -1,9 +1,7 @@
 package com.clinic.appointmentservice.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-@Component
 @ConfigurationProperties(prefix = "external-services")
 public class ExternalServiceProperties {
 
