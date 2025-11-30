@@ -1,0 +1,577 @@
+{
+	"id": "945ae4e1-77c6-4974-a147-2789d61cae09",
+	"name": "Clinic Booking E2E Tests",
+	"timestamp": "2025-11-30T09:58:05.763Z",
+	"collection_id": "48632899-fecf8a50-1d2f-4f5e-bbbf-b47836f5355a",
+	"folder_id": 0,
+	"environment_id": "48632899-9c7fca49-5f6b-4478-931b-0bf97bfe6595",
+	"totalPass": 5,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-11-30T09:58:02.885Z",
+	"totalFail": 26,
+	"results": [
+		{
+			"id": "18ee7525-ca81-4ec6-a277-1b3960948ead",
+			"name": "Delete Test Doctor (Optional)",
+			"url": "http://localhost:8080/api/v1/users/email/doctor@example.com",
+			"time": 36,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				36
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "ae61a662-1c70-43fd-826e-0017cea2e046",
+			"name": "Delete Test Patient (Optional)",
+			"url": "http://localhost:8080/api/v1/users/email/patient@example.com",
+			"time": 10,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				10
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "3751aa7c-cdb6-405f-88a4-0116c89ced12",
+			"name": "Request 1: Register Doctor",
+			"url": "http://localhost:8080/api/v1/auth/register",
+			"time": 312,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 201 or 200": true,
+				"Doctor registered successfully": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201 or 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Doctor registered successfully": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				312
+			],
+			"allTests": [
+				{
+					"Status code is 201 or 200": true,
+					"Doctor registered successfully": true
+				}
+			]
+		},
+		{
+			"id": "2f5cfac8-6626-4dc9-922c-b43551e8df1f",
+			"name": "Request 2: Register Patient",
+			"url": "http://localhost:8080/api/v1/auth/register",
+			"time": 162,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 201 or 200": true,
+				"Patient registered successfully": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201 or 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Patient registered successfully": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				162
+			],
+			"allTests": [
+				{
+					"Status code is 201 or 200": true,
+					"Patient registered successfully": true
+				}
+			]
+		},
+		{
+			"id": "c6ce308c-ff14-49ea-9c1d-17b208c25e13",
+			"name": "Request 3: Login Doctor",
+			"url": "http://localhost:8080/api/v1/auth/login",
+			"time": 154,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Response has accessToken": false,
+				"Save doctorId": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Response has accessToken": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Save doctorId": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				154
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Response has accessToken": false,
+					"Save doctorId": false
+				}
+			]
+		},
+		{
+			"id": "17ca251f-19f1-47af-870e-77c4378e9920",
+			"name": "Request 4: Login Patient",
+			"url": "http://localhost:8080/api/v1/auth/login",
+			"time": 172,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Response has accessToken": false,
+				"Save patientId": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Response has accessToken": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Save patientId": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				172
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Response has accessToken": false,
+					"Save patientId": false
+				}
+			]
+		},
+		{
+			"id": "ac1dcd67-6a63-4b53-b121-b2c63d5de129",
+			"name": "Request 5: Update Doctor Schedule",
+			"url": "http://localhost:8080/api/v1/doctors/profile/schedules",
+			"time": 11,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Schedule updated successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Schedule updated successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Schedule updated successfully": false
+				}
+			]
+		},
+		{
+			"id": "dc69fc6f-b2bc-40eb-960c-36fdbf106e5c",
+			"name": "Request 6: Create Appointment (Success Case)",
+			"url": "http://localhost:8080/api/v1/appointments",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 201": false,
+				"Appointment created successfully": false,
+				"Appointment has correct details": false
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Appointment created successfully": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Appointment has correct details": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status code is 201": false,
+					"Appointment created successfully": false,
+					"Appointment has correct details": false
+				}
+			]
+		},
+		{
+			"id": "50b5d1ed-5976-4c36-bb3d-f8bf2f23addf",
+			"name": "Request 7: Create Appointment (Fail Case - Wrong Schedule)",
+			"url": "http://localhost:8080/api/v1/appointments",
+			"time": 9,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 400 or 409 (Bad Request or Conflict)": false,
+				"Error message indicates doctor unavailable": true
+			},
+			"testPassFailCounts": {
+				"Status code is 400 or 409 (Bad Request or Conflict)": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Error message indicates doctor unavailable": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status code is 400 or 409 (Bad Request or Conflict)": false,
+					"Error message indicates doctor unavailable": true
+				}
+			]
+		},
+		{
+			"id": "ef338a96-74f7-4de4-b77b-526440b942ea",
+			"name": "Request 8: Doctor Confirm Appointment",
+			"url": "http://localhost:8080/api/v1/appointments/1/status",
+			"time": 14,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Appointment status is CONFIRMED": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Appointment status is CONFIRMED": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Appointment status is CONFIRMED": false
+				}
+			]
+		},
+		{
+			"id": "25a7608e-d623-45bb-9c81-a41e39b05595",
+			"name": "Request 9: Doctor Complete Appointment",
+			"url": "http://localhost:8080/api/v1/appointments/1/status",
+			"time": 10,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Appointment status is COMPLETED": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Appointment status is COMPLETED": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Appointment status is COMPLETED": false
+				}
+			]
+		},
+		{
+			"id": "05f3a998-d406-4f90-a2f3-9962a4410430",
+			"name": "Request 10: Create Medical Record",
+			"url": "http://localhost:8080/api/v1/appointments/1/medical-record",
+			"time": 10,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 201": false,
+				"Medical record created successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Medical record created successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status code is 201": false,
+					"Medical record created successfully": false
+				}
+			]
+		},
+		{
+			"id": "4260bba7-73b0-42f7-a0fd-18bb5b52c335",
+			"name": "Request 11: Patient View Medical Record",
+			"url": "http://localhost:8080/api/v1/appointments/1/medical-record",
+			"time": 9,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Medical record contains expected diagnosis": false,
+				"Medical record has all required fields": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Medical record contains expected diagnosis": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Medical record has all required fields": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Medical record contains expected diagnosis": false,
+					"Medical record has all required fields": false
+				}
+			]
+		},
+		{
+			"id": "ec3a712f-8dfc-4653-ac37-1df422bc47e7",
+			"name": "Request 12: Patient Create Review",
+			"url": "http://localhost:8080/api/v1/doctors//reviews",
+			"time": 10,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 201": false,
+				"Review created successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review created successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status code is 201": false,
+					"Review created successfully": false
+				}
+			]
+		},
+		{
+			"id": "088df0e0-e2a0-4667-b67c-286085e09e2f",
+			"name": "Request 13: Get Doctor Reviews (Public)",
+			"url": "http://localhost:8080/api/v1/doctors//reviews",
+			"time": 9,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Reviews list contains created review": false,
+				"Review has correct rating": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Reviews list contains created review": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review has correct rating": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Reviews list contains created review": false,
+					"Review has correct rating": false
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 935,
+	"collection": {
+		"requests": [
+			{
+				"id": "18ee7525-ca81-4ec6-a277-1b3960948ead",
+				"method": "DELETE"
+			},
+			{
+				"id": "ae61a662-1c70-43fd-826e-0017cea2e046",
+				"method": "DELETE"
+			},
+			{
+				"id": "3751aa7c-cdb6-405f-88a4-0116c89ced12",
+				"method": "POST"
+			},
+			{
+				"id": "2f5cfac8-6626-4dc9-922c-b43551e8df1f",
+				"method": "POST"
+			},
+			{
+				"id": "c6ce308c-ff14-49ea-9c1d-17b208c25e13",
+				"method": "POST"
+			},
+			{
+				"id": "17ca251f-19f1-47af-870e-77c4378e9920",
+				"method": "POST"
+			},
+			{
+				"id": "ac1dcd67-6a63-4b53-b121-b2c63d5de129",
+				"method": "PUT"
+			},
+			{
+				"id": "dc69fc6f-b2bc-40eb-960c-36fdbf106e5c",
+				"method": "POST"
+			},
+			{
+				"id": "50b5d1ed-5976-4c36-bb3d-f8bf2f23addf",
+				"method": "POST"
+			},
+			{
+				"id": "ef338a96-74f7-4de4-b77b-526440b942ea",
+				"method": "PUT"
+			},
+			{
+				"id": "25a7608e-d623-45bb-9c81-a41e39b05595",
+				"method": "PUT"
+			},
+			{
+				"id": "05f3a998-d406-4f90-a2f3-9962a4410430",
+				"method": "POST"
+			},
+			{
+				"id": "4260bba7-73b0-42f7-a0fd-18bb5b52c335",
+				"method": "GET"
+			},
+			{
+				"id": "ec3a712f-8dfc-4653-ac37-1df422bc47e7",
+				"method": "POST"
+			},
+			{
+				"id": "088df0e0-e2a0-4667-b67c-286085e09e2f",
+				"method": "GET"
+			}
+		]
+	}
+}

@@ -41,18 +41,21 @@ public class AuditService {
             String ipAddress = request != null ? getClientIp(request) : null;
             String userAgent = request != null ? request.getHeader("User-Agent") : null;
 
-            AuditLog log = AuditLog.builder()
-                    .action(action)
-                    .user(actor)
-                    .subject(subject)
-                    .details(details)
-                    .ipAddress(ipAddress)
-                    .userAgent(userAgent)
-                    .status(errorMessage != null ? "FAILED" : "SUCCESS")
-                    .errorMessage(errorMessage)
-                    .build();
-
-            auditLogRepository.save(log);
+            // TODO: Re-enable audit logging when audit_logs table is created
+            // AuditLog log = AuditLog.builder()
+            //         .action(action)
+            //         .user(actor)
+            //         .subject(subject)
+            //         .details(details)
+            //         .ipAddress(ipAddress)
+            //         .userAgent(userAgent)
+            //         .status(errorMessage != null ? "FAILED" : "SUCCESS")
+            //         .errorMessage(errorMessage)
+            //         .build();
+            //
+            // auditLogRepository.save(log);
+            
+            System.out.println("Audit log disabled - Action: " + action + ", Subject: " + buildSubject(entityType, entityId));
         } catch (Exception e) {
             System.err.println("Failed to save audit log: " + e.getMessage());
         }

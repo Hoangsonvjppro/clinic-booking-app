@@ -83,6 +83,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 // 2️⃣ Bảo đảm không tạo session (hoặc có)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 2.5️⃣ Register custom authentication provider
+                .authenticationProvider(authenticationProvider())
                 // 3️⃣ Quy tắc phân quyền endpoint
                 .authorizeHttpRequests(auth -> auth
                         // Các endpoint public (không cần token)
