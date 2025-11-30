@@ -79,4 +79,21 @@ public class DoctorServiceClient {
             throw new RemoteServiceException("Error calling doctor service", ex);
         }
     }
+
+    public java.util.List<com.clinic.appointmentservice.client.dto.DoctorScheduleResponse> getDoctorSchedules(UUID doctorId) {
+        String baseUrl = properties.getDoctorService().getBaseUrl();
+        if (baseUrl == null) {
+            throw new RemoteServiceException("Doctor service base URL is not configured");
+        }
+
+        String url = String.format("%s/api/v1/doctors/%s/schedules", baseUrl, doctorId);
+
+        try {
+            com.clinic.appointmentservice.client.dto.DoctorScheduleResponse[] schedules = 
+                restTemplate.getForObject(url, com.clinic.appointmentservice.client.dto.DoctorScheduleResponse[].class);
+            return schedules != null ? java.util.Arrays.asList(schedules) : java.util.Collections.emptyList();
+        } catch (Exception ex) {
+            throw new RemoteServiceException("Error fetching doctor schedules", ex);
+        }
+    }
 }

@@ -15,6 +15,7 @@ public record AppointmentResponse(
         String notes,
         String cancelledReason,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        UUID medicalRecordId
 ) {
 }

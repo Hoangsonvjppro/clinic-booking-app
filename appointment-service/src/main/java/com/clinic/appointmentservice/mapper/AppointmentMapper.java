@@ -8,7 +8,7 @@ public final class AppointmentMapper {
     private AppointmentMapper() {
     }
 
-    public static AppointmentResponse toResponse(Appointment appointment) {
+    public static AppointmentResponse toResponse(Appointment appointment, java.util.UUID medicalRecordId) {
         return new AppointmentResponse(
                 appointment.getId(),
                 appointment.getPatientId(),
@@ -19,7 +19,8 @@ public final class AppointmentMapper {
                 appointment.getNotes(),
                 appointment.getCancelledReason(),
                 appointment.getCreatedAt(),
-                appointment.getUpdatedAt()
+                appointment.getUpdatedAt(),
+                medicalRecordId
         );
     }
 }

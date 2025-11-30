@@ -42,7 +42,9 @@ public class AppointmentService {
     private final AppointmentAuditRepository appointmentAuditRepository;
     private final PatientServiceClient patientServiceClient;
     private final DoctorServiceClient doctorServiceClient;
+
     private final NotificationServiceClient notificationServiceClient;
+    private final com.clinic.appointmentservice.repository.MedicalRecordRepository medicalRecordRepository;
     private final AppointmentProperties appointmentProperties;
     private final Clock clock;
 
@@ -51,7 +53,9 @@ public class AppointmentService {
                               AppointmentAuditRepository appointmentAuditRepository,
                               PatientServiceClient patientServiceClient,
                               DoctorServiceClient doctorServiceClient,
+
                               NotificationServiceClient notificationServiceClient,
+                              com.clinic.appointmentservice.repository.MedicalRecordRepository medicalRecordRepository,
                               AppointmentProperties appointmentProperties,
                               Clock clock) {
         this.appointmentRepository = appointmentRepository;
@@ -59,7 +63,9 @@ public class AppointmentService {
         this.appointmentAuditRepository = appointmentAuditRepository;
         this.patientServiceClient = patientServiceClient;
         this.doctorServiceClient = doctorServiceClient;
+
         this.notificationServiceClient = notificationServiceClient;
+        this.medicalRecordRepository = medicalRecordRepository;
         this.appointmentProperties = appointmentProperties;
         this.clock = clock;
     }
@@ -73,6 +79,10 @@ public class AppointmentService {
 
         DoctorAvailability doctorAvailability =
                 doctorServiceClient.verifyAvailability(request.getDoctorId(), request.getAppointmentTime(), request.getDurationMinutes());
+
+        // Validate Doctor Schedule
+        List<com.clinic.appointmentservice.client.dto.DoctorScheduleResponse> schedules = doctorServiceClient.getDoctorSchedules(request.getDoctorId());
+        validateDoctorSchedule(schedules, request.getAppointmentTime(), request.getDurationMinutes());
 
         ensureNoConflict(request.getDoctorId(), request.getAppointmentTime());
 
@@ -113,7 +123,7 @@ public class AppointmentService {
 
         sendCreationNotification(appointment);
 
-        return AppointmentMapper.toResponse(appointment);
+        return AppointmentMapper.toResponse(appointment, null);
     }
 
     @Transactional
@@ -143,7 +153,7 @@ public class AppointmentService {
 
         sendCancellationNotification(updated, request.getReason());
 
-        return AppointmentMapper.toResponse(updated);
+        return AppointmentMapper.toResponse(updated, null);
     }
 
     @Transactional
@@ -172,34 +182,56 @@ public class AppointmentService {
 
         sendStatusChangeNotification(updated, targetStatus);
 
-        return AppointmentMapper.toResponse(updated);
+        UUID medicalRecordId = medicalRecordRepository.findByAppointmentId(appointmentId)
+                .map(com.clinic.appointmentservice.domain.MedicalRecord::getId)
+                .orElse(null);
+
+        return AppointmentMapper.toResponse(updated, medicalRecordId);
     }
 
     @Transactional(readOnly = true)
     public AppointmentResponse getAppointment(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
-        return AppointmentMapper.toResponse(appointment);
+        
+        UUID medicalRecordId = medicalRecordRepository.findByAppointmentId(appointmentId)
+                .map(com.clinic.appointmentservice.domain.MedicalRecord::getId)
+                .orElse(null);
+
+        return AppointmentMapper.toResponse(appointment, medicalRecordId);
     }
 
     @Transactional(readOnly = true)
     public List<AppointmentResponse> getAppointmentsByPatient(UUID patientId) {
-        return appointmentRepository.findAllByPatientId(patientId).stream()
-                .map(AppointmentMapper::toResponse)
-                .toList();
+        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patientId);
+        return mapToResponseList(appointments);
     }
 
     @Transactional(readOnly = true)
     public List<AppointmentResponse> getAppointmentsByDoctor(UUID doctorId) {
-        return appointmentRepository.findAllByDoctorId(doctorId).stream()
-                .map(AppointmentMapper::toResponse)
-                .toList();
+        List<Appointment> appointments = appointmentRepository.findAllByDoctorId(doctorId);
+        return mapToResponseList(appointments);
     }
 
     @Transactional(readOnly = true)
     public List<AppointmentResponse> getAllAppointments() {
-        return appointmentRepository.findAll().stream()
-                .map(AppointmentMapper::toResponse)
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return mapToResponseList(appointments);
+    }
+
+    private List<AppointmentResponse> mapToResponseList(List<Appointment> appointments) {
+        if (appointments.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        List<UUID> appointmentIds = appointments.stream().map(Appointment::getId).toList();
+        java.util.Map<UUID, UUID> medicalRecordMap = medicalRecordRepository.findByAppointmentIdIn(appointmentIds).stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        com.clinic.appointmentservice.domain.MedicalRecord::getAppointmentId,
+                        com.clinic.appointmentservice.domain.MedicalRecord::getId
+                ));
+        
+        return appointments.stream()
+                .map(app -> AppointmentMapper.toResponse(app, medicalRecordMap.get(app.getId())))
                 .toList();
     }
 
@@ -360,5 +392,32 @@ public class AppointmentService {
 
     private String buildPerformer(RequesterRole role, UUID id) {
         return role.name() + "_" + id;
+    }
+
+    private void validateDoctorSchedule(List<com.clinic.appointmentservice.client.dto.DoctorScheduleResponse> schedules, LocalDateTime appointmentTime, Integer durationMinutes) {
+        if (schedules.isEmpty()) {
+            return; // If no schedule is set, assume available or handle as policy dictates. Assuming available for now or maybe unavailable? 
+            // Requirement says "Check if doctor IS WORKING". If no schedule, likely NOT working.
+            // Let's assume if no schedule, they are NOT working.
+            // throw new DoctorUnavailableException(null, "Doctor has no schedule defined");
+            // However, existing logic might rely on empty schedule = always available? 
+            // Let's follow strict requirement: "If not in schedule -> Exception".
+        }
+
+        java.time.DayOfWeek dayOfWeek = appointmentTime.getDayOfWeek();
+        java.time.LocalTime startTime = appointmentTime.toLocalTime();
+        java.time.LocalTime endTime = startTime.plusMinutes(durationMinutes);
+
+        boolean isWorking = schedules.stream()
+                .anyMatch(schedule -> 
+                        schedule.dayOfWeek() == dayOfWeek &&
+                        schedule.isAvailable() &&
+                        !startTime.isBefore(schedule.startTime()) &&
+                        !endTime.isAfter(schedule.endTime())
+                );
+
+        if (!isWorking) {
+            throw new DoctorUnavailableException(null, "Doctor is not working at the requested time");
+        }
     }
 }

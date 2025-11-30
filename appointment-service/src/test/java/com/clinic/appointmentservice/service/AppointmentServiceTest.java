@@ -51,6 +51,8 @@ class AppointmentServiceTest {
     private DoctorServiceClient doctorServiceClient;
     @Mock
     private NotificationServiceClient notificationServiceClient;
+    @Mock
+    private com.clinic.appointmentservice.repository.MedicalRecordRepository medicalRecordRepository;
 
     private AppointmentProperties appointmentProperties;
     private Clock fixedClock;
@@ -74,6 +76,7 @@ class AppointmentServiceTest {
                 patientServiceClient,
                 doctorServiceClient,
                 notificationServiceClient,
+                medicalRecordRepository,
                 appointmentProperties,
                 fixedClock
         );
