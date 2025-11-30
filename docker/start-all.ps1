@@ -1,0 +1,1 @@
+docker compose --profile gateway --profile databases --profile services --profile monitoring  up -d --build

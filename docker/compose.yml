@@ -120,9 +120,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payment:5432/payment
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456@
-      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
       MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY:-}
       MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
+      SPRING_FLYWAY_LOCATIONS: filesystem:/app/db/migration
+    volumes:
+      - ../payment-service/src/main/resources/db/migration:/app/db/migration
     networks:
       - clinic-network
 
@@ -141,6 +143,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-notification:5432/notification
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456@
+      SPRING_FLYWAY_LOCATIONS: filesystem:/app/db/migration
+    volumes:
+      - ../notification-service/src/main/resources/db/migration:/app/db/migration
     networks:
       - clinic-network
 
