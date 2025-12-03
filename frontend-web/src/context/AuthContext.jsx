@@ -45,12 +45,25 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       
-      // Fetch user info after login
-      const userData = await authApi.getCurrentUser();
+      // Store roles and user info from login response
+      const roles = data.roles || [];
+      const userData = data.user || {};
+      userData.roles = roles;
+      
+      localStorage.setItem('roles', JSON.stringify(roles));
+      localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       
-      toast.success('Login successful!');
-      navigate('/dashboard');
+      toast.success('Đăng nhập thành công!');
+      
+      // Navigate based on role
+      if (roles.includes('ADMIN')) {
+        navigate('/admin');
+      } else if (roles.includes('DOCTOR')) {
+        navigate('/doctor');
+      } else {
+        navigate('/');
+      }
       return data;
     } catch (error) {
       const message = error.response?.data?.message || error.message || 'Login failed';
