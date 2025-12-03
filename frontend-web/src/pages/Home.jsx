@@ -49,7 +49,9 @@ export default function Home() {
   const loadFeaturedDoctors = async () => {
     try {
       const response = await getDoctors({ limit: 4, sort: 'rating' });
-      setFeaturedDoctors(response?.data || response || []);
+      // API returns { doctors: [], total, page, limit }
+      const doctorList = response?.doctors || response?.data?.doctors || [];
+      setFeaturedDoctors(Array.isArray(doctorList) ? doctorList : []);
     } catch (error) {
       console.error('Failed to load doctors:', error);
       // Mock data fallback

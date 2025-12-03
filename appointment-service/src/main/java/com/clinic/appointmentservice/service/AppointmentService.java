@@ -219,6 +219,30 @@ public class AppointmentService {
         return mapToResponseList(appointments);
     }
 
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getUpcomingAppointments() {
+        List<Appointment> appointments = appointmentRepository.findByAppointmentTimeAfterOrderByAppointmentTimeAsc(LocalDateTime.now(clock));
+        return mapToResponseList(appointments);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getUpcomingAppointmentsByPatient(UUID patientId) {
+        List<Appointment> appointments = appointmentRepository.findByPatientIdAndAppointmentTimeAfterOrderByAppointmentTimeAsc(patientId, LocalDateTime.now(clock));
+        return mapToResponseList(appointments);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getAppointmentHistory() {
+        List<Appointment> appointments = appointmentRepository.findByAppointmentTimeBeforeOrderByAppointmentTimeDesc(LocalDateTime.now(clock));
+        return mapToResponseList(appointments);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getAppointmentHistoryByPatient(UUID patientId) {
+        List<Appointment> appointments = appointmentRepository.findByPatientIdAndAppointmentTimeBeforeOrderByAppointmentTimeDesc(patientId, LocalDateTime.now(clock));
+        return mapToResponseList(appointments);
+    }
+
     private List<AppointmentResponse> mapToResponseList(List<Appointment> appointments) {
         if (appointments.isEmpty()) {
             return java.util.Collections.emptyList();

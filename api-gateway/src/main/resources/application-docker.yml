@@ -2,6 +2,7 @@ spring:
   cloud:
     gateway:
       routes:
+        # Auth Service
         - id: auth-service
           uri: http://auth-service:8081
           predicates:
@@ -12,8 +13,34 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
+        
+        # Doctor Service - public doctors API
+        - id: doctor-service-public
+          uri: http://doctor-service:8082
+          predicates:
+            - Path=/api/v1/doctors/**,/api/v1/doctors
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Doctor Service - doctor application API
+        - id: doctor-service-application
+          uri: http://doctor-service:8082
+          predicates:
+            - Path=/api/doctor/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Patient Service
         - id: patient-service
-          uri: http://patient-service:8080
+          uri: http://patient-service:8083
           predicates:
             - Path=/api/patients/**
           filters:
@@ -22,10 +49,36 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
+        
+        # Appointment Service
         - id: appointment-service
           uri: http://appointment-service:8084
           predicates:
-            - Path=/api/appointments/**
+            - Path=/api/v1/appointments/**,/api/appointments/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Payment Service
+        - id: payment-service
+          uri: http://payment-service:8085
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Notification Service
+        - id: notification-service
+          uri: http://notification-service:8086
+          predicates:
+            - Path=/api/notifications/**
           filters:
             - name: RequestRateLimiter
               args:

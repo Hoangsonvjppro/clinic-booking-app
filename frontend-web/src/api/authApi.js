@@ -2,42 +2,42 @@ import api from './axiosConfig';
 
 // Register new user
 export const register = async (userData) => {
-  return api.post('/auth/register', userData);
+  return api.post('/v1/auth/register', userData);
 };
 
 // Login with email/password
 export const login = async (credentials) => {
-  return api.post('/auth/login', credentials);
+  return api.post('/v1/auth/login', credentials);
 };
 
 // Refresh access token
 export const refreshToken = async (refreshToken) => {
-  return api.post('/auth/refresh', { refreshToken });
+  return api.post('/v1/auth/refresh', { refreshToken });
 };
 
 // Logout
 export const logout = async () => {
-  return api.post('/auth/logout');
+  return api.post('/v1/auth/logout');
 };
 
 // Get current user info
 export const getCurrentUser = async () => {
-  return api.get('/auth/me');
+  return api.get('/v1/auth/me');
 };
 
 // Forgot password - send reset email
 export const forgotPassword = async (email) => {
-  return api.post('/auth/forgot-password', { email });
+  return api.post('/v1/auth/forgot-password', { email });
 };
 
 // Reset password with token
 export const resetPassword = async (token, newPassword) => {
-  return api.post('/auth/reset-password', { token, newPassword });
+  return api.post('/v1/auth/reset-password', { token, newPassword });
 };
 
 // Verify email with token
 export const verifyEmail = async (token) => {
-  return api.get(`/auth/verify-email?token=${token}`);
+  return api.get(`/v1/auth/verify-email?token=${token}`);
 };
 
 // OAuth2 Google login URL

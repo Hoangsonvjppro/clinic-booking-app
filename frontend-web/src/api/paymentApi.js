@@ -2,27 +2,27 @@ import api from './axiosConfig';
 
 // Create MoMo payment
 export const createMomoPayment = async (paymentData) => {
-  return api.post('/momo/create-payment', paymentData);
+  return api.post('/v1/momo/create-payment', paymentData);
 };
 
 // Get payment by ID
 export const getPaymentById = async (paymentId) => {
-  return api.get(`/payments/${paymentId}`);
+  return api.get(`/v1/payments/${paymentId}`);
 };
 
 // Get payment by appointment ID
 export const getPaymentByAppointment = async (appointmentId) => {
-  return api.get(`/payments/appointment/${appointmentId}`);
+  return api.get(`/v1/payments/appointment/${appointmentId}`);
 };
 
 // Get payment history
 export const getPaymentHistory = async () => {
-  return api.get('/payments/history');
+  return api.get('/v1/payments/history');
 };
 
 // Verify payment status
 export const verifyPaymentStatus = async (orderId) => {
-  return api.get(`/payments/verify/${orderId}`);
+  return api.get(`/v1/payments/verify/${orderId}`);
 };
 
 // Handle MoMo IPN callback (this is called by MoMo, not frontend)

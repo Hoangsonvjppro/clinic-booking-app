@@ -65,7 +65,9 @@ export default function DoctorList() {
       if (filters.sortBy) params.sort = filters.sortBy;
       
       const response = await getDoctors(params);
-      setDoctors(response?.data || response || []);
+      // API returns { doctors: [], total, page, limit }
+      const doctorList = response?.doctors || response?.data?.doctors || response || [];
+      setDoctors(Array.isArray(doctorList) ? doctorList : []);
     } catch (error) {
       console.error('Failed to load doctors:', error);
       // Mock data fallback

@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/doctor")
-@CrossOrigin
 public class DoctorController {
     private final DoctorApplicationService service;
 

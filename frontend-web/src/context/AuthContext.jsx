@@ -33,12 +33,16 @@ export const AuthProvider = ({ children }) => {
       const data = await authApi.login(credentials);
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
-      setUser(data.user);
+      
+      // Fetch user info after login
+      const userData = await authApi.getCurrentUser();
+      setUser(userData);
+      
       toast.success('Login successful!');
       navigate('/dashboard');
       return data;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.message || error.message || 'Login failed';
       toast.error(message);
       throw error;
     }

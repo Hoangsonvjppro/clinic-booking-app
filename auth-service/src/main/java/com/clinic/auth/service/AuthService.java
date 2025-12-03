@@ -92,6 +92,8 @@ public class AuthService {
         User user = User.builder()
                 .email(req.getEmail()) // Gán email
                 .password(passwordEncoder.encode(req.getPassword())) // Mã hóa mật khẩu
+                .fullName(req.getFullName()) // Gán fullName nếu có
+                .phone(req.getPhone()) // Gán phone nếu có
                 .roles(Set.of(role)) // Gán tập vai trò
                 .enabled(true) // Kích hoạt tài khoản
                 .build();
@@ -119,12 +121,20 @@ public class AuthService {
      */
     @Transactional
     public AuthResponse login(LoginRequest req) {
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()); // Tạo token xác thực form
-        authManager.authenticate(authentication); // Ủy quyền cho AuthenticationManager xác thực
-
+        // Tìm user theo email
         User user = userRepo.findByEmail(req.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found")); // Lấy user đã tồn tại
+                .orElseThrow(() -> new org.springframework.security.authentication.BadCredentialsException("Invalid credentials"));
+        
+        // Kiểm tra password
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
+        }
+        
+        // Kiểm tra tài khoản enabled
+        if (!user.isEnabled()) {
+            throw new org.springframework.security.authentication.DisabledException("Account is disabled");
+        }
+
         user.setLastLoginAt(Instant.now());
         userRepo.save(user);
         AuthResponse response = issueTokensForUser(user); // Phát hành cặp token JWT + refresh

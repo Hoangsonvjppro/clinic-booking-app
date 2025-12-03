@@ -20,6 +20,8 @@ package com.clinic.auth.web;
 
 import org.springframework.http.HttpStatus;                       // Mã trạng thái HTTP
 import org.springframework.http.ResponseEntity;                  // Đối tượng phản hồi HTTP
+import org.springframework.security.authentication.BadCredentialsException; // Lỗi đăng nhập sai
+import org.springframework.security.core.userdetails.UsernameNotFoundException; // Không tìm thấy user
 import org.springframework.web.bind.MethodArgumentNotValidException; // Ngoại lệ validation từ @Valid
 import org.springframework.web.bind.annotation.ExceptionHandler; // Annotation đánh dấu hàm xử lý lỗi
 import org.springframework.web.bind.annotation.RestControllerAdvice; // Áp dụng cho tất cả controller REST
@@ -90,5 +92,34 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());     // Mô tả lỗi
         body.put("errorCode", ex.getErrorCode()); // Mã lỗi nội bộ
         return ResponseEntity.status(ex.getStatus()).body(body); // HTTP status động theo lỗi
+    }
+
+    /**
+     * Xử lý BadCredentialsException — lỗi khi email hoặc mật khẩu không đúng.
+     *
+     * Trả về phản hồi:
+     * {
+     *   "message": "Invalid email or password"
+     * }
+     *
+     * @param ex ngoại lệ BadCredentialsException
+     * @return ResponseEntity với mã 401 (UNAUTHORIZED)
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", "Invalid email or password"));
+    }
+
+    /**
+     * Xử lý UsernameNotFoundException — lỗi khi không tìm thấy user với email.
+     *
+     * @param ex ngoại lệ UsernameNotFoundException
+     * @return ResponseEntity với mã 401 (UNAUTHORIZED)
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<?> handleUsernameNotFound(UsernameNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", "Invalid email or password"));
     }
 }

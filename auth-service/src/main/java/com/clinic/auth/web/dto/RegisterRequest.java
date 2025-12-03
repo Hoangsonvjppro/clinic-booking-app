@@ -19,6 +19,7 @@
  */
 package com.clinic.auth.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;    // Kiểm tra định dạng email
 import jakarta.validation.constraints.NotBlank; // Không được để trống
 import jakarta.validation.constraints.Pattern;
@@ -52,7 +53,18 @@ public class RegisterRequest {
     /**
      * Vai trò mặc định khi đăng ký (tùy chọn).
      * Nếu không gửi, hệ thống sẽ tự động gán là "PATIENT".
-     * Có thể là: ADMIN, DOCTOR, PATIENT, ...
+     * Frontend có thể gửi "role" hoặc "defaultRole"
      */
+    @JsonAlias({"role", "defaultRole"})
     private String defaultRole;
+
+    /**
+     * Tên đầy đủ của người dùng (tùy chọn).
+     */
+    private String fullName;
+
+    /**
+     * Số điện thoại (tùy chọn).
+     */
+    private String phone;
 }

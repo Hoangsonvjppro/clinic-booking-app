@@ -40,7 +40,7 @@ api.interceptors.response.use(
         }
 
         const { data } = await axios.post(
-          'http://localhost:8080/api/auth/refresh',
+          'http://localhost:8080/api/v1/auth/refresh',
           { refreshToken },
           { headers: { 'Content-Type': 'application/json' } }
         );
