@@ -24,6 +24,16 @@ import Dashboard from './pages/user/Dashboard';
 import MedicalRecords from './pages/user/MedicalRecords';
 import Notifications from './pages/user/Notifications';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ReportManagement from './pages/admin/ReportManagement';
+import WarningManagement from './pages/admin/WarningManagement';
+import PenaltyManagement from './pages/admin/PenaltyManagement';
+import UserManagement from './pages/admin/UserManagement';
+import StatisticsDashboard from './pages/admin/StatisticsDashboard';
+
+// User pages for reports/warnings/penalties
+import MyReportsPage from './pages/user/MyReportsPage';
+import MyWarningsPage from './pages/user/MyWarningsPage';
+import MyPenaltiesPage from './pages/user/MyPenaltiesPage';
 
 function App() {
   return (
@@ -86,6 +96,9 @@ function App() {
                   <Route path="payment/:appointmentId" element={<PaymentPage />} />
                   <Route path="payment/complete" element={<PaymentComplete />} />
                   <Route path="doctor/apply" element={<DoctorApplication />} />
+                  <Route path="my-reports" element={<MyReportsPage />} />
+                  <Route path="my-warnings" element={<MyWarningsPage />} />
+                  <Route path="my-penalties" element={<MyPenaltiesPage />} />
                 </Route>
 
                 {/* Admin routes */}
@@ -98,6 +111,11 @@ function App() {
                   }
                 >
                   <Route index element={<AdminDashboard />} />
+                  <Route path="statistics" element={<StatisticsDashboard />} />
+                  <Route path="reports" element={<ReportManagement />} />
+                  <Route path="warnings" element={<WarningManagement />} />
+                  <Route path="penalties" element={<PenaltyManagement />} />
+                  <Route path="users" element={<UserManagement />} />
                 </Route>
 
                 {/* 404 */}
