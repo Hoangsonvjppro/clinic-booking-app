@@ -4,14 +4,17 @@ import com.clinic.auth.client.PatientRegistryClient;
 import com.clinic.auth.client.dto.PatientStatusUpdateRequest;
 import com.clinic.auth.exception.ResourceNotFoundException;
 import com.clinic.auth.model.User;
+import com.clinic.auth.model.enums.AccountStatus;
 import com.clinic.auth.repo.UserRepository;
 import com.clinic.auth.web.dto.UpdateUserStatusRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserAccountService {
 
     private final UserRepository userRepository;
@@ -23,31 +26,62 @@ public class UserAccountService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
-        boolean current = user.isEnabled();
-        boolean target = request.getEnabled();
-        if (current == target) {
-            // Không thay đổi trạng thái -> ghi audit nhẹ và thoát
+        boolean changed = false;
+        StringBuilder auditMessage = new StringBuilder("User status update: ");
+
+        // Handle enabled/disabled status
+        if (request.getEnabled() != null) {
+            boolean current = user.isEnabled();
+            boolean target = request.getEnabled();
+            if (current != target) {
+                user.setEnabled(target);
+                auditMessage.append("enabled=").append(target).append(" ");
+                changed = true;
+            }
+        }
+
+        // Handle account status
+        if (request.getAccountStatus() != null) {
+            AccountStatus currentStatus = user.getAccountStatus();
+            AccountStatus targetStatus = request.getAccountStatus();
+            if (currentStatus != targetStatus) {
+                user.setAccountStatus(targetStatus);
+                auditMessage.append("accountStatus=").append(targetStatus).append(" ");
+                changed = true;
+                
+                // Auto-disable if banned/suspended
+                if (targetStatus == AccountStatus.BANNED || targetStatus == AccountStatus.SUSPENDED) {
+                    if (user.isEnabled()) {
+                        user.setEnabled(false);
+                        auditMessage.append("enabled=false (auto) ");
+                    }
+                }
+            }
+        }
+
+        if (!changed) {
             auditService.logEvent(
                     "USER_STATUS_UNCHANGED",
                     "USER",
                     user.getEmail(),
-                    "User status already " + (target ? "ENABLED" : "DISABLED")
+                    "No status change"
             );
             return;
         }
 
-        user.setEnabled(target);
         userRepository.save(user);
 
         auditService.logEvent(
                 "USER_STATUS_UPDATED",
                 "USER",
                 user.getEmail(),
-                "User status updated to " + (target ? "ENABLED" : "DISABLED")
-                        + buildReasonSuffix(request.getReason())
+                auditMessage.toString() + buildReasonSuffix(request.getReason())
         );
 
-        syncPatientStatus(user, target);
+        syncPatientStatus(user, user.isEnabled());
+        
+        log.info("User status updated: userId={}, accountStatus={}, enabled={}", 
+                userId, user.getAccountStatus(), user.isEnabled());
     }
 
     private void syncPatientStatus(User user, boolean enabled) {
@@ -59,7 +93,11 @@ public class UserAccountService {
                 patientStatus
         );
 
-        patientRegistryClient.updatePatientStatus(payload);
+        try {
+            patientRegistryClient.updatePatientStatus(payload);
+        } catch (Exception e) {
+            log.warn("Failed to sync patient status: {}", e.getMessage());
+        }
     }
 
     private String buildReasonSuffix(String reason) {

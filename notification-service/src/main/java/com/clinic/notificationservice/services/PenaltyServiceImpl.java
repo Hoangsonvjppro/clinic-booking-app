@@ -12,6 +12,8 @@ import com.clinic.notificationservice.exceptions.ResourceNotFoundException;
 import com.clinic.notificationservice.repository.ReportRepository;
 import com.clinic.notificationservice.repository.UserPenaltyRepository;
 import com.clinic.notificationservice.repository.WarningRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,17 +33,22 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class PenaltyServiceImpl implements PenaltyService {
+    
+    private static final Logger log = LoggerFactory.getLogger(PenaltyServiceImpl.class);
 
     private final UserPenaltyRepository penaltyRepository;
     private final ReportRepository reportRepository;
     private final WarningRepository warningRepository;
+    private final AuthServiceClient authServiceClient;
 
     public PenaltyServiceImpl(UserPenaltyRepository penaltyRepository, 
                               ReportRepository reportRepository,
-                              WarningRepository warningRepository) {
+                              WarningRepository warningRepository,
+                              AuthServiceClient authServiceClient) {
         this.penaltyRepository = penaltyRepository;
         this.reportRepository = reportRepository;
         this.warningRepository = warningRepository;
+        this.authServiceClient = authServiceClient;
     }
 
     @Override
@@ -93,7 +100,45 @@ public class PenaltyServiceImpl implements PenaltyService {
         }
 
         UserPenalty savedPenalty = penaltyRepository.save(penalty);
+        
+        // Sync account status with auth-service for suspension/ban penalties
+        syncAccountStatusWithAuthService(savedPenalty);
+        
         return PenaltyResponse.fromEntity(savedPenalty);
+    }
+    
+    /**
+     * Syncs the account status with auth-service based on penalty type.
+     */
+    private void syncAccountStatusWithAuthService(UserPenalty penalty) {
+        String accountStatus = null;
+        
+        switch (penalty.getPenaltyType()) {
+            case TEMPORARY_BAN:
+                accountStatus = "SUSPENDED";
+                break;
+            case PERMANENT_BAN:
+                accountStatus = "BANNED";
+                break;
+            default:
+                // No account status change needed for fee penalties
+                return;
+        }
+        
+        try {
+            boolean success = authServiceClient.updateUserAccountStatus(
+                    penalty.getUserId(),
+                    accountStatus,
+                    penalty.getDescription()
+            );
+            if (success) {
+                log.info("Successfully synced account status {} for user {}", 
+                        accountStatus, penalty.getUserId());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to sync account status with auth-service: {}", e.getMessage());
+            // Don't fail the penalty creation if auth-service sync fails
+        }
     }
 
     @Override
@@ -166,6 +211,21 @@ public class PenaltyServiceImpl implements PenaltyService {
         penalty.setEffectiveUntil(Instant.now());
 
         UserPenalty savedPenalty = penaltyRepository.save(penalty);
+        
+        // Reactivate user account if this was a suspension/ban penalty
+        if (penalty.getPenaltyType() == PenaltyType.TEMPORARY_BAN || 
+            penalty.getPenaltyType() == PenaltyType.PERMANENT_BAN) {
+            try {
+                authServiceClient.reactivateUser(
+                        penalty.getUserId(),
+                        "Penalty revoked by admin"
+                );
+                log.info("Reactivated user {} after penalty revocation", penalty.getUserId());
+            } catch (Exception e) {
+                log.warn("Failed to reactivate user account in auth-service: {}", e.getMessage());
+            }
+        }
+        
         return PenaltyResponse.fromEntity(savedPenalty);
     }
 

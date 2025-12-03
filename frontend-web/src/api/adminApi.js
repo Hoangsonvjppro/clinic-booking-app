@@ -168,9 +168,12 @@ export const getUserDetails = async (userId) => {
 
 /**
  * Update user account status
+ * @param {string} userId - User UUID
+ * @param {string} accountStatus - ACTIVE, WARNED, SUSPENDED, BANNED
+ * @param {string} reason - Reason for status change
  */
-export const updateUserStatus = async (userId, status, reason) => {
-  return api.put(`/v1/admin/users/${userId}/status`, { status, reason });
+export const updateUserStatus = async (userId, accountStatus, reason) => {
+  return api.put(`/v1/admin/users/${userId}/status`, { accountStatus, reason });
 };
 
 // ============================================

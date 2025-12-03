@@ -13,6 +13,18 @@ spring:
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
         
+        # Auth Service - Admin User Management
+        - id: auth-service-admin-users
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/admin/users/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 50
+                key-resolver: "#{@ipKeyResolver}"
+        
         # Notification Service - User endpoints
         - id: notification-service-reports
           uri: http://localhost:8086

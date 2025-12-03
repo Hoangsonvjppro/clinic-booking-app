@@ -38,3 +38,9 @@ spring:
 
   thymeleaf:
     cache: false
+
+# Application configuration
+app:
+  services:
+    auth:
+      url: ${AUTH_SERVICE_URL:http://localhost:8081}
