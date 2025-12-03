@@ -18,6 +18,20 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       try {
+        // Check if token is expired (basic JWT check)
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const exp = payload.exp * 1000; // Convert to milliseconds
+          if (Date.now() >= exp) {
+            // Token expired, clear everything
+            console.log('Token expired, clearing auth state');
+            localStorage.clear();
+            setLoading(false);
+            return;
+          }
+        }
+        
         // First check localStorage for cached user data
         const cachedUser = localStorage.getItem('user');
         const cachedRoles = localStorage.getItem('roles');

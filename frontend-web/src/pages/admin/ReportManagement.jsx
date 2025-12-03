@@ -55,6 +55,7 @@ export default function ReportManagement() {
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
   const [showResolveModal, setShowResolveModal] = useState(false);
+  const [apiNotAvailable, setApiNotAvailable] = useState(false);
   const [filters, setFilters] = useState({
     status: '',
     search: '',
@@ -82,6 +83,7 @@ export default function ReportManagement() {
   const fetchReports = async (page = 0) => {
     try {
       setLoading(true);
+      setApiNotAvailable(false);
       const response = await getAllReports(filters.status, page, pagination.size);
       setReports(response.data.content || []);
       setPagination({
@@ -92,7 +94,11 @@ export default function ReportManagement() {
       });
     } catch (error) {
       console.error('Error fetching reports:', error);
-      toast.error('Không thể tải danh sách báo cáo');
+      if (error.response?.status === 404 || error.response?.status === 502) {
+        setApiNotAvailable(true);
+      } else {
+        toast.error('Không thể tải danh sách báo cáo');
+      }
     } finally {
       setLoading(false);
     }
@@ -203,6 +209,12 @@ export default function ReportManagement() {
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+            </div>
+          ) : apiNotAvailable ? (
+            <div className="text-center py-12">
+              <ExclamationTriangleIcon className="w-12 h-12 text-yellow-400 mx-auto" />
+              <h3 className="mt-2 text-lg font-medium text-gray-900">Tính năng đang phát triển</h3>
+              <p className="text-gray-500">API quản lý báo cáo đang được xây dựng.</p>
             </div>
           ) : reports.length === 0 ? (
             <div className="text-center py-12">

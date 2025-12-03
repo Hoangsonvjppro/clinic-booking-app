@@ -118,8 +118,8 @@ const Header = () => {
               )}
             </button>
 
-            {/* Login/Register or User Avatar - Desktop */}
-            <div className="hidden md:block">
+            {/* Login/Register or User Avatar */}
+            <div className="hidden sm:block">
               {isAuthenticated ? (
                 <div className="relative">
                   <button
@@ -129,7 +129,7 @@ const Header = () => {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-soft">
                       {user?.fullName?.charAt(0) || 'U'}
                     </div>
-                    <span className="text-sm font-medium text-slate-700 max-w-[120px] truncate">
+                    <span className="hidden md:block text-sm font-medium text-slate-700 max-w-[120px] truncate">
                       {user?.fullName || user?.email}
                     </span>
                   </button>

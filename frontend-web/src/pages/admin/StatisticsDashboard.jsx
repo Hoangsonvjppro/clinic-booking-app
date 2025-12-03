@@ -17,6 +17,7 @@ export default function StatisticsDashboard() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [reportStats, setReportStats] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const [apiNotAvailable, setApiNotAvailable] = useState(false);
 
   useEffect(() => {
     fetchStatistics();
@@ -25,15 +26,27 @@ export default function StatisticsDashboard() {
   const fetchStatistics = async () => {
     try {
       setLoading(true);
+      setApiNotAvailable(false);
       const [dashboardRes, reportRes] = await Promise.all([
-        getDashboardStatistics(selectedPeriod),
-        getReportStatistics(selectedPeriod),
+        getDashboardStatistics(selectedPeriod).catch((err) => {
+          if (err.response?.status === 404) return { data: null, notFound: true };
+          return { data: null };
+        }),
+        getReportStatistics(selectedPeriod).catch((err) => {
+          if (err.response?.status === 404) return { data: null, notFound: true };
+          return { data: null };
+        }),
       ]);
+      
+      // Check if both APIs return 404
+      if (dashboardRes.notFound && reportRes.notFound) {
+        setApiNotAvailable(true);
+      }
+      
       setDashboardStats(dashboardRes.data);
       setReportStats(reportRes.data);
     } catch (error) {
       console.error('Error fetching statistics:', error);
-      toast.error('Không thể tải thống kê');
       setDashboardStats(null);
       setReportStats(null);
     } finally {
@@ -77,6 +90,28 @@ export default function StatisticsDashboard() {
                 <div key={i} className="bg-white rounded-xl p-6 h-32"></div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (apiNotAvailable) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-8">
+        <div className="container-custom">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <ChartBarIcon className="w-8 h-8 text-primary-600" />
+              Thống kê hệ thống
+            </h1>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+            <ExclamationTriangleIcon className="w-16 h-16 text-yellow-400 mx-auto" />
+            <h3 className="mt-4 text-xl font-semibold text-gray-900">Tính năng đang phát triển</h3>
+            <p className="text-gray-500 mt-2 max-w-md mx-auto">
+              API thống kê hệ thống đang được xây dựng. Vui lòng quay lại sau.
+            </p>
           </div>
         </div>
       </div>

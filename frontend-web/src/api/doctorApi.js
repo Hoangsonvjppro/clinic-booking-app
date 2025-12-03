@@ -44,9 +44,19 @@ export const getAllUserIds = async () => {
   return api.get('/doctor/all-users');
 };
 
+// Get all doctor applications (admin only)
+export const getAllApplications = async () => {
+  return api.get('/doctor/all-application');
+};
+
 // Approve doctor application (admin only)
 export const approveDoctor = async (applicationId) => {
   return api.put(`/doctor/approve?id=${applicationId}`);
+};
+
+// Reject doctor application (admin only)
+export const rejectDoctor = async (applicationId) => {
+  return api.put(`/doctor/reject?id=${applicationId}`);
 };
 
 // Search doctors with filters

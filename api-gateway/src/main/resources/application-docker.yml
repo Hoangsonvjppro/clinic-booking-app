@@ -74,11 +74,47 @@ spring:
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
         
+        # Payment Service - MoMo
+        - id: payment-momo-service
+          uri: http://payment-service:8085
+          predicates:
+            - Path=/api/momo/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
         # Notification Service
         - id: notification-service
           uri: http://notification-service:8086
           predicates:
             - Path=/api/notifications/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Admin - User Management (Auth Service)
+        - id: admin-users-service
+          uri: http://auth-service:8081
+          predicates:
+            - Path=/api/v1/admin/users/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Admin - Statistics & Reports (Notification Service fallback)
+        - id: admin-statistics-service
+          uri: http://notification-service:8086
+          predicates:
+            - Path=/api/v1/admin/statistics/**,/api/v1/admin/reports/**,/api/v1/admin/warnings/**,/api/v1/admin/penalties/**
           filters:
             - name: RequestRateLimiter
               args:

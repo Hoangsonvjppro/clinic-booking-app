@@ -23,6 +23,7 @@ export default function AdminDashboard() {
   const [recentAppointments, setRecentAppointments] = useState([]);
   const [pendingDoctors, setPendingDoctors] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [apiNotAvailable, setApiNotAvailable] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -31,20 +32,15 @@ export default function AdminDashboard() {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      // TODO: Replace with actual API calls when backend endpoints are ready
-      // const [statsRes, appointmentsRes, doctorsRes] = await Promise.all([
-      //   getAdminStats(),
-      //   getRecentAppointments(),
-      //   getPendingDoctors()
-      // ]);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // API endpoints are not yet implemented
+      // Using placeholder data for now
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setApiNotAvailable(true);
       setStats({});
       setRecentAppointments([]);
       setPendingDoctors([]);
-      toast.error('API endpoints chưa sẵn sàng. Vui lòng thử lại sau.');
     } catch (error) {
       console.error('Failed to load dashboard:', error);
-      toast.error('Không thể tải dữ liệu dashboard');
       setStats({});
       setRecentAppointments([]);
       setPendingDoctors([]);
@@ -85,6 +81,35 @@ export default function AdminDashboard() {
               {[1, 2, 3, 4].map(i => (
                 <div key={i} className="bg-white rounded-xl p-6 h-32"></div>
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (apiNotAvailable) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-8">
+        <div className="container-custom">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
+            <p className="text-slate-600 mt-1">Overview of your clinic's performance</p>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-card p-12 text-center">
+            <ChartBarIcon className="w-16 h-16 text-yellow-400 mx-auto" />
+            <h3 className="mt-4 text-xl font-semibold text-gray-900">Dashboard đang phát triển</h3>
+            <p className="text-gray-500 mt-2 max-w-md mx-auto">
+              Các API thống kê và báo cáo đang được xây dựng. Bạn có thể sử dụng các tính năng khác trong menu bên trái.
+            </p>
+            <div className="mt-6 flex justify-center gap-4">
+              <a href="/admin/doctor-approvals" className="btn-primary py-2 px-6">
+                Duyệt bác sĩ
+              </a>
+              <a href="/admin/settings" className="btn-outline py-2 px-6">
+                Cài đặt
+              </a>
             </div>
           </div>
         </div>

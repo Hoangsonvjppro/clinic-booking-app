@@ -81,6 +81,69 @@ public class DoctorPublicController {
     }
 
     /**
+     * Check doctor availability for appointment
+     * GET /api/v1/doctors/{id}/availability?appointmentTime=2024-01-15T10:00:00&durationMinutes=30
+     */
+    @GetMapping("/{id}/availability")
+    public ResponseEntity<?> checkDoctorAvailability(
+            @PathVariable("id") UUID id,
+            @RequestParam("appointmentTime") String appointmentTime,
+            @RequestParam(value = "durationMinutes", defaultValue = "30") Integer durationMinutes) {
+        
+        return doctorService.getDoctorById(id)
+                .map(doctor -> {
+                    // Check if doctor is approved (status = APPROVED)
+                    if (!"APPROVED".equals(doctor.getStatus())) {
+                        return ResponseEntity.status(409).body(java.util.Map.of(
+                                "available", false,
+                                "message", "Doctor is not available for appointments"
+                        ));
+                    }
+                    
+                    // Get doctor's schedules to check if the requested time slot is valid
+                    java.util.List<com.clinic.doctorservice.model.DoctorSchedule> schedules = 
+                            scheduleService.getSchedulesByDoctorId(id);
+                    
+                    java.time.LocalDateTime requestedTime;
+                    try {
+                        requestedTime = java.time.LocalDateTime.parse(appointmentTime);
+                    } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(java.util.Map.of(
+                                "available", false,
+                                "message", "Invalid appointmentTime format"
+                        ));
+                    }
+                    
+                    java.time.DayOfWeek dayOfWeek = requestedTime.getDayOfWeek();
+                    java.time.LocalTime requestedTimeOfDay = requestedTime.toLocalTime();
+                    
+                    // Check if doctor has schedule for this day and time
+                    boolean isWithinSchedule = schedules.stream().anyMatch(schedule -> {
+                        if (schedule.getDayOfWeek() != dayOfWeek) return false;
+                        return !requestedTimeOfDay.isBefore(schedule.getStartTime()) 
+                                && !requestedTimeOfDay.plusMinutes(durationMinutes).isAfter(schedule.getEndTime());
+                    });
+                    
+                    if (!isWithinSchedule && !schedules.isEmpty()) {
+                        return ResponseEntity.status(409).body(java.util.Map.of(
+                                "available", false,
+                                "message", "Doctor is not available at the requested time"
+                        ));
+                    }
+                    
+                    // Doctor is available (or has no specific schedule restrictions)
+                    return ResponseEntity.ok(java.util.Map.of(
+                            "available", true,
+                            "doctorId", id,
+                            "doctorName", doctor.getFullName(),
+                            "appointmentTime", appointmentTime,
+                            "durationMinutes", durationMinutes
+                    ));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
      * Search doctors
      * GET /api/v1/doctors/search?q=cardio
      */

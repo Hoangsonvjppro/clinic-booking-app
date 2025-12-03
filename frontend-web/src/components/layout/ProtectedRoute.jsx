@@ -20,12 +20,23 @@ const ProtectedRoute = ({ children, roles = [] }) => {
   }
 
   if (roles.length > 0) {
+    const userRoles = user.roles || [];
     const hasRequiredRole = roles.some(role => 
-      user.roles?.some(r => r.code === role || r === role)
+      userRoles.some(r => r.code === role || r === role)
     );
     
     if (!hasRequiredRole) {
-      return <Navigate to="/dashboard" replace />;
+      // Redirect based on user's actual role instead of generic /dashboard
+      if (userRoles.some(r => r === 'ADMIN' || r.code === 'ADMIN')) {
+        return <Navigate to="/admin" replace />;
+      } else if (userRoles.some(r => r === 'DOCTOR' || r.code === 'DOCTOR')) {
+        return <Navigate to="/doctor" replace />;
+      } else if (userRoles.some(r => r === 'PATIENT' || r.code === 'PATIENT' || r === 'USER' || r.code === 'USER')) {
+        return <Navigate to="/patient" replace />;
+      } else {
+        // Fallback to home for unknown roles
+        return <Navigate to="/" replace />;
+      }
     }
   }
 

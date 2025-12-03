@@ -32,7 +32,7 @@ public class DoctorServiceClient {
         }
 
         String url = UriComponentsBuilder
-                .fromHttpUrl(baseUrl + "/api/doctors/{doctorId}/availability")
+                .fromHttpUrl(baseUrl + "/api/v1/doctors/{doctorId}/availability")
                 .queryParam("appointmentTime", appointmentTime)
                 .queryParam("durationMinutes", durationMinutes)
                 .buildAndExpand(doctorId)
@@ -65,7 +65,7 @@ public class DoctorServiceClient {
             throw new RemoteServiceException("Doctor service base URL is not configured");
         }
 
-        String url = String.format("%s/api/doctors/%s", baseUrl, doctorId);
+        String url = String.format("%s/api/v1/doctors/%s", baseUrl, doctorId);
 
         try {
             DoctorResponse doctor = restTemplate.getForObject(url, DoctorResponse.class);
