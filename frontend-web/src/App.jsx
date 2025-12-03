@@ -5,6 +5,7 @@ import { AppProvider } from './context/AppContext';
 import { BookingProvider } from './context/BookingContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import MainLayout from './components/layout/MainLayout';
+import DoctorLayout from './components/layout/DoctorLayout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 // Pages - Import placeholders (will be created)
@@ -29,6 +30,12 @@ import WarningManagement from './pages/admin/WarningManagement';
 import PenaltyManagement from './pages/admin/PenaltyManagement';
 import UserManagement from './pages/admin/UserManagement';
 import StatisticsDashboard from './pages/admin/StatisticsDashboard';
+
+// Doctor portal pages
+import DoctorDashboard from './pages/doctor/DoctorDashboard';
+import DoctorAppointments from './pages/doctor/DoctorAppointments';
+import DoctorSchedule from './pages/doctor/DoctorSchedule';
+import DoctorProfile from './pages/doctor/DoctorProfile';
 
 // User pages for reports/warnings/penalties
 import MyReportsPage from './pages/user/MyReportsPage';
@@ -116,6 +123,21 @@ function App() {
                   <Route path="warnings" element={<WarningManagement />} />
                   <Route path="penalties" element={<PenaltyManagement />} />
                   <Route path="users" element={<UserManagement />} />
+                </Route>
+
+                {/* Doctor portal routes */}
+                <Route
+                  path="/doctor"
+                  element={
+                    <ProtectedRoute roles={['DOCTOR']}>
+                      <DoctorLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<DoctorDashboard />} />
+                  <Route path="appointments" element={<DoctorAppointments />} />
+                  <Route path="schedule" element={<DoctorSchedule />} />
+                  <Route path="profile" element={<DoctorProfile />} />
                 </Route>
 
                 {/* 404 */}

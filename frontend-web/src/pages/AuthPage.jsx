@@ -69,8 +69,20 @@ export default function AuthPage() {
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
       localStorage.setItem("tokenType", res.data.tokenType);
+      
+      // Store user info and roles
+      localStorage.setItem("roles", JSON.stringify(res.data.roles));
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      nav('/');
+      // Navigate based on role
+      const roles = res.data.roles || [];
+      if (roles.includes('ADMIN')) {
+        nav('/admin');
+      } else if (roles.includes('DOCTOR')) {
+        nav('/doctor');
+      } else {
+        nav('/'); // Default for PATIENT or other roles
+      }
     })
     .catch(function (err) {
       if (!err.response) {

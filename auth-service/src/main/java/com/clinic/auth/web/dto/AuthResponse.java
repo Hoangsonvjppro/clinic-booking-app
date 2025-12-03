@@ -29,6 +29,8 @@ package com.clinic.auth.web.dto;
 import lombok.Builder; // Cho phép khởi tạo đối tượng bằng Builder pattern
 import lombok.Data;    // Sinh tự động getter/setter/toString/equals/hashCode
 
+import java.util.List;
+
 @Data
 @Builder
 public class AuthResponse {
@@ -48,4 +50,23 @@ public class AuthResponse {
      * Authorization: Bearer <accessToken>
      */
     private String tokenType;
+
+    /**
+     * Danh sách roles của user (ADMIN, DOCTOR, PATIENT).
+     * Frontend sử dụng để điều hướng đến portal phù hợp.
+     */
+    private List<String> roles;
+
+    /**
+     * Thông tin cơ bản của user.
+     */
+    private UserInfo user;
+
+    @Data
+    @Builder
+    public static class UserInfo {
+        private String id;
+        private String email;
+        private String fullName;
+    }
 }

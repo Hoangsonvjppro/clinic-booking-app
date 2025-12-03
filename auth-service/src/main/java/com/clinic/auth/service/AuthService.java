@@ -164,6 +164,12 @@ public class AuthService {
                 .accessToken(accessToken) // JWT truy cập
                 .tokenType("Bearer") // Kiểu token
                 .refreshToken(refreshToken.getToken()) // Refresh token mới
+                .roles(roles) // Danh sách roles để frontend điều hướng
+                .user(AuthResponse.UserInfo.builder()
+                        .id(user.getId().toString())
+                        .email(user.getEmail())
+                        .fullName(user.getFullName())
+                        .build())
                 .build();
     }
 

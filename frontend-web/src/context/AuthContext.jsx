@@ -18,8 +18,19 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       try {
-        const userData = await authApi.getCurrentUser();
-        setUser(userData);
+        // First check localStorage for cached user data
+        const cachedUser = localStorage.getItem('user');
+        const cachedRoles = localStorage.getItem('roles');
+        
+        if (cachedUser && cachedRoles) {
+          const userData = JSON.parse(cachedUser);
+          userData.roles = JSON.parse(cachedRoles);
+          setUser(userData);
+        } else {
+          // Fallback to API call
+          const userData = await authApi.getCurrentUser();
+          setUser(userData);
+        }
       } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.clear();
@@ -66,7 +77,11 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.clear();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tokenType');
+      localStorage.removeItem('roles');
+      localStorage.removeItem('user');
       setUser(null);
       navigate('/login');
       toast.success('Logged out successfully');
