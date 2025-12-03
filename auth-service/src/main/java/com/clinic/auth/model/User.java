@@ -14,6 +14,7 @@
  */
 package com.clinic.auth.model;
 
+import com.clinic.auth.model.enums.AccountStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*; // Các annotation JPA như @Entity, @Id, @Column, @ManyToMany, ...
 import jakarta.validation.constraints.Email; // Xác thực định dạng email
@@ -25,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails; // Hợp đồ
 
 import java.util.Collection; // Danh sách các quyền
 import java.util.Set; // Bộ vai trò của người dùng
+import java.util.UUID;
 import java.util.stream.Collectors; // Chuyển đổi Set<Role> thành Set<GrantedAuthority>
 
 @Entity // Đánh dấu lớp này là entity JPA
@@ -70,6 +72,25 @@ public class User implements UserDetails { // Triển khai UserDetails để tí
     @Column(name = "updated_at", insertable = false)
     private java.time.Instant updatedAt;
 
+    // === Account Status Fields (for moderation) ===
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status", nullable = false)
+    @Builder.Default
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
+    
+    @Column(name = "suspension_reason", columnDefinition = "TEXT")
+    private String suspensionReason;
+    
+    @Column(name = "suspended_until")
+    private java.time.Instant suspendedUntil;
+    
+    @Column(name = "banned_at")
+    private java.time.Instant bannedAt;
+    
+    @Column(name = "banned_by")
+    private UUID bannedBy;
+
     @ManyToMany(fetch = FetchType.EAGER) // Một user có thể có nhiều vai trò, load ngay khi lấy user
     @JoinTable(
             name = "user_roles", // Tên bảng trung gian ánh xạ giữa user và role
@@ -106,10 +127,21 @@ public class User implements UserDetails { // Triển khai UserDetails để tí
     }
 
     /**
-     * Tài khoản luôn được coi là không bị khóa.
+     * Tài khoản được coi là không bị khóa nếu trạng thái không phải SUSPENDED hoặc BANNED.
+     * Nếu SUSPENDED, kiểm tra xem đã hết hạn chưa.
      */
     @Override
     public boolean isAccountNonLocked() {
+        if (accountStatus == AccountStatus.BANNED) {
+            return false;
+        }
+        if (accountStatus == AccountStatus.SUSPENDED) {
+            // Check if suspension has expired
+            if (suspendedUntil != null && java.time.Instant.now().isAfter(suspendedUntil)) {
+                return true; // Suspension expired
+            }
+            return false;
+        }
         return true;
     }
 
