@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController
-@RequestMapping("/api/appointments")
+@RequestMapping("/api/v1/appointments")
 @Validated
 public class AppointmentController {
 
@@ -64,5 +63,23 @@ public class AppointmentController {
     @GetMapping("/{appointmentId}")
     public ResponseEntity<AppointmentResponse> getAppointment(@PathVariable("appointmentId") UUID appointmentId) {
         return ResponseEntity.ok(appointmentService.getAppointment(appointmentId));
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<AppointmentResponse>> getUpcomingAppointments(
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        if (userId != null) {
+            return ResponseEntity.ok(appointmentService.getUpcomingAppointmentsByPatient(UUID.fromString(userId)));
+        }
+        return ResponseEntity.ok(appointmentService.getUpcomingAppointments());
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<List<AppointmentResponse>> getAppointmentHistory(
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        if (userId != null) {
+            return ResponseEntity.ok(appointmentService.getAppointmentHistoryByPatient(UUID.fromString(userId)));
+        }
+        return ResponseEntity.ok(appointmentService.getAppointmentHistory());
     }
 }

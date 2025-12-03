@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController
 @RequestMapping({"/patients", "/api/patients"})
 public class PatientController {

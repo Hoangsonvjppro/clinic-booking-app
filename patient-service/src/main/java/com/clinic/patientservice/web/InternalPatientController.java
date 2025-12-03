@@ -4,13 +4,11 @@ import com.clinic.patientservice.service.PatientService;
 import com.clinic.patientservice.web.dto.InternalPatientStatusUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin("https://hoofed-alfonzo-conclusional.ngrok-free.dev")
 @RestController
 @RequestMapping("/internal/patients")
 public class InternalPatientController {
