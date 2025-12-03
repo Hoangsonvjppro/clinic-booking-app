@@ -63,9 +63,9 @@ $env:DOCKER_BUILDKIT = "1"
 $env:COMPOSE_DOCKER_CLI_BUILD = "1"
 
 if ($Service -eq "gateway") {
-    docker compose --profile gateway up -d --build $info.serviceName
+    docker compose --profile databases --profile gateway up -d --build $info.serviceName
 } else {
-    docker compose --profile services up -d --build $info.serviceName
+    docker compose --profile databases --profile services up -d --build $info.serviceName
 }
 
 Write-Host ""

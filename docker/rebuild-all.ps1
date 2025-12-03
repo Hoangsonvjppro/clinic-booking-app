@@ -42,7 +42,7 @@ Start-Sleep -Seconds 5
 
 Write-Host ""
 Write-Host "[6/6] Build và khởi động lại tất cả services..." -ForegroundColor Cyan
-docker compose --profile gateway --profile services --profile frontend --profile monitoring up -d --build
+docker compose --profile databases --profile gateway --profile services --profile frontend --profile monitoring up -d --build
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green

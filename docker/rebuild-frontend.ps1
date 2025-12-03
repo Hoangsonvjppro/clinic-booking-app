@@ -22,7 +22,7 @@ Write-Host "[3/3] Build và khởi động lại frontend..." -ForegroundColor C
 $env:DOCKER_BUILDKIT = "1"
 $env:COMPOSE_DOCKER_CLI_BUILD = "1"
 
-docker compose --profile frontend up -d --build
+docker compose --profile databases --profile frontend up -d --build
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green

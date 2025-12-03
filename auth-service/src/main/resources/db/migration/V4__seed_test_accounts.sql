@@ -58,16 +58,16 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO users (id, email, password_hash, full_name, phone, enabled, email_verified_at, created_at, updated_at)
 VALUES 
-  ('p0000001-0000-0000-0000-000000000001', 'patient1@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Nguyễn Minh Tuấn', '0902000001', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000002', 'patient2@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Trần Thị Hương', '0902000002', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000003', 'patient3@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Lê Văn Nam', '0902000003', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000004', 'patient4@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Phạm Thị Ngọc', '0902000004', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000005', 'patient5@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Hoàng Văn Phong', '0902000005', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000006', 'patient6@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Ngô Thị Quỳnh', '0902000006', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000007', 'patient7@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Vũ Văn Sơn', '0902000007', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000008', 'patient8@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Đặng Thị Thảo', '0902000008', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000009', 'patient9@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Bùi Văn Uy', '0902000009', true, NOW(), NOW(), NOW()),
-  ('p0000001-0000-0000-0000-000000000010', 'patient10@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Mai Thị Vân', '0902000010', true, NOW(), NOW(), NOW())
+  ('b0000001-0000-0000-0000-000000000001', 'patient1@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Nguyễn Minh Tuấn', '0902000001', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000002', 'patient2@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Trần Thị Hương', '0902000002', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000003', 'patient3@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Lê Văn Nam', '0902000003', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000004', 'patient4@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Phạm Thị Ngọc', '0902000004', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000005', 'patient5@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Hoàng Văn Phong', '0902000005', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000006', 'patient6@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Ngô Thị Quỳnh', '0902000006', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000007', 'patient7@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Vũ Văn Sơn', '0902000007', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000008', 'patient8@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Đặng Thị Thảo', '0902000008', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000009', 'patient9@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Bùi Văn Uy', '0902000009', true, NOW(), NOW(), NOW()),
+  ('b0000001-0000-0000-0000-000000000010', 'patient10@gmail.com', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubAcu', 'Mai Thị Vân', '0902000010', true, NOW(), NOW(), NOW())
 ON CONFLICT (email) DO NOTHING;
 
 -- Assign PATIENT role

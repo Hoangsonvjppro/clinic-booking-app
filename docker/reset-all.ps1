@@ -78,7 +78,7 @@ docker compose --profile gateway up -d redis 2>$null
 Start-Sleep -Seconds 5
 
 # Khởi động các services còn lại
-docker compose --profile gateway --profile services --profile frontend --profile monitoring up -d --build
+docker compose --profile databases --profile gateway --profile services --profile frontend --profile monitoring up -d --build
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
