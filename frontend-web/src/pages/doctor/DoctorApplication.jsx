@@ -11,6 +11,8 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
+import axios from "axios"
 
 export default function DoctorApplication() {
   const navigate = useNavigate();
@@ -88,6 +90,56 @@ export default function DoctorApplication() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const token = localStorage.getItem('accessToken');
+      const res = await axios.get("http://localhost:8080/api/v1/auth/me", {
+        headers: {Authorization: `Bearer ${token}`}
+      })
+      const user = res.data
+      const addressString = form.address
+      ? `hospital-name:${form.hospital},${form.address}, phone:${form.phone}`
+      : "";
+      const paymentMethods = [];
+      if (form.dateOfBirth) paymentMethods.push(form.dateOfBirth)
+      if (form.gender) paymentMethods.push(form.gender)
+      if (form.specialty) paymentMethods.push(form.specialty)
+      if (form.experience) paymentMethods.push(form.experience)
+      if (form.licenseNumber) paymentMethods.push(form.licenseNumber)
+      if (form.licenseExpiry) paymentMethods.push(form.licenseExpiry)
+      if (form.education) paymentMethods.push(form.education)
+      if (form.consultationFee) paymentMethods.push(form.consultationFee)
+      for (const lan of form.languages) {
+        paymentMethods.push(lan)
+      }
+      const payload = {
+        userId: user.id,
+        name: form.fullName,
+        hospitalEmail: user.email,
+        address: addressString,
+        phone: form.phone,
+        description: form.bio,
+        paymentMethods: paymentMethods.join(","),
+      };
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(payload)], { type: "application/json" })
+      );
+
+      // --- ADD FILES (BACKEND EXPECTS certificates[]) ---
+      if (form.photo) formData.append("certificates", form.photo);
+      if (form.licenseDoc) formData.append("certificates", form.licenseDoc);
+      if (form.degreeDoc) formData.append("certificates", form.degreeDoc);
+      if (form.idDoc) formData.append("certificates", form.idDoc);
+
+      const response = await axios.post(
+        "http://localhost:8080/api/doctor/apply",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       // TODO: Call API to submit application
       await new Promise(resolve => setTimeout(resolve, 2000));
       toast.success('Application submitted successfully!');

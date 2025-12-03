@@ -66,7 +66,7 @@ spring:
         - id: payment-service
           uri: http://payment-service:8085
           predicates:
-            - Path=/api/payments/**
+            - Path=/api/payments/**,/api/momo/**
           filters:
             - name: RequestRateLimiter
               args:

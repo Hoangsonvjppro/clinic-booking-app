@@ -12,6 +12,8 @@ import {
   UserIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import axios from "axios"
+import {QRCode} from "react-qr-code"
 
 export default function PaymentPage() {
   const navigate = useNavigate();
@@ -25,6 +27,7 @@ export default function PaymentPage() {
     expiry: '',
     cvv: '',
   });
+  const [momo, setMomo] = useState({})
 
   // Get booking info from state or query params
   const bookingInfo = location.state?.booking || {
@@ -73,13 +76,11 @@ export default function PaymentPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (paymentMethod === 'card') {
-      if (!cardForm.number || !cardForm.name || !cardForm.expiry || !cardForm.cvv) {
-        toast.error('Please fill in all card details');
-        return;
-      }
+  e.preventDefault();
+
+    if(momo.payUrl) {
+      window.open(momo.payUrl)
+      return
     }
 
     setProcessing(true);
@@ -101,6 +102,26 @@ export default function PaymentPage() {
       setProcessing(false);
     }
   };
+
+
+  const handlePay = async (e) => {
+    setPaymentMethod(e)
+    if (e === "momo" && !momo.payUrl) {
+      const bookingString = bookingInfo.id + ", " + bookingInfo.doctorName + ', ' + bookingInfo.specialty;
+      let makePayment = {
+        amount: bookingInfo.consultationFee * 26372.50,
+        orderInfo: bookingString
+      }
+      axios.post('http://localhost:8080/api/momo/create', makePayment)
+      .then(function(response) {
+        console.log(response)
+        setMomo(response.data)
+      })
+      .catch(function(err) {
+        console.log("MoMo API Error:", err.response?.data || err);
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -133,7 +154,7 @@ export default function PaymentPage() {
                         name="paymentMethod"
                         value={method.id}
                         checked={paymentMethod === method.id}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        onChange={(e) => handlePay(e.target.value)}
                         className="w-4 h-4 text-primary-600"
                       />
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -253,8 +274,11 @@ export default function PaymentPage() {
                   <h2 className="text-lg font-semibold text-slate-900 mb-4">MoMo Payment</h2>
                   <div className="text-center">
                     <div className="w-48 h-48 mx-auto bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mb-4">
-                      <div className="w-40 h-40 bg-white rounded-xl flex items-center justify-center">
-                        <span className="text-pink-600 font-bold">QR Code</span>
+                      <div className="w-40 h-40 bg-white rounded-xl flex items-center justify-center p-2">
+                        {momo.qrCodeUrl
+                        ? <QRCode className="text-pink-600 font-bold" value={momo?.qrCodeUrl} size={256} />
+                        : <span className="text-pink-600 font-bold">QR Code</span>
+                        }
                       </div>
                     </div>
                     <p className="text-sm text-slate-600">
