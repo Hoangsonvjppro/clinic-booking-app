@@ -56,40 +56,7 @@ export default function DoctorDetail() {
       setDoctor(response?.data || response);
     } catch (error) {
       console.error('Failed to load doctor:', error);
-      // Mock data fallback
-      setDoctor({
-        id: id,
-        fullName: 'Dr. Sarah Johnson',
-        specialty: 'Cardiology',
-        rating: 4.9,
-        reviewCount: 124,
-        consultationFee: 150,
-        experience: 15,
-        location: 'Medical Center, Building A',
-        address: '123 Healthcare Avenue, Medical District',
-        phone: '+1 (555) 123-4567',
-        email: 'dr.sarah@cliniccare.com',
-        bio: 'Dr. Sarah Johnson is a board-certified cardiologist with over 15 years of experience in diagnosing and treating cardiovascular conditions. She specializes in preventive cardiology, heart failure management, and cardiac rehabilitation.',
-        education: [
-          { degree: 'MD', institution: 'Harvard Medical School', year: '2005' },
-          { degree: 'Cardiology Fellowship', institution: 'Mayo Clinic', year: '2009' },
-          { degree: 'Board Certified', institution: 'American Board of Internal Medicine', year: '2010' },
-        ],
-        languages: ['English', 'Spanish'],
-        services: [
-          'Heart Health Checkup',
-          'ECG/EKG Testing',
-          'Echocardiography',
-          'Stress Testing',
-          'Cardiac Risk Assessment',
-          'Hypertension Management'
-        ],
-        reviews: [
-          { id: 1, patientName: 'John D.', rating: 5, date: '2024-11-15', comment: 'Excellent doctor! Very thorough and caring.' },
-          { id: 2, patientName: 'Mary S.', rating: 5, date: '2024-11-10', comment: 'Dr. Johnson took the time to explain everything clearly.' },
-          { id: 3, patientName: 'Robert K.', rating: 4, date: '2024-11-05', comment: 'Great experience, highly recommended.' },
-        ]
-      });
+      setDoctor(null);
     } finally {
       setLoading(false);
     }

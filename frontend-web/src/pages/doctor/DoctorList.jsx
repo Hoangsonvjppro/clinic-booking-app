@@ -70,15 +70,7 @@ export default function DoctorList() {
       setDoctors(Array.isArray(doctorList) ? doctorList : []);
     } catch (error) {
       console.error('Failed to load doctors:', error);
-      // Mock data fallback
-      setDoctors([
-        { id: 1, fullName: 'Dr. Sarah Johnson', specialty: 'Cardiology', rating: 4.9, reviewCount: 124, consultationFee: 150, experience: 15, location: 'Medical Center', bio: 'Board-certified cardiologist with 15+ years of experience.' },
-        { id: 2, fullName: 'Dr. Michael Chen', specialty: 'Neurology', rating: 4.8, reviewCount: 98, consultationFee: 180, experience: 12, location: 'City Hospital', bio: 'Specializing in neurological disorders and treatments.' },
-        { id: 3, fullName: 'Dr. Emily Williams', specialty: 'Pediatrics', rating: 4.9, reviewCount: 156, consultationFee: 120, experience: 10, location: 'Children\'s Clinic', bio: 'Dedicated pediatrician caring for children of all ages.' },
-        { id: 4, fullName: 'Dr. James Brown', specialty: 'Orthopedics', rating: 4.7, reviewCount: 87, consultationFee: 160, experience: 18, location: 'Bone & Joint Center', bio: 'Expert in sports medicine and joint replacement.' },
-        { id: 5, fullName: 'Dr. Lisa Anderson', specialty: 'Dermatology', rating: 4.8, reviewCount: 112, consultationFee: 140, experience: 8, location: 'Skin Care Clinic', bio: 'Specializing in medical and cosmetic dermatology.' },
-        { id: 6, fullName: 'Dr. Robert Taylor', specialty: 'General Medicine', rating: 4.6, reviewCount: 203, consultationFee: 100, experience: 20, location: 'Family Health Center', bio: 'Comprehensive primary care for the whole family.' },
-      ]);
+      setDoctors([]);
     } finally {
       setLoading(false);
     }

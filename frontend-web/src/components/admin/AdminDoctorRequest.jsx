@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Check, X, Download, Eye, XCircle, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import axios from "axios"
-import Cookies from "js-cookie"
+import axios from "axios";
+import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 
 // const requests = [
 //   { id: 1, name: "Dr. Michael Chen", email: "m.chen@med.com", phone: "0912345678", specialty: "Pediatrician", licenseNumber: "MD-2021-08765", issuedDate: "2021-05-15", documents: [ /* ... */ ] },
@@ -24,13 +25,13 @@ export default function DoctorRequestPage({ isDark }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get("http://localhost:8083/api/doctor/all-application")
-        setRequests(res.data.filter(req => req.status === "PENDING"))
-        console.log(res)
+        const res = await axios.get("http://localhost:8080/api/doctor/all-application");
+        setRequests(res.data.filter(req => req.status === "PENDING"));
       } catch(err) {
-        console.log(err)
+        console.error("Failed to load applications:", err);
+        toast.error("Không thể tải danh sách đơn đăng ký");
       }
-    })()
+    })();
   }, [])
 
   // Filter + Pagination
@@ -75,34 +76,34 @@ export default function DoctorRequestPage({ isDark }) {
   };
 
   const approveApplication = async (applicationId) => {
-    console.log("Approve")
     try {
       const res = await axios.put(
-        `http://localhost:8083/api/doctor/approve?id=${applicationId}`, {});
-      console.log("Approved:", res.data);
+        `http://localhost:8080/api/doctor/approve?id=${applicationId}`, {});
       setRequests(prev =>
         prev.map(req =>
           req.id === applicationId ? { ...req, status: "APPROVED" } : req
         )
       );
+      toast.success("Đã phê duyệt đơn đăng ký bác sĩ!");
     } catch (err) {
-      console.error(err);
+      console.error("Failed to approve:", err);
+      toast.error("Không thể phê duyệt đơn đăng ký");
     }
   };
 
   const rejectApplication = async (applicationId) => {
-    console.log("Reject")
     try {
       const res = await axios.put(
-        `http://localhost:8083/api/doctor/reject?id=${applicationId}`, {});
-      console.log("Rejected:", res.data);
+        `http://localhost:8080/api/doctor/reject?id=${applicationId}`, {});
       setRequests(prev =>
         prev.map(req => 
           req.id === applicationId ? {...req, status: "REJECTED"} : req 
         )
       );
+      toast.success("Đã từ chối đơn đăng ký!");
     } catch (err) {
-      console.error(err);
+      console.error("Failed to reject:", err);
+      toast.error("Không thể từ chối đơn đăng ký");
     }
   };
 

@@ -31,32 +31,23 @@ export default function AdminDashboard() {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Mock data
-      setStats({
-        totalPatients: 1248,
-        patientGrowth: 12.5,
-        totalDoctors: 45,
-        doctorGrowth: 3.2,
-        todayAppointments: 28,
-        appointmentChange: -5.3,
-        monthlyRevenue: 45890,
-        revenueGrowth: 18.7,
-      });
-      setRecentAppointments([
-        { id: 1, patient: 'John Doe', doctor: 'Dr. Sarah Johnson', date: '2024-11-30', time: '09:00 AM', status: 'confirmed' },
-        { id: 2, patient: 'Jane Smith', doctor: 'Dr. Michael Chen', date: '2024-11-30', time: '10:30 AM', status: 'pending' },
-        { id: 3, patient: 'Robert Brown', doctor: 'Dr. Emily Davis', date: '2024-11-30', time: '02:00 PM', status: 'confirmed' },
-        { id: 4, patient: 'Mary Wilson', doctor: 'Dr. Sarah Johnson', date: '2024-11-30', time: '03:30 PM', status: 'cancelled' },
-        { id: 5, patient: 'David Lee', doctor: 'Dr. James Taylor', date: '2024-11-30', time: '04:00 PM', status: 'completed' },
-      ]);
-      setPendingDoctors([
-        { id: 1, name: 'Dr. Alex Kim', specialty: 'Dermatology', appliedDate: '2024-11-28', status: 'pending' },
-        { id: 2, name: 'Dr. Lisa Wang', specialty: 'Pediatrics', appliedDate: '2024-11-27', status: 'pending' },
-      ]);
+      // TODO: Replace with actual API calls when backend endpoints are ready
+      // const [statsRes, appointmentsRes, doctorsRes] = await Promise.all([
+      //   getAdminStats(),
+      //   getRecentAppointments(),
+      //   getPendingDoctors()
+      // ]);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setStats({});
+      setRecentAppointments([]);
+      setPendingDoctors([]);
+      toast.error('API endpoints chưa sẵn sàng. Vui lòng thử lại sau.');
     } catch (error) {
       console.error('Failed to load dashboard:', error);
-      toast.error('Failed to load dashboard data');
+      toast.error('Không thể tải dữ liệu dashboard');
+      setStats({});
+      setRecentAppointments([]);
+      setPendingDoctors([]);
     } finally {
       setLoading(false);
     }

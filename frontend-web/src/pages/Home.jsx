@@ -54,13 +54,7 @@ export default function Home() {
       setFeaturedDoctors(Array.isArray(doctorList) ? doctorList : []);
     } catch (error) {
       console.error('Failed to load doctors:', error);
-      // Mock data fallback
-      setFeaturedDoctors([
-        { id: 1, fullName: 'Dr. Sarah Johnson', specialty: 'Cardiology', rating: 4.9, reviewCount: 124, consultationFee: 150, imageUrl: null },
-        { id: 2, fullName: 'Dr. Michael Chen', specialty: 'Neurology', rating: 4.8, reviewCount: 98, consultationFee: 180, imageUrl: null },
-        { id: 3, fullName: 'Dr. Emily Williams', specialty: 'Pediatrics', rating: 4.9, reviewCount: 156, consultationFee: 120, imageUrl: null },
-        { id: 4, fullName: 'Dr. James Brown', specialty: 'Orthopedics', rating: 4.7, reviewCount: 87, consultationFee: 160, imageUrl: null },
-      ]);
+      setFeaturedDoctors([]);
     } finally {
       setLoading(false);
     }

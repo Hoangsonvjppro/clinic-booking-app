@@ -82,7 +82,7 @@ export default function CreateDoctorAcc() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8083/api/doctor/apply",
+        "http://localhost:8080/api/doctor/apply",
         formData,
         {
           headers: {
@@ -91,10 +91,10 @@ export default function CreateDoctorAcc() {
         }
       );
 
-      console.log("Response:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error submitting doctor application:", error.response?.data || error.message);
+      throw error;
     }
   };
 

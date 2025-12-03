@@ -81,23 +81,63 @@ spring:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 50
                 key-resolver: "#{@ipKeyResolver}"
-#        - id: patient-service
-#          uri: http://localhost:8082
-#          predicates:
-#            - Path=/api/patients/**
-#          filters:
-#            - name: RequestRateLimiter
-#              args:
-#                redis-rate-limiter.replenishRate: 5
-#                redis-rate-limiter.burstCapacity: 10
-#                key-resolver: "#{@ipKeyResolver}"
-#        - id: appointment-service
-#          uri: http://localhost:8084
-#          predicates:
-#            - Path=/api/appointments/**
-#          filters:
-#            - name: RequestRateLimiter
-#              args:
-#                redis-rate-limiter.replenishRate: 5
-#                redis-rate-limiter.burstCapacity: 10
-#                key-resolver: "#{@ipKeyResolver}"
+        
+        # Doctor Service - Public endpoints (list, search, detail)
+        - id: doctor-service-public
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/doctors/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 50
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Doctor Service - Application endpoints (apply, approve, reject)
+        - id: doctor-service-application
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/doctor/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Patient Service
+        - id: patient-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/patients/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Appointment Service
+        - id: appointment-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/appointments/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Payment Service
+        - id: payment-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"

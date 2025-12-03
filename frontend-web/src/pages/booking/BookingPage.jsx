@@ -73,16 +73,8 @@ export default function BookingPage() {
       setDoctor(response?.data || response);
     } catch (error) {
       console.error('Failed to load doctor:', error);
-      // Mock data fallback
-      setDoctor({
-        id: doctorId,
-        fullName: 'Dr. Sarah Johnson',
-        specialty: 'Cardiology',
-        rating: 4.9,
-        reviewCount: 124,
-        consultationFee: 150,
-        location: 'Medical Center',
-      });
+      toast.error('Could not load doctor information');
+      setDoctor(null);
     } finally {
       setLoading(false);
     }

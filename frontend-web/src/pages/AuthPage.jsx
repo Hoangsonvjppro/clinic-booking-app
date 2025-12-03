@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import axios from "axios"
 import googleIcon from "../assets/google.png"
 import facebookIcon from "../assets/facebook.png"
@@ -58,46 +58,27 @@ export default function AuthPage() {
       password: password.value
     };
 
-    await axios.post('http://localhost:8081/api/v1/auth/login', user)
+    await axios.post('http://localhost:8080/api/v1/auth/login', user)
     .then(function (res) {
-      console.log(res.data);
-      
       setBlankPassword(false);
       setBlankEmail(false);
       setEmailFormat(false);
       setWrongInfo(false);
 
-      
-      if (remember) {
-        Cookies.set("accessToken", res.data.accessToken, {
-          expires: 2, // 2 days
-          secure: false,
-          sameSite: "Lax"
-        });
-        
-        Cookies.set("refreshToken", res.data.refreshToken, {
-          expires: 2,
-          secure: false,
-          sameSite: "Lax"
-        });
-  
-        Cookies.set("tokenType", res.data.tokenType, {
-          expires: 2,
-          secure: false,
-          sameSite: "Lax"
-        });
-      }
+      // Store tokens in localStorage (consistent with axiosConfig.js)
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+      localStorage.setItem("tokenType", res.data.tokenType);
 
-      nav('/')
+      nav('/');
     })
     .catch(function (err) {
       if (!err.response) {
-        console.log("Network error or server not reachable");
+        console.error("Network error or server not reachable");
         return;
       }
 
       const data = err.response.data;
-      console.log(data);
       
       if (data.email === "must not be blank") {
         setBlankEmail(true);
@@ -128,21 +109,6 @@ export default function AuthPage() {
         return false;
       } 
     });
-  }
-
-  function submitLogin() {
-    let user = {
-      "email": email.value,
-      "password": password.value
-    }
-    axios.post('http://localhost:8081/api/v1/auth/login', user)
-    .then(function(response) {
-      console.log(response)
-      nav('/' )
-    })
-    .catch(function(error) {
-        console.log(error)
-    })
   }
 
   return (

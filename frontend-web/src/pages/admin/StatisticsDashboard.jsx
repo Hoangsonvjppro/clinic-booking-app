@@ -34,43 +34,8 @@ export default function StatisticsDashboard() {
     } catch (error) {
       console.error('Error fetching statistics:', error);
       toast.error('Không thể tải thống kê');
-      // Set mock data for display purposes
-      setDashboardStats({
-        totalUsers: 1250,
-        totalDoctors: 45,
-        totalPatients: 1200,
-        totalAdmins: 5,
-        totalAppointments: 3500,
-        appointmentsThisPeriod: 180,
-        appointmentGrowth: 12.5,
-        totalReports: 45,
-        pendingReports: 8,
-        resolvedReports: 35,
-        totalWarnings: 120,
-        activeWarnings: 25,
-        totalPenalties: 15,
-        activePenalties: 5,
-      });
-      setReportStats({
-        reportsByType: {
-          NO_SHOW: 15,
-          LATE_CANCELLATION: 10,
-          UNPROFESSIONAL_BEHAVIOR: 8,
-          POOR_SERVICE: 7,
-          OTHER: 5,
-        },
-        reportsByStatus: {
-          PENDING: 8,
-          REVIEWING: 2,
-          RESOLVED: 35,
-        },
-        resolutionsByType: {
-          DISMISSED: 10,
-          WARNING_ISSUED: 15,
-          PENALTY_APPLIED: 8,
-          ACCOUNT_SUSPENDED: 2,
-        },
-      });
+      setDashboardStats(null);
+      setReportStats(null);
     } finally {
       setLoading(false);
     }
