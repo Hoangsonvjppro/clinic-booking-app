@@ -66,11 +66,18 @@ $env:COMPOSE_DOCKER_CLI_BUILD = "1"
 
 Write-Host ""
 Write-Host "[5/5] Khởi động tất cả services..." -ForegroundColor Cyan
+
+# Khởi động databases trước
 docker compose --profile databases up -d
 
-Write-Host "  Đợi databases khởi động (30 giây)..." -ForegroundColor Gray
-Start-Sleep -Seconds 30
+Write-Host "  Đợi databases khởi động và healthy (35 giây)..." -ForegroundColor Gray
+Start-Sleep -Seconds 35
 
+# Khởi động redis
+docker compose --profile gateway up -d redis 2>$null
+Start-Sleep -Seconds 5
+
+# Khởi động các services còn lại
 docker compose --profile gateway --profile services --profile frontend --profile monitoring up -d --build
 
 Write-Host ""

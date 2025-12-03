@@ -17,26 +17,31 @@ Write-Host "  - Khởi động lại toàn bộ hệ thống" -ForegroundColor Y
 Write-Host "  - GIỮ NGUYÊN dữ liệu databases" -ForegroundColor Green
 Write-Host ""
 
-Write-Host "[1/5] Kiểm tra và khởi động databases..." -ForegroundColor Cyan
-docker compose --profile databases up -d
-
-Write-Host ""
-Write-Host "[2/5] Dừng các services (giữ databases chạy)..." -ForegroundColor Cyan
-docker compose --profile gateway --profile services --profile frontend --profile monitoring stop
-
-Write-Host ""
-Write-Host "[3/5] Xóa containers cũ (không xóa volumes)..." -ForegroundColor Cyan
-docker compose --profile gateway --profile services --profile frontend --profile monitoring rm -f
-
-Write-Host ""
-Write-Host "[4/5] Đợi databases sẵn sàng (15 giây)..." -ForegroundColor Gray
-Start-Sleep -Seconds 15
-
-Write-Host ""
-Write-Host "[5/5] Build và khởi động lại tất cả services..." -ForegroundColor Cyan
 $env:DOCKER_BUILDKIT = "1"
 $env:COMPOSE_DOCKER_CLI_BUILD = "1"
 
+Write-Host "[1/6] Kiểm tra và khởi động databases..." -ForegroundColor Cyan
+docker compose --profile databases up -d
+
+Write-Host ""
+Write-Host "[2/6] Đợi databases healthy (25 giây)..." -ForegroundColor Gray
+Start-Sleep -Seconds 25
+
+Write-Host ""
+Write-Host "[3/6] Dừng các services (giữ databases chạy)..." -ForegroundColor Cyan
+docker compose --profile gateway --profile services --profile frontend --profile monitoring stop 2>$null
+
+Write-Host ""
+Write-Host "[4/6] Xóa containers cũ (không xóa volumes)..." -ForegroundColor Cyan
+docker compose --profile gateway --profile services --profile frontend --profile monitoring rm -f 2>$null
+
+Write-Host ""
+Write-Host "[5/6] Khởi động redis..." -ForegroundColor Cyan
+docker compose --profile gateway up -d redis 2>$null
+Start-Sleep -Seconds 5
+
+Write-Host ""
+Write-Host "[6/6] Build và khởi động lại tất cả services..." -ForegroundColor Cyan
 docker compose --profile gateway --profile services --profile frontend --profile monitoring up -d --build
 
 Write-Host ""

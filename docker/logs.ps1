@@ -27,18 +27,28 @@ $serviceMap = @{
     "frontend" = "frontend-web"
 }
 
-$followFlag = if ($Follow) { "-f" } else { "" }
-
 if ($Service -eq "all") {
     Write-Host "Logs của tất cả services (tail=$Tail):" -ForegroundColor Cyan
-    docker compose --profile gateway --profile services --profile databases --profile frontend --profile monitoring logs --tail $Tail $followFlag
+    if ($Follow) {
+        docker compose --profile gateway --profile services --profile databases --profile frontend --profile monitoring logs --tail $Tail -f
+    } else {
+        docker compose --profile gateway --profile services --profile databases --profile frontend --profile monitoring logs --tail $Tail
+    }
 }
 elseif ($Service -eq "databases") {
     Write-Host "Logs của databases (tail=$Tail):" -ForegroundColor Cyan
-    docker compose --profile databases logs --tail $Tail $followFlag
+    if ($Follow) {
+        docker compose --profile databases logs --tail $Tail -f
+    } else {
+        docker compose --profile databases logs --tail $Tail
+    }
 }
 else {
     $containerName = $serviceMap[$Service]
     Write-Host "Logs của $Service (tail=$Tail):" -ForegroundColor Cyan
-    docker compose logs --tail $Tail $followFlag $containerName
+    if ($Follow) {
+        docker compose logs --tail $Tail -f $containerName
+    } else {
+        docker compose logs --tail $Tail $containerName
+    }
 }

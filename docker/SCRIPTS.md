@@ -6,6 +6,7 @@
 |--------|-------|
 | `start-all.ps1` | Khởi động toàn bộ hệ thống |
 | `stop-all.ps1` | Dừng tất cả services |
+| `status.ps1` | Xem trạng thái và health check tất cả services |
 | `reset-all.ps1` | **XÓA TẤT CẢ** (bao gồm databases) và build lại từ đầu |
 | `rebuild-all.ps1` | Build và run lại toàn bộ, **GIỮ NGUYÊN databases** |
 | `rebuild-backend.ps1` | Rebuild tất cả backend services |
@@ -28,6 +29,11 @@
 ```powershell
 cd docker
 .\start-all.ps1
+```
+
+### Kiểm tra trạng thái hệ thống
+```powershell
+.\status.ps1
 ```
 
 ### Dừng hệ thống

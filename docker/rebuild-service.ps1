@@ -38,12 +38,14 @@ Write-Host ""
 
 # Kiểm tra database liên quan
 if ($info.db) {
-    $dbStatus = docker ps --filter "name=$($info.db)" --format "{{.Status}}" 2>$null
-    if (-not $dbStatus) {
+    $dbRunning = docker ps --filter "name=$($info.db)" --filter "status=running" --format "{{.Names}}" 2>$null
+    if ([string]::IsNullOrEmpty($dbRunning)) {
         Write-Host "[WARN] Database $($info.db) chưa chạy, khởi động..." -ForegroundColor Yellow
-        docker compose --profile databases up -d $info.db
-        Write-Host "  Đợi database khởi động (15 giây)..." -ForegroundColor Gray
-        Start-Sleep -Seconds 15
+        docker compose --profile databases up -d $($info.db)
+        Write-Host "  Đợi database khởi động (20 giây)..." -ForegroundColor Gray
+        Start-Sleep -Seconds 20
+    } else {
+        Write-Host "[OK] Database $($info.db) đang chạy" -ForegroundColor Green
     }
 }
 
