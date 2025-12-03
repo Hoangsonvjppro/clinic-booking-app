@@ -12,6 +12,63 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
+        
+        # Notification Service - User endpoints
+        - id: notification-service-reports
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/reports/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        - id: notification-service-warnings
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/warnings/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        - id: notification-service-penalties
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/penalties/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+        
+        - id: notification-service-email
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        
+        # Notification Service - Admin endpoints
+        - id: notification-service-admin
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/admin/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 50
+                key-resolver: "#{@ipKeyResolver}"
 #        - id: patient-service
 #          uri: http://localhost:8082
 #          predicates:
