@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Phone, FileText, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-import api from '../../services/api';
 
 export default function DoctorAppointments() {
   const [appointments, setAppointments] = useState([]);

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Clock, Plus, Trash2, Save, Calendar } from 'lucide-react';
-import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const DAYS_OF_WEEK = [

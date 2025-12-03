@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Users, Clock, CheckCircle, XCircle, DollarSign } from 'lucide-react';
-import api from '../../services/api';
 
 export default function DoctorDashboard() {
   const [stats, setStats] = useState({

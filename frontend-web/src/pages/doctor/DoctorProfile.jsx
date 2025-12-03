@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Award, Camera, Save, Briefcase } from 'lucide-react';
-import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function DoctorProfile() {
