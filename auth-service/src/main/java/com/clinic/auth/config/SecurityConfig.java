@@ -98,6 +98,8 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/**"
                         ).permitAll()
+                        // Internal API for service-to-service communication (no auth required)
+                        .requestMatchers("/api/v1/internal/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/prometheus").permitAll()
                         // Mọi request khác đều yêu cầu xác thực

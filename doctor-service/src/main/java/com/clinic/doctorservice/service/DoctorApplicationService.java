@@ -8,8 +8,15 @@ import com.clinic.doctorservice.model.DoctorApplication;
 import com.clinic.doctorservice.model.DoctorApplicationStatus;
 import com.clinic.doctorservice.repository.DoctorApplicationRepository;
 import com.clinic.doctorservice.repository.DoctorRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -25,17 +32,25 @@ import java.util.stream.Collectors;
 
 @Service
 public class DoctorApplicationService {
+    private static final Logger log = LoggerFactory.getLogger(DoctorApplicationService.class);
+    
     private final DoctorApplicationRepository repo;
     private final DoctorRepository doctorRepository;
+    private final RestTemplate restTemplate;
     private final Path uploadDir;
+    private final String authServiceUrl;
 
     public DoctorApplicationService(
             DoctorApplicationRepository repo, 
             DoctorRepository doctorRepository,
-            @Value("${app.upload-dir:./uploads}") String uploadDir) {
+            RestTemplate restTemplate,
+            @Value("${app.upload-dir:./uploads}") String uploadDir,
+            @Value("${app.auth-service-url:http://localhost:8081}") String authServiceUrl) {
         this.repo = repo;
         this.doctorRepository = doctorRepository;
+        this.restTemplate = restTemplate;
         this.uploadDir = Path.of(uploadDir);
+        this.authServiceUrl = authServiceUrl;
         try { Files.createDirectories(this.uploadDir); } catch (IOException ignored) {}
     }
 
@@ -77,10 +92,83 @@ public class DoctorApplicationService {
 
     // --- Approve application ---
     public DoctorApplication approve(UUID applicationId) {
-        DoctorApplication app = repo.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        DoctorApplication app = repo.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+        
         app.setStatus(DoctorApplicationStatus.APPROVED);
-        // In real app: create Doctor entity, grant roles, notify user, etc.
+        
+        // 1. Create Doctor entity from application data
+        createDoctorFromApplication(app);
+        
+        // 2. Call auth-service to update user role to DOCTOR
+        updateUserRoleToDoctor(app.getUserId());
+        
         return repo.save(app);
+    }
+    
+    private void createDoctorFromApplication(DoctorApplication app) {
+        // Check if doctor already exists
+        Optional<Doctor> existingDoctor = doctorRepository.findByUserId(UUID.fromString(app.getUserId()));
+        if (existingDoctor.isPresent()) {
+            log.info("Doctor already exists for userId: {}", app.getUserId());
+            return;
+        }
+        
+        // Parse paymentMethods field which contains: "dob,gender,specialty,experience,licenseNumber,graduationDate,university,nationalId,language"
+        String[] parts = app.getPaymentMethods() != null ? app.getPaymentMethods().split(",") : new String[0];
+        
+        Doctor doctor = new Doctor();
+        doctor.setId(UUID.randomUUID());
+        doctor.setUserId(UUID.fromString(app.getUserId()));
+        doctor.setFullName(app.getName());
+        doctor.setPhone(app.getPhone());
+        doctor.setBio(app.getDescription());
+        doctor.setStatus("APPROVED");
+        doctor.setConsultationFee(app.getConsultationFee() != null ? app.getConsultationFee() : BigDecimal.valueOf(300000));
+        
+        // Parse experience from paymentMethods if available
+        if (parts.length >= 4) {
+            try {
+                doctor.setExperienceYears(Integer.parseInt(parts[3]));
+            } catch (NumberFormatException ignored) {}
+        }
+        
+        // Parse hospital name from address
+        if (app.getAddress() != null && app.getAddress().contains("hospital-name:")) {
+            String address = app.getAddress();
+            int start = address.indexOf("hospital-name:") + 14;
+            int end = address.indexOf(",", start);
+            if (end == -1) end = address.length();
+            doctor.setHospitalName(address.substring(start, end).trim());
+        }
+        
+        // Set certificate URL from application
+        if (app.getCertificatePaths() != null) {
+            doctor.setCertificateUrl(app.getCertificatePaths());
+        }
+        
+        doctorRepository.save(doctor);
+        log.info("Created new Doctor entity for userId: {}", app.getUserId());
+    }
+    
+    private void updateUserRoleToDoctor(String userId) {
+        try {
+            // Use internal endpoint (no authentication required for service-to-service)
+            String url = authServiceUrl + "/api/v1/internal/users/" + userId + "/role?role=DOCTOR";
+            log.info("Calling auth-service to update role: {}", url);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+            
+            log.info("Successfully updated role to DOCTOR for userId: {}", userId);
+        } catch (Exception e) {
+            log.error("Failed to update user role to DOCTOR for userId: {}. Error: {}", userId, e.getMessage());
+            // Don't throw exception - role update failure shouldn't block the approval
+            // Admin can manually fix if needed
+        }
     }
     
     // --- Reject application ---

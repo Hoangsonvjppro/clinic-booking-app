@@ -1,5 +1,6 @@
 package com.clinic.auth.security.oauth;
 
+import com.clinic.auth.config.AppProps;
 import com.clinic.auth.model.User;
 import com.clinic.auth.repo.UserRepository;
 import com.clinic.auth.service.AuthService;
@@ -15,11 +16,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handles the post-authentication step of the OAuth2 login flow:
  *  - issue local JWT + refresh token pair
- *  - trả kết quả dạng JSON để clients (REST/JS) có thể xử lý dễ dàng.
+ *  - redirect về frontend với token trong URL parameters
  */
 @Component
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final AuthService authService;
     private final UserRepository userRepository;
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final AppProps appProps;
     private final HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository;
 
     @Override
@@ -37,22 +40,22 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         User user = resolveUser(authentication);
         if (user == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("""
-                    {"error":"oauth_authentication","message":"Không thể đọc thông tin người dùng từ Google"}
-                    """);
+            String errorRedirect = appProps.getOauth2FailureRedirect() + "?error=" +
+                    URLEncoder.encode("Không thể đọc thông tin người dùng từ Google", StandardCharsets.UTF_8);
             authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+            response.sendRedirect(errorRedirect);
             return;
         }
 
         AuthResponse authResponse = authService.loginWithOAuth(user, "google");
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(objectMapper.writeValueAsString(authResponse));
+        // Redirect về frontend với token trong URL
+        String redirectUrl = appProps.getOauth2SuccessRedirect() +
+                "?token=" + URLEncoder.encode(authResponse.getAccessToken(), StandardCharsets.UTF_8) +
+                "&refreshToken=" + URLEncoder.encode(authResponse.getRefreshToken(), StandardCharsets.UTF_8);
 
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+        response.sendRedirect(redirectUrl);
     }
 
     private User resolveUser(Authentication authentication) {

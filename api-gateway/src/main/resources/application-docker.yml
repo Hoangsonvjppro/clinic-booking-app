@@ -2,6 +2,17 @@ spring:
   cloud:
     gateway:
       routes:
+        # OAuth2 Google Login - phải đặt trước auth-service
+        - id: oauth2-authorization
+          uri: http://auth-service:8081
+          predicates:
+            - Path=/oauth2/authorization/**
+        
+        - id: oauth2-callback
+          uri: http://auth-service:8081
+          predicates:
+            - Path=/login/oauth2/code/**
+        
         # Auth Service
         - id: auth-service
           uri: http://auth-service:8081

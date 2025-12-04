@@ -12,6 +12,7 @@ import java.util.UUID;
 /**
  * Internal API controller for service-to-service communication.
  * Used by notification-service to update user account status.
+ * Used by doctor-service to update user roles.
  */
 @RestController
 @RequestMapping("/api/v1/internal/users")
@@ -92,6 +93,22 @@ public class InternalUserController {
         request.setReason("Account reactivated" + 
                 (reason != null ? ": " + reason : ""));
         userAccountService.updateUserStatus(userId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Updates user role.
+     * Called by doctor-service when approving doctor applications.
+     *
+     * @param userId the user ID
+     * @param role the new role to assign (e.g., "DOCTOR")
+     * @return success response
+     */
+    @PutMapping("/{userId}/role")
+    public ResponseEntity<Void> updateUserRole(
+            @PathVariable UUID userId,
+            @RequestParam String role) {
+        userAccountService.updateUserRole(userId, role);
         return ResponseEntity.ok().build();
     }
 }

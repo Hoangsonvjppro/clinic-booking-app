@@ -40,6 +40,11 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: 123456@
       SPRING_PROFILES_ACTIVE: docker
+      # Google OAuth2 - Thay thế bằng Client ID và Secret của bạn
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your-google-client-id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your-google-client-secret}
+      OAUTH2_SUCCESS_REDIRECT: http://localhost:5173/oauth2/callback
+      OAUTH2_FAILURE_REDIRECT: http://localhost:5173/login?error=oauth
       JAVA_TOOL_OPTIONS: >
         -Dspring.flyway.enabled=true
         -Dspring.jpa.hibernate.ddl-auto=none

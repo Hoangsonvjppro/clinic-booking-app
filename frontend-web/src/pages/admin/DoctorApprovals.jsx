@@ -27,7 +27,9 @@ export default function DoctorApprovals() {
     setApiNotAvailable(false);
     try {
       const response = await getAllApplications();
-      const data = response.data || [];
+      // Note: axiosConfig interceptor already returns response.data, so response IS the data
+      const data = Array.isArray(response) ? response : (response?.data || response || []);
+      console.log('Doctor applications data:', data); // Debug log
       // Transform API response to match UI format
       const transformedData = data.map(app => ({
         id: app.id,
@@ -40,10 +42,21 @@ export default function DoctorApprovals() {
         experience: app.yearsOfExperience || 0,
         education: app.education || 'N/A',
         bio: app.description || '',
-        documents: app.certificates || [],
+        // API returns certificatePaths as a comma-separated string or array
+        documents: app.certificatePaths 
+          ? (typeof app.certificatePaths === 'string' 
+              ? app.certificatePaths.split(',').map(p => p.trim()).filter(Boolean)
+              : app.certificatePaths)
+          : (app.certificates || []),
         submittedAt: app.createdAt,
         status: app.status || 'PENDING',
-        userId: app.userId
+        userId: app.userId,
+        // Additional fields from API
+        consultationFee: app.consultationFee,
+        followUpFee: app.followUpFee,
+        emergencyFee: app.emergencyFee,
+        consultationDuration: app.consultationDuration,
+        paymentMethods: app.paymentMethods
       }));
       setApplications(transformedData);
     } catch (error) {
