@@ -27,7 +27,7 @@ export const BookingProvider = ({ children }) => {
       const appointmentData = {
         doctorId: selectedDoctor.id,
         patientId: patientInfo.id,
-        appointmentDate: `${selectedDate}T${selectedTime}:00`,
+        appointmentTime: `${selectedDate}T${selectedTime}:00`,
         reasonForVisit,
         notes: patientInfo.notes || '',
       };

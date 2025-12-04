@@ -134,16 +134,31 @@ export default function BookingPage() {
     }
   };
 
+  // Convert "02:30 PM" -> "14:30" for ISO datetime
+  const parseTimeTo24 = (timeStr) => {
+    if (!timeStr) return null;
+    const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!m) return timeStr; // already 24h or unknown format
+    let hh = parseInt(m[1], 10);
+    const mm = m[2];
+    const ampm = m[3].toUpperCase();
+    if (ampm === 'PM' && hh !== 12) hh += 12;
+    if (ampm === 'AM' && hh === 12) hh = 0;
+    return `${hh.toString().padStart(2, '0')}:${mm}`;
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(2)) return;
     
     setSubmitting(true);
     try {
+      const time24 = parseTimeTo24(bookingData.time);
+      const appointmentDateTime = `${bookingData.date}T${time24}:00`;
+
       const appointmentData = {
         doctorId: doctor.id,
         patientId: user?.id,
-        appointmentDate: bookingData.date,
-        appointmentTime: bookingData.time,
+        appointmentTime: appointmentDateTime,
         symptoms: bookingData.symptoms,
         notes: bookingData.notes,
       };

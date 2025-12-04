@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   CreditCardIcon,
@@ -20,6 +20,7 @@ export default function PaymentPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [doctor, setDoctor] = useState(location.state?.doctor || null);
   const [processing, setProcessing] = useState(false);
   const [cardForm, setCardForm] = useState({
     number: '',
@@ -30,14 +31,89 @@ export default function PaymentPage() {
   const [momo, setMomo] = useState({})
 
   // Get booking info from state or query params
-  const bookingInfo = location.state?.booking || {
-    id: searchParams.get('id') || 'BK-2024-001',
-    doctorName: 'Dr. Sarah Johnson',
-    specialty: 'Cardiology',
-    date: '2024-12-05',
-    time: '10:00 AM',
-    consultationFee: 150,
-    serviceFee: 5,
+  const [loading, setLoading] = useState(false);
+  const doctorId = location.state?.doctor?.id || searchParams.get('doctorId') || searchParams.get('doctor');
+
+  // Use state for bookingInfo so we can update fee once doctor is loaded
+  const [bookingInfo, setBookingInfo] = useState(() => {
+    const initialConsultation = Number(location.state?.doctor?.consultationFee)
+      || Number(searchParams.get('consultationFee'))
+      || 150000; // default in VND
+
+    return {
+      id: location.state?.booking?.id || searchParams.get('id') || 'BK-' + Date.now(),
+      doctorId,
+      doctorName: location.state?.doctor?.fullName || location.state?.doctor?.name || 'Loading doctor...',
+      specialty: location.state?.doctor?.specialty || location.state?.doctor?.specialization || '—',
+      date: location.state?.booking?.date || searchParams.get('date') || new Date().toISOString(),
+      time: location.state?.booking?.time || searchParams.get('time') || '09:00',
+      consultationFee: Math.round(initialConsultation), // stored as VND (integer)
+      serviceFee: Math.round(Number(location.state?.booking?.serviceFee) || Number(searchParams.get('serviceFee')) || 5000), // default service fee in VND
+      currency: 'VND',
+    };
+  });
+
+  // Fetch doctor by id
+  const getDoctorById = async (id) => {
+    if (!id) throw new Error('Missing doctor id');
+    const resp = await axios.get(`http://localhost:8080/api/doctors/${id}`);
+    return resp.data || resp;
+  };
+
+  // When doctor information becomes available, prefer the doctor's configured consultation fee (in VND)
+  useEffect(() => {
+    if (!doctor) {
+      loadDoctor();
+      return;
+    }
+
+    // Update bookingInfo with doctor-provided values if available
+    setBookingInfo(prev => {
+      const updated = { ...prev };
+      if (doctor.consultationFee != null) {
+        // ensure numeric and round to integer VND
+        const fee = Number(doctor.consultationFee);
+        if (!Number.isNaN(fee)) updated.consultationFee = Math.round(fee);
+      }
+
+      if (doctor.fullName || doctor.name) updated.doctorName = doctor.fullName || doctor.name;
+      if (doctor.specialty || doctor.specialization) updated.specialty = doctor.specialty || doctor.specialization;
+
+      return updated;
+    });
+  }, [doctor]);
+
+  useEffect(() => {
+    // if route provided a doctorId but doctor state is empty, try loading
+    if (!doctor && doctorId) {
+      loadDoctor();
+    }
+  }, [doctorId]);
+
+  const loadDoctor = async () => {
+    setLoading(true);
+    try {
+      const response = await getDoctorById(doctorId);
+      // response may already be the doctor object
+      const doc = response?.data || response;
+      setDoctor(doc);
+
+      // Immediately update bookingInfo if doctor has fee
+      if (doc?.consultationFee != null) {
+        setBookingInfo(prev => ({
+          ...prev,
+          consultationFee: Math.round(Number(doc.consultationFee) || prev.consultationFee),
+          doctorName: doc.fullName || doc.name || prev.doctorName,
+          specialty: doc.specialty || doc.specialization || prev.specialty,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load doctor:', error);
+      toast.error('Could not load doctor information');
+      setDoctor(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const total = bookingInfo.consultationFee + bookingInfo.serviceFee;
@@ -106,10 +182,11 @@ export default function PaymentPage() {
 
   const handlePay = async (e) => {
     setPaymentMethod(e)
+    console.log(bookingInfo.consultationFee)
     if (e === "momo" && !momo.payUrl) {
       const bookingString = bookingInfo.id + ", " + bookingInfo.doctorName + ', ' + bookingInfo.specialty;
       let makePayment = {
-        amount: bookingInfo.consultationFee * 26372.50,
+        amount: bookingInfo.consultationFee,
         orderInfo: bookingString
       }
       axios.post('http://localhost:8080/api/momo/create', makePayment)
@@ -331,8 +408,12 @@ export default function PaymentPage() {
                   <UserIcon className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-slate-900">{bookingInfo.doctorName}</p>
-                  <p className="text-sm text-slate-500">{bookingInfo.specialty}</p>
+                  <p className="font-medium text-slate-900">
+                    {doctor?.fullName || doctor?.name || bookingInfo.doctorName}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {doctor?.specialty || doctor?.specialization || bookingInfo.specialty}
+                  </p>
                 </div>
               </div>
 
@@ -358,15 +439,15 @@ export default function PaymentPage() {
               <div className="border-t border-slate-100 pt-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600">Consultation Fee</span>
-                  <span className="font-medium">${bookingInfo.consultationFee.toFixed(2)}</span>
+                  <span className="font-medium">{bookingInfo.consultationFee.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600">Service Fee</span>
-                  <span className="font-medium">${bookingInfo.serviceFee.toFixed(2)}</span>
+                  <span className="font-medium">{bookingInfo.serviceFee.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-slate-100">
                   <span className="font-semibold text-slate-900">Total</span>
-                  <span className="font-bold text-xl text-primary-600">${total.toFixed(2)}</span>
+                  <span className="font-bold text-xl text-primary-600">{total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
