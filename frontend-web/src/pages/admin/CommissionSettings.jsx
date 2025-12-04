@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Save, Info, TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../../api/axiosConfig';
 
 export default function CommissionSettings() {
   const [settings, setSettings] = useState({
@@ -26,24 +27,16 @@ export default function CommissionSettings() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      // TODO: Call API
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await api.get('/api/v1/auth/settings');
+      const data = response.data;
       setSettings({
-        defaultCommissionRate: 10,
-        minCommissionRate: 5,
-        maxCommissionRate: 30,
-        specialtyRates: [
-          { id: 1, name: 'Tim mạch', rate: 12, appointmentCount: 156 },
-          { id: 2, name: 'Da liễu', rate: 10, appointmentCount: 89 },
-          { id: 3, name: 'Nội tổng quát', rate: 8, appointmentCount: 234 },
-          { id: 4, name: 'Thần kinh', rate: 15, appointmentCount: 67 },
-          { id: 5, name: 'Xương khớp', rate: 11, appointmentCount: 123 },
-          { id: 6, name: 'Nhi khoa', rate: 9, appointmentCount: 189 },
-          { id: 7, name: 'Sản phụ khoa', rate: 13, appointmentCount: 145 },
-          { id: 8, name: 'Mắt', rate: 10, appointmentCount: 78 }
-        ]
+        defaultCommissionRate: Number(data.commission_rate) || 10,
+        minCommissionRate: Number(data.min_commission_rate) || 5,
+        maxCommissionRate: Number(data.max_commission_rate) || 30,
+        specialtyRates: [] // Specialty-specific rates can be added later
       });
     } catch (error) {
+      console.error('Error fetching settings:', error);
       toast.error('Không thể tải cài đặt hoa hồng');
     } finally {
       setLoading(false);
@@ -52,13 +45,13 @@ export default function CommissionSettings() {
 
   const fetchStats = async () => {
     try {
-      // TODO: Call API
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Stats will come from appointment/payment service in future
+      // For now, show placeholder
       setStats({
-        totalRevenue: 125000000,
-        totalCommission: 12500000,
-        totalAppointments: 1081,
-        activeSpecialties: 8
+        totalRevenue: 0,
+        totalCommission: 0,
+        totalAppointments: 0,
+        activeSpecialties: 0
       });
     } catch (error) {
       console.error('Error fetching stats');
@@ -68,10 +61,14 @@ export default function CommissionSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // TODO: Call API
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await api.put('/api/v1/auth/settings', {
+        commission_rate: String(settings.defaultCommissionRate),
+        min_commission_rate: String(settings.minCommissionRate),
+        max_commission_rate: String(settings.maxCommissionRate)
+      });
       toast.success('Đã lưu cài đặt hoa hồng thành công');
     } catch (error) {
+      console.error('Error saving settings:', error);
       toast.error('Không thể lưu cài đặt');
     } finally {
       setSaving(false);

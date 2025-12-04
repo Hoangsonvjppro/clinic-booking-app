@@ -3,6 +3,7 @@ package com.clinic.appointmentservice.service;
 import com.clinic.appointmentservice.client.DoctorServiceClient;
 import com.clinic.appointmentservice.client.NotificationServiceClient;
 import com.clinic.appointmentservice.client.PatientServiceClient;
+import com.clinic.appointmentservice.client.PlatformSettingsClient;
 import com.clinic.appointmentservice.client.dto.DoctorAvailability;
 import com.clinic.appointmentservice.client.dto.DoctorResponse;
 import com.clinic.appointmentservice.client.dto.NotificationRequest;
@@ -23,6 +24,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -42,6 +44,7 @@ public class AppointmentService {
     private final AppointmentAuditRepository appointmentAuditRepository;
     private final PatientServiceClient patientServiceClient;
     private final DoctorServiceClient doctorServiceClient;
+    private final PlatformSettingsClient platformSettingsClient;
 
     private final NotificationServiceClient notificationServiceClient;
     private final com.clinic.appointmentservice.repository.MedicalRecordRepository medicalRecordRepository;
@@ -53,7 +56,7 @@ public class AppointmentService {
                               AppointmentAuditRepository appointmentAuditRepository,
                               PatientServiceClient patientServiceClient,
                               DoctorServiceClient doctorServiceClient,
-
+                              PlatformSettingsClient platformSettingsClient,
                               NotificationServiceClient notificationServiceClient,
                               com.clinic.appointmentservice.repository.MedicalRecordRepository medicalRecordRepository,
                               AppointmentProperties appointmentProperties,
@@ -63,7 +66,7 @@ public class AppointmentService {
         this.appointmentAuditRepository = appointmentAuditRepository;
         this.patientServiceClient = patientServiceClient;
         this.doctorServiceClient = doctorServiceClient;
-
+        this.platformSettingsClient = platformSettingsClient;
         this.notificationServiceClient = notificationServiceClient;
         this.medicalRecordRepository = medicalRecordRepository;
         this.appointmentProperties = appointmentProperties;
@@ -101,6 +104,21 @@ public class AppointmentService {
         appointment.setPatientName(patientName);
         appointment.setDoctorName(doctorInfo.fullName());
         appointment.setClinicAddress(doctorInfo.hospitalAddress());
+
+        // Calculate and set fees
+        BigDecimal consultationFee = doctorInfo.consultationFee() != null 
+            ? doctorInfo.consultationFee() 
+            : BigDecimal.valueOf(300000); // Default fee in VND
+        
+        BigDecimal serviceFee = platformSettingsClient.calculateServiceFee(consultationFee);
+        BigDecimal totalAmount = consultationFee.add(serviceFee);
+        
+        appointment.setConsultationFee(consultationFee);
+        appointment.setServiceFee(serviceFee);
+        appointment.setTotalAmount(totalAmount);
+        
+        log.info("Appointment fees - consultation: {}, service: {}, total: {}", 
+                consultationFee, serviceFee, totalAmount);
 
         AppointmentStatus initialStatus = doctorAvailability.autoAccept()
                 ? appointmentStatusService.getStatus(AppointmentStatusCode.CONFIRMED)

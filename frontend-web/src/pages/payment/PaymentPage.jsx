@@ -33,31 +33,57 @@ export default function PaymentPage() {
   // Get booking info from state or query params
   const [loading, setLoading] = useState(false);
   const doctorId = location.state?.doctor?.id || searchParams.get('doctorId') || searchParams.get('doctor');
+  const appointmentId = location.state?.appointment?.id || searchParams.get('appointmentId');
 
   // Use state for bookingInfo so we can update fee once doctor is loaded
   const [bookingInfo, setBookingInfo] = useState(() => {
-    const initialConsultation = Number(location.state?.doctor?.consultationFee)
+    // Try to get fees from appointment response first (calculated by backend)
+    const appointmentData = location.state?.appointment;
+    const initialConsultation = Number(appointmentData?.consultationFee)
+      || Number(location.state?.doctor?.consultationFee)
       || Number(searchParams.get('consultationFee'))
-      || 150000; // default in VND
+      || 300000; // default in VND
+    
+    const initialServiceFee = Number(appointmentData?.serviceFee)
+      || Number(location.state?.booking?.serviceFee)
+      || Number(searchParams.get('serviceFee'))
+      || 0; // Will be calculated from API
 
     return {
-      id: location.state?.booking?.id || searchParams.get('id') || 'BK-' + Date.now(),
+      id: appointmentData?.id || location.state?.booking?.id || searchParams.get('id') || 'BK-' + Date.now(),
       doctorId,
-      doctorName: location.state?.doctor?.fullName || location.state?.doctor?.name || 'Loading doctor...',
+      doctorName: location.state?.doctor?.fullName || location.state?.doctor?.name || appointmentData?.doctorName || 'Loading doctor...',
       specialty: location.state?.doctor?.specialty || location.state?.doctor?.specialization || '—',
-      date: location.state?.booking?.date || searchParams.get('date') || new Date().toISOString(),
+      date: location.state?.booking?.date || appointmentData?.appointmentTime || searchParams.get('date') || new Date().toISOString(),
       time: location.state?.booking?.time || searchParams.get('time') || '09:00',
-      consultationFee: Math.round(initialConsultation), // stored as VND (integer)
-      serviceFee: Math.round(Number(location.state?.booking?.serviceFee) || Number(searchParams.get('serviceFee')) || 5000), // default service fee in VND
+      consultationFee: Math.round(initialConsultation),
+      serviceFee: Math.round(initialServiceFee),
+      totalAmount: Number(appointmentData?.totalAmount) || 0,
       currency: 'VND',
     };
   });
+
+  // Fetch platform settings for commission rate
+  const fetchCommissionRate = async () => {
+    try {
+      const resp = await axios.get('http://localhost:8080/api/v1/auth/settings/commission-rate');
+      return Number(resp.data?.commissionRate) || 10;
+    } catch (error) {
+      console.warn('Could not fetch commission rate, using default 10%');
+      return 10;
+    }
+  };
 
   // Fetch doctor by id
   const getDoctorById = async (id) => {
     if (!id) throw new Error('Missing doctor id');
     const resp = await axios.get(`http://localhost:8080/api/doctors/${id}`);
     return resp.data || resp;
+  };
+
+  // Calculate service fee from consultation fee and commission rate
+  const calculateServiceFee = (consultationFee, commissionRate) => {
+    return Math.round(consultationFee * commissionRate / 100);
   };
 
   // When doctor information becomes available, prefer the doctor's configured consultation fee (in VND)
@@ -68,19 +94,30 @@ export default function PaymentPage() {
     }
 
     // Update bookingInfo with doctor-provided values if available
-    setBookingInfo(prev => {
-      const updated = { ...prev };
-      if (doctor.consultationFee != null) {
-        // ensure numeric and round to integer VND
-        const fee = Number(doctor.consultationFee);
-        if (!Number.isNaN(fee)) updated.consultationFee = Math.round(fee);
-      }
+    const updateFeesFromDoctor = async () => {
+      const commissionRate = await fetchCommissionRate();
+      
+      setBookingInfo(prev => {
+        const updated = { ...prev };
+        if (doctor.consultationFee != null) {
+          const fee = Number(doctor.consultationFee);
+          if (!Number.isNaN(fee)) {
+            updated.consultationFee = Math.round(fee);
+            // Calculate service fee if not already set from appointment
+            if (!prev.serviceFee || prev.serviceFee === 0) {
+              updated.serviceFee = calculateServiceFee(fee, commissionRate);
+            }
+          }
+        }
 
-      if (doctor.fullName || doctor.name) updated.doctorName = doctor.fullName || doctor.name;
-      if (doctor.specialty || doctor.specialization) updated.specialty = doctor.specialty || doctor.specialization;
+        if (doctor.fullName || doctor.name) updated.doctorName = doctor.fullName || doctor.name;
+        if (doctor.specialty || doctor.specialization) updated.specialty = doctor.specialty || doctor.specialization;
 
-      return updated;
-    });
+        return updated;
+      });
+    };
+    
+    updateFeesFromDoctor();
   }, [doctor]);
 
   useEffect(() => {
@@ -93,16 +130,22 @@ export default function PaymentPage() {
   const loadDoctor = async () => {
     setLoading(true);
     try {
-      const response = await getDoctorById(doctorId);
+      const [response, commissionRate] = await Promise.all([
+        getDoctorById(doctorId),
+        fetchCommissionRate()
+      ]);
       // response may already be the doctor object
       const doc = response?.data || response;
       setDoctor(doc);
 
       // Immediately update bookingInfo if doctor has fee
       if (doc?.consultationFee != null) {
+        const consultationFee = Math.round(Number(doc.consultationFee));
         setBookingInfo(prev => ({
           ...prev,
-          consultationFee: Math.round(Number(doc.consultationFee) || prev.consultationFee),
+          consultationFee: consultationFee || prev.consultationFee,
+          // Only calculate service fee if not already provided by backend
+          serviceFee: prev.serviceFee || calculateServiceFee(consultationFee, commissionRate),
           doctorName: doc.fullName || doc.name || prev.doctorName,
           specialty: doc.specialty || doc.specialization || prev.specialty,
         }));
@@ -116,7 +159,7 @@ export default function PaymentPage() {
     }
   };
 
-  const total = bookingInfo.consultationFee + bookingInfo.serviceFee;
+  const total = bookingInfo.totalAmount || (bookingInfo.consultationFee + bookingInfo.serviceFee);
 
   const paymentMethods = [
     { id: 'card', name: 'Credit/Debit Card', icon: CreditCardIcon, description: 'Visa, Mastercard, Amex' },

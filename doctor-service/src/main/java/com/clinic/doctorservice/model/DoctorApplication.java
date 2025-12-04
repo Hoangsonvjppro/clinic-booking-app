@@ -1,5 +1,6 @@
 package com.clinic.doctorservice.model;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.List;
@@ -50,6 +51,19 @@ public class DoctorApplication {
 
     @Enumerated(EnumType.STRING)
     private DoctorApplicationStatus status = DoctorApplicationStatus.PENDING;
+
+    // Fee settings
+    @Column(name = "consultation_fee", precision = 12, scale = 2)
+    private BigDecimal consultationFee = BigDecimal.valueOf(300000);
+
+    @Column(name = "follow_up_fee", precision = 12, scale = 2)
+    private BigDecimal followUpFee = BigDecimal.valueOf(200000);
+
+    @Column(name = "emergency_fee", precision = 12, scale = 2)
+    private BigDecimal emergencyFee = BigDecimal.valueOf(500000);
+
+    @Column(name = "consultation_duration")
+    private Integer consultationDuration = 30;
 
     private OffsetDateTime createdAt = OffsetDateTime.now();
 

@@ -3,6 +3,8 @@ package com.clinic.doctorservice.controller;
 import com.clinic.doctorservice.dto.ApplyDoctorRequest;
 import com.clinic.doctorservice.dto.ApplyDoctorResponse;
 import com.clinic.doctorservice.dto.DeleteDoctorResponse;
+import com.clinic.doctorservice.dto.FeeSettingsResponse;
+import com.clinic.doctorservice.dto.UpdateFeeRequest;
 import com.clinic.doctorservice.model.DoctorApplication;
 import com.clinic.doctorservice.service.DoctorApplicationService;
 import org.springframework.http.ResponseEntity;
@@ -106,6 +108,23 @@ public class DoctorController {
     @GetMapping("/all-application")
     public ResponseEntity<List<DoctorApplication>> getAllApplications() {
         return ResponseEntity.ok(service.getAllApplication());
+    }
+
+    // --- GET FEE SETTINGS ---
+    @GetMapping("/fee/{userId}")
+    public ResponseEntity<FeeSettingsResponse> getFeeSettings(@PathVariable("userId") String userId) {
+        FeeSettingsResponse fees = service.getFeeSettings(userId);
+        return ResponseEntity.ok(fees);
+    }
+
+    // --- UPDATE FEE SETTINGS ---
+    @PutMapping("/fee/{userId}")
+    public ResponseEntity<FeeSettingsResponse> updateFeeSettings(
+            @PathVariable("userId") String userId,
+            @RequestBody UpdateFeeRequest request
+    ) {
+        FeeSettingsResponse updated = service.updateFeeSettings(userId, request);
+        return ResponseEntity.ok(updated);
     }
 
 }

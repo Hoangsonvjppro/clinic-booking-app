@@ -3,6 +3,7 @@ package com.clinic.appointmentservice.service;
 import com.clinic.appointmentservice.client.DoctorServiceClient;
 import com.clinic.appointmentservice.client.NotificationServiceClient;
 import com.clinic.appointmentservice.client.PatientServiceClient;
+import com.clinic.appointmentservice.client.PlatformSettingsClient;
 import com.clinic.appointmentservice.client.dto.DoctorAvailability;
 import com.clinic.appointmentservice.client.dto.DoctorResponse;
 import com.clinic.appointmentservice.client.dto.PatientProfile;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.*;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +51,8 @@ class AppointmentServiceTest {
     private PatientServiceClient patientServiceClient;
     @Mock
     private DoctorServiceClient doctorServiceClient;
+    @Mock
+    private PlatformSettingsClient platformSettingsClient;
     @Mock
     private NotificationServiceClient notificationServiceClient;
     @Mock
@@ -75,6 +79,7 @@ class AppointmentServiceTest {
                 appointmentAuditRepository,
                 patientServiceClient,
                 doctorServiceClient,
+                platformSettingsClient,
                 notificationServiceClient,
                 medicalRecordRepository,
                 appointmentProperties,
@@ -94,7 +99,8 @@ class AppointmentServiceTest {
         when(patientServiceClient.getPatient(patientId)).thenReturn(new PatientProfile(patientId, "John", "Doe", true, "ACTIVE"));
         when(doctorServiceClient.verifyAvailability(doctorId, request.getAppointmentTime(), 30))
                 .thenReturn(new DoctorAvailability(doctorId, true, true));
-        when(doctorServiceClient.getDoctor(doctorId)).thenReturn(new DoctorResponse(doctorId, "Dr. Smith", "General Hospital", "123 Main St", "555-1234"));
+        when(doctorServiceClient.getDoctor(doctorId)).thenReturn(new DoctorResponse(doctorId, "Dr. Smith", "General Hospital", "123 Main St", "555-1234", BigDecimal.valueOf(500000)));
+        when(platformSettingsClient.calculateServiceFee(any())).thenReturn(BigDecimal.valueOf(50000));
 
         AppointmentStatus confirmedStatus = new AppointmentStatus(AppointmentStatusCode.CONFIRMED, "Confirmed");
         when(appointmentStatusService.getStatus(AppointmentStatusCode.CONFIRMED)).thenReturn(confirmedStatus);
@@ -126,7 +132,8 @@ class AppointmentServiceTest {
         when(patientServiceClient.getPatient(patientId)).thenReturn(new PatientProfile(patientId, "John", "Doe", true, "ACTIVE"));
         when(doctorServiceClient.verifyAvailability(doctorId, request.getAppointmentTime(), 30))
                 .thenReturn(new DoctorAvailability(doctorId, true, true));
-        when(doctorServiceClient.getDoctor(doctorId)).thenReturn(new DoctorResponse(doctorId, "Dr. Smith", "General Hospital", "123 Main St", "555-1234"));
+        when(doctorServiceClient.getDoctor(doctorId)).thenReturn(new DoctorResponse(doctorId, "Dr. Smith", "General Hospital", "123 Main St", "555-1234", BigDecimal.valueOf(500000)));
+        when(platformSettingsClient.calculateServiceFee(any())).thenReturn(BigDecimal.valueOf(50000));
 
         AppointmentStatus confirmedStatus = new AppointmentStatus(AppointmentStatusCode.CONFIRMED, "Confirmed");
         when(appointmentStatusService.getStatus(AppointmentStatusCode.CONFIRMED)).thenReturn(confirmedStatus);

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import java.util.UUID;
@@ -30,6 +31,11 @@ public class CreateAppointmentRequest {
 
     @Size(max = 500)
     private String notes;
+
+    // Fee fields - will be calculated server-side if not provided
+    private BigDecimal consultationFee;
+    private BigDecimal serviceFee;
+    private BigDecimal totalAmount;
 
     public UUID getPatientId() {
         return patientId;
@@ -93,5 +99,29 @@ public class CreateAppointmentRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public BigDecimal getConsultationFee() {
+        return consultationFee;
+    }
+
+    public void setConsultationFee(BigDecimal consultationFee) {
+        this.consultationFee = consultationFee;
+    }
+
+    public BigDecimal getServiceFee() {
+        return serviceFee;
+    }
+
+    public void setServiceFee(BigDecimal serviceFee) {
+        this.serviceFee = serviceFee;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }

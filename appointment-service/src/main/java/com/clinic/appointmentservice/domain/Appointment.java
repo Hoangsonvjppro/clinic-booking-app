@@ -2,6 +2,7 @@ package com.clinic.appointmentservice.domain;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -52,6 +53,15 @@ public class Appointment {
 
     @Column(name = "cancelled_reason")
     private String cancelledReason;
+
+    @Column(name = "consultation_fee", precision = 12, scale = 2)
+    private BigDecimal consultationFee;
+
+    @Column(name = "service_fee", precision = 12, scale = 2)
+    private BigDecimal serviceFee;
+
+    @Column(name = "total_amount", precision = 12, scale = 2)
+    private BigDecimal totalAmount;
 
     protected Appointment() {
         // for JPA
@@ -169,5 +179,29 @@ public class Appointment {
 
     public void setCancelledReason(String cancelledReason) {
         this.cancelledReason = cancelledReason;
+    }
+
+    public BigDecimal getConsultationFee() {
+        return consultationFee;
+    }
+
+    public void setConsultationFee(BigDecimal consultationFee) {
+        this.consultationFee = consultationFee;
+    }
+
+    public BigDecimal getServiceFee() {
+        return serviceFee;
+    }
+
+    public void setServiceFee(BigDecimal serviceFee) {
+        this.serviceFee = serviceFee;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }
